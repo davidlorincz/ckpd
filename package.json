@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "node scripts/content-lint.mjs && next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:content": "node scripts/content-lint.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
