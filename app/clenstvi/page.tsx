@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Faq } from "@/components/sections/Faq";
 import { MembershipForm } from "@/components/forms/MembershipForm";
-import { membershipTiers } from "@/lib/site";
+import { memberBenefits, membershipTiers } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Členství",
@@ -40,35 +40,69 @@ export default function MembershipPage() {
 
       <section className="border-b border-hairline">
         <Container className="py-14 sm:py-16">
-          <h2 className="text-[26px] sm:text-[34px]">Kategorie členství</h2>
+          <h2 className="text-[26px] sm:text-[34px]">Varianty a výhody</h2>
+          <p className="measure mt-4 text-[15.5px] leading-relaxed text-ink-2">
+            Dvě varianty, jinak jsme si všichni rovni: jeden člen znamená
+            jeden hlas, ať platíš Základní, nebo PRO. Výhody u partnerů
+            komory jsou jejich dobrovolným plněním vůči členům.
+          </p>
           <div className="mt-8 overflow-x-auto">
             <table className="w-full min-w-[560px] border-collapse text-left">
               <thead>
-                <tr className="border-b border-hairline text-[13.5px] uppercase tracking-wider text-ink-2">
-                  <th className="py-3 pr-4 font-medium">Kategorie</th>
-                  <th className="py-3 pr-4 font-medium">Roční příspěvek</th>
-                  <th className="py-3 pr-4 font-medium">Hlas</th>
-                  <th className="py-3 font-medium">Poznámka</th>
+                <tr className="border-b border-hairline align-bottom">
+                  <th className="w-1/2 py-3 pr-4 text-[13.5px] font-medium uppercase tracking-wider text-ink-2">
+                    Výhoda
+                  </th>
+                  {membershipTiers.map((t) => (
+                    <th key={t.key} className="py-3 pr-4">
+                      <span className="block font-serif text-[19px] font-semibold text-ink">
+                        {t.label}
+                      </span>
+                      <span className="tnum block text-[14px] font-normal text-deep">
+                        {t.fee}
+                      </span>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {membershipTiers.map((t) => (
-                  <tr key={t.key} className="border-b border-hairline">
-                    <td className="py-4 pr-4 font-medium text-ink">
-                      {t.label}
-                    </td>
-                    <td className="tnum py-4 pr-4 text-deep">{t.fee}</td>
-                    <td className="py-4 pr-4 text-ink-2">{t.vote}</td>
-                    <td className="py-4 text-[14.5px] text-ink-2">{t.note}</td>
-                  </tr>
-                ))}
+                {memberBenefits
+                  .filter((b) => !b.unconfirmed)
+                  .map((b) => (
+                    <tr key={b.label} className="border-b border-hairline">
+                      <td className="py-3.5 pr-4 text-[15px] text-ink">
+                        {b.label}
+                      </td>
+                      <td className="py-3.5 pr-4">
+                        {b.zakladni ? (
+                          <span className="font-medium text-brass">●</span>
+                        ) : (
+                          <span aria-label="není součástí" className="text-hairline">—</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 pr-4">
+                        {b.pro ? (
+                          <span className="font-medium text-brass">●</span>
+                        ) : (
+                          <span aria-label="není součástí" className="text-hairline">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-[14px] text-ink-2">
-            Výše příspěvků vyplývá ze stanov komory. Příspěvek je členským
-            příspěvkem spolku, ne platbou za služby.
-          </p>
+          <div className="mt-5 space-y-1.5 text-[14px] text-ink-2">
+            <p>
+              {membershipTiers
+                .map((t) => `${t.label}: ${t.feeNote}`)
+                .join(" · ")}
+              . Platí se převodem, výše příspěvků vyplývá ze stanov.
+            </p>
+            <p>
+              Čestné členství uděluje Rada osobnostem oboru — bez příspěvku.
+            </p>
+          </div>
         </Container>
       </section>
 

@@ -21,8 +21,9 @@ export function Hero() {
         </h1>
         <p className="measure mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2 sm:text-[19px]">
           Dobrovolný profesní spolek pilotů a provozovatelů bezpilotních
-          systémů. Sdružujeme jednotlivce i firmy, sbíráme data o reálném
-          provozu a jednáme za ně s úřady.
+          systémů. Propojujeme piloty, odborníky a stát, aby regulace držela
+          krok s technologií — a létat šlo bezpečně, legálně a co
+          nejdostupněji.
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
           <Cta href="/clenstvi">Stát se členem</Cta>

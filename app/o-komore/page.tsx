@@ -41,11 +41,14 @@ export default function AboutPage() {
               ve Zprávě o stavu DRONového provozu v ČR.
             </p>
             <p>
-              Vedle zastupování kultivujeme obor zevnitř. Vydáváme etický
-              kodex, doporučené provozní postupy a vzorové dokumenty, které
-              zvednou úroveň běžné praxe. Věříme, že důvěryhodný obor si
-              nakonec vyjedná lepší podmínky než obor, o kterém úřady nic
-              nevědí.
+              Chceme, aby regulace držela krok s technologií. Propojujeme
+              piloty, odborníky a stát a zvyšujeme odbornost i odpovědnost
+              pilotů — aby bezpilotní systémy mohly být provozovány bezpečně,
+              legálně a co nejdostupněji. Proto vedle zastupování kultivujeme
+              obor zevnitř: vydáváme etický kodex, doporučené provozní postupy
+              a vzorové dokumenty, které zvednou úroveň běžné praxe.
+              Důvěryhodný obor si nakonec vyjedná lepší podmínky než obor, o
+              kterém úřady nic nevědí.
             </p>
           </div>
         </Container>
@@ -66,9 +69,11 @@ export default function AboutPage() {
               žádnou výhodu u úřadů samo o sobě nezakládá.
             </p>
             <p>
-              Neprodáváme techniku, nedoporučujeme produkty ani prodejce a
-              neděláme reklamu členům. Komora není odbytový kanál — je to
-              místo, kde se obor domlouvá na společných zájmech a standardech.
+              Neprodáváme techniku a nejsme odbytový kanál žádného prodejce.
+              Výhody, které členům poskytují partneři komory, jsou jejich
+              dobrovolným plněním — komora z nich nemá provize a její
+              stanoviska si nikdo nekupuje. Komora je místo, kde se obor
+              domlouvá na společných zájmech a standardech.
             </p>
           </div>
         </Container>
@@ -111,10 +116,9 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Právě proto je komora postavena tak, aby na jedné firmě
-                  nestála: má vlastní orgány, vlastní hospodaření, přijímá i
-                  konkurenční firmy a nedoporučuje žádné produkty ani prodejce.
-                  Konflikt zájmů řešíme tím, že ho přiznáváme — a oddělujeme
-                  role.
+                  nestála: má vlastní orgány, vlastní hospodaření a přijímá i
+                  konkurenční firmy. Konflikt zájmů řešíme tím, že ho
+                  přiznáváme — a oddělujeme role.
                 </p>
               </div>
             </div>

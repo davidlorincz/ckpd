@@ -5,11 +5,11 @@ const faq = [
   },
   {
     q: "Co mi členství reálně přinese?",
-    a: "Hlas při jednání s úřady, přístup ke vzorovým provozním dokumentům a doporučeným postupům, data o oboru a síť pilotů a provozovatelů. A hlavně: čím větší členská báze, tím větší váhu mají připomínky komory k legislativě, která se týká i tvého létání.",
+    a: "Hlas při jednání s úřady, vzorové provozní dokumenty, prémiový obsah v Dronzóně a konkrétní výhody u partnerů komory — od slev na techniku a školení až po přístup k nabídkám komerčních zakázek ve variantě PRO. A hlavně: čím větší členská báze, tím větší váhu mají připomínky komory k legislativě, která se týká i tvého létání.",
   },
   {
     q: "Kdo se může stát členem?",
-    a: "Každý pilot bezpilotního systému — hobby i výdělečný — a každá firma, která bezpilotní systémy provozuje, vyrábí nebo s nimi pracuje. Přijímáme i školy, výcvikové organizace a e-shopy včetně konkurenčních. Komora, která si vybírá jen spřízněné členy, není komora.",
+    a: "Každý pilot bezpilotního systému — hobby i výdělečný — a každá firma, která bezpilotní systémy provozuje, vyrábí nebo s nimi pracuje. Přijímáme i školy, výcvikové organizace a e-shopy včetně konkurenčních. Obě varianty členství jsou otevřené všem a každý člen má stejný, jeden hlas.",
   },
   {
     q: "Jak probíhá přijetí?",
@@ -17,7 +17,7 @@ const faq = [
   },
   {
     q: "Kolik členství stojí a jak se platí?",
-    a: "Individuální pilot 900 Kč ročně, studenti a školy 0–300 Kč, firemní členství od 8 000 Kč podle velikosti. Platí se převodem na účet komory na základě pokynů, které přijdou e-mailem po přijetí. Výše příspěvků vyplývá ze stanov.",
+    a: "Základní členství stojí 500 Kč za kvartál, varianta PRO 500 Kč měsíčně. Platí se převodem na účet komory na základě pokynů, které přijdou e-mailem po přijetí. Výše příspěvků vyplývá ze stanov a obě varianty mají stejný hlas — liší se jen rozsahem výhod.",
   },
   {
     q: "Vydává komora průkazy nebo osvědčení pilota?",
@@ -29,7 +29,7 @@ const faq = [
   },
   {
     q: "Jaký je vztah komory k DRONPRO?",
-    a: "DRONPRO s.r.o. je zakládajícím členem a sponzorem komory a je to uvedeno v patičce webu i ve výroční zprávě. Komora má vlastní orgány, vlastní hospodaření a nedoporučuje produkty ani prodejce. Členy jsou a mají být i konkurenční firmy.",
+    a: "DRONPRO s.r.o. je zakládajícím členem a sponzorem komory a je to uvedeno v patičce webu i ve výroční zprávě. Komora má vlastní orgány a vlastní hospodaření. Členské výhody u partnerů (včetně DRONPRO) jsou dobrovolným plněním partnerů vůči členům — komora z nich nemá provize a její orgány rozhodují nezávisle. Členy jsou a mají být i konkurenční firmy.",
   },
   {
     q: "K čemu komora používá data o mém provozu?",

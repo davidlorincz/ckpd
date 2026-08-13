@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · Česká komora pilotů DRONů",
   },
   description:
-    "Dobrovolný profesní spolek pilotů a provozovatelů bezpilotních systémů. Sdružujeme jednotlivce i firmy, sbíráme data o reálném provozu a jednáme za ně s úřady.",
+    "Dobrovolný profesní spolek pilotů a provozovatelů bezpilotních systémů. Propojujeme piloty, odborníky a stát, aby regulace držela krok s technologií.",
   openGraph: {
     type: "website",
     locale: "cs_CZ",

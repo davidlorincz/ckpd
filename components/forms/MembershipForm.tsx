@@ -8,18 +8,14 @@ import { cn } from "@/lib/utils";
 import { operationFocus, org, regions } from "@/lib/site";
 
 const memberTypes = [
-  { value: "pilot", label: "Individuální pilot", fee: "900 Kč / rok" },
-  { value: "student", label: "Student / do 18 let / škola", fee: "0–300 Kč / rok" },
-  { value: "firma", label: "Firemní člen — provozovatel do 5 pilotů", fee: "8 000 Kč / rok" },
-  { value: "korporat", label: "Firemní člen — korporát / výrobce", fee: "25 000 Kč / rok" },
+  { value: "zakladni", label: "Základní", fee: "500 Kč / kvartál" },
+  { value: "pro", label: "PRO", fee: "500 Kč / měsíc" },
 ] as const;
-
-const firmTypes = ["firma", "korporat"];
 
 const schema = z
   .object({
-    memberType: z.enum(["pilot", "student", "firma", "korporat"], {
-      message: "Vyber typ členství.",
+    memberType: z.enum(["zakladni", "pro"], {
+      message: "Vyber variantu členství.",
     }),
     name: z.string().min(3, "Vyplň jméno, nebo název firmy."),
     ico: z.string().optional(),
@@ -40,15 +36,13 @@ const schema = z
     }),
   })
   .superRefine((data, ctx) => {
-    if (firmTypes.includes(data.memberType)) {
-      const ico = (data.ico ?? "").replace(/\s/g, "");
-      if (!/^\d{8}$/.test(ico)) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["ico"],
-          message: "U firemního členství vyplň osmimístné IČO.",
-        });
-      }
+    const ico = (data.ico ?? "").replace(/\s/g, "");
+    if (ico.length > 0 && !/^\d{8}$/.test(ico)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["ico"],
+        message: "IČO má osm číslic.",
+      });
     }
   });
 
@@ -73,15 +67,11 @@ export function MembershipForm() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { focus: [], publicListing: false },
   });
-
-  const memberType = watch("memberType");
-  const isFirm = firmTypes.includes(memberType ?? "");
 
   if (submitted) {
     return (
@@ -106,7 +96,9 @@ export function MembershipForm() {
   return (
     <form onSubmit={handleSubmit(() => setSubmitted(true))} noValidate>
       <fieldset>
-        <legend className={cn(labelCls, "text-[15px]")}>Typ členství</legend>
+        <legend className={cn(labelCls, "text-[15px]")}>
+          Varianta členství
+        </legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {memberTypes.map((t) => (
             <label
@@ -136,35 +128,33 @@ export function MembershipForm() {
       </fieldset>
 
       <div className="mt-7 grid gap-5 sm:grid-cols-2">
-        <div className={isFirm ? "" : "sm:col-span-2"}>
+        <div>
           <label htmlFor="mf-name" className={labelCls}>
-            {isFirm ? "Název firmy" : "Jméno a příjmení"}
+            Jméno a příjmení / název firmy
           </label>
           <input
             id="mf-name"
             type="text"
-            autoComplete={isFirm ? "organization" : "name"}
+            autoComplete="name"
             className={inputCls}
             {...register("name")}
           />
           <Err msg={errors.name?.message} />
         </div>
 
-        {isFirm && (
-          <div>
-            <label htmlFor="mf-ico" className={labelCls}>
-              IČO
-            </label>
-            <input
-              id="mf-ico"
-              type="text"
-              inputMode="numeric"
-              className={inputCls}
-              {...register("ico")}
-            />
-            <Err msg={errors.ico?.message} />
-          </div>
-        )}
+        <div>
+          <label htmlFor="mf-ico" className={labelCls}>
+            IČO <span className="font-normal text-ink-2">(nepovinné)</span>
+          </label>
+          <input
+            id="mf-ico"
+            type="text"
+            inputMode="numeric"
+            className={inputCls}
+            {...register("ico")}
+          />
+          <Err msg={errors.ico?.message} />
+        </div>
 
         <div>
           <label htmlFor="mf-email" className={labelCls}>

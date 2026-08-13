@@ -41,8 +41,8 @@ export function Transparency() {
             <p className="measure mt-4 text-[15.5px] leading-relaxed text-ink-2">
               Činnost komory je financována členskými příspěvky, dary a
               sponzoringem. Zakládajícím členem a sponzorem komory je DRONPRO
-              s.r.o.; komora nedoporučuje produkty ani prodejce a její orgány
-              rozhodují nezávisle.
+              s.r.o.; orgány komory rozhodují nezávisle a výhody, které
+              členům poskytují partneři, jsou jejich dobrovolným plněním.
             </p>
             <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
               Hospodaření shrnujeme ve výroční zprávě a účetní závěrku

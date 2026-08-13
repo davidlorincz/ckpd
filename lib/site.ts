@@ -25,7 +25,7 @@ export const legalLine =
   "Nejsme zřízeni zákonem. Členství v komoře je dobrovolné a není podmínkou provozu bezpilotního systému.";
 
 export const disclosureLine =
-  "Zakládajícím členem a sponzorem komory je DRONPRO s.r.o. Komora nedoporučuje produkty ani prodejce.";
+  "Zakládajícím členem a sponzorem komory je DRONPRO s.r.o. Členské výhody poskytované partnery komory jsou jejich dobrovolným plněním vůči členům; komora z nich nemá provize.";
 
 export const nav = [
   { href: "/o-komore", label: "O komoře" },
@@ -34,43 +34,94 @@ export const nav = [
   { href: "/kontakt", label: "Kontakt" },
 ] as const;
 
+/**
+ * Cenová politika: dvě varianty, jinak jsou si všichni členové rovni —
+ * jeden člen = jeden hlas bez ohledu na variantu. Čestné členství uděluje
+ * Rada osobnostem oboru (bez příspěvku).
+ */
 export const membershipTiers = [
   {
-    key: "pilot",
-    label: "Individuální pilot",
-    fee: "900 Kč / rok",
-    vote: "1 hlas",
-    note: "Hobby i výdělečný provoz.",
+    key: "zakladni",
+    label: "Základní",
+    fee: "500 Kč / kvartál",
+    feeNote: "2 000 Kč ročně, platí se po čtvrtletích",
+    claim: "Být u toho.",
   },
   {
-    key: "student",
-    label: "Student, do 18 let, škola",
-    fee: "0–300 Kč / rok",
-    vote: "poradní hlas",
-    note: "Výši potvrzuje Rada podle kategorie.",
-  },
-  {
-    key: "firma",
-    label: "Firemní člen — provozovatel do 5 pilotů",
-    fee: "8 000 Kč / rok",
-    vote: "1 hlas",
-    note: "Malé provozní firmy a živnostníci s týmem.",
-  },
-  {
-    key: "korporat",
-    label: "Firemní člen — korporát / výrobce",
-    fee: "25 000 Kč / rok",
-    vote: "1 hlas",
-    note: "Větší provozovatelé, výrobci, integrátoři.",
-  },
-  {
-    key: "cestny",
-    label: "Čestný člen",
-    fee: "bez příspěvku",
-    vote: "poradní hlas",
-    note: "Na pozvání Rady — osobnosti oboru a akademici.",
+    key: "pro",
+    label: "PRO",
+    fee: "500 Kč / měsíc",
+    feeNote: "6 000 Kč ročně, platí se měsíčně",
+    claim: "Pro ty, kdo dronem vydělávají.",
   },
 ] as const;
+
+/**
+ * Členské výhody. Výhody u partnerů (DRONPRO) jsou dobrovolným plněním
+ * partnera vůči členům komory. Položky označené `unconfirmed` jsou návrh
+ * k potvrzení — před spuštěním webu potvrdit, nebo smazat (nikdy neslibovat
+ * nic, co neplatí).
+ */
+export const memberBenefits: {
+  label: string;
+  zakladni: boolean;
+  pro: boolean;
+  unconfirmed?: boolean;
+}[] = [
+  { label: "Hlas v komoře — jeden člen, jeden hlas", zakladni: true, pro: true },
+  {
+    label: "Vzorové provozní dokumenty a doporučené postupy (SORA/OSO)",
+    zakladni: true,
+    pro: true,
+  },
+  { label: "Prémiový obsah v Dronzóně", zakladni: true, pro: true },
+  {
+    label: "Bezplatné webináře a workshopy k novým produktům",
+    zakladni: true,
+    pro: true,
+  },
+  { label: "5% sleva na consumer techniku", zakladni: true, pro: true },
+  {
+    label: "Přístup k pravidelným nabídkám komerčních zakázek (marketplace)",
+    zakladni: false,
+    pro: true,
+  },
+  { label: "10% sleva na enterprise techniku", zakladni: false, pro: true },
+  { label: "Až 75% sleva na vybraná školení", zakladni: false, pro: true },
+  {
+    label: "Dodatečná 25% sleva na zápůjčku techniky",
+    zakladni: false,
+    pro: true,
+  },
+  {
+    label: "Výhodnější výkup dronů — o 3–5 % lepší výkupní cena",
+    zakladni: false,
+    pro: true,
+  },
+  {
+    label: "Bezplatná účast na odborných konferencích",
+    zakladni: false,
+    pro: true,
+  },
+  {
+    label: "Přednostní servisní termíny",
+    zakladni: false,
+    pro: true,
+    unconfirmed: true,
+  },
+  {
+    label: "Pozvánky na testovací dny nové techniky",
+    zakladni: false,
+    pro: true,
+    unconfirmed: true,
+  },
+  {
+    label: "Zpráva o stavu DRONového provozu v předstihu před publikací",
+    zakladni: false,
+    pro: true,
+    unconfirmed: true,
+  },
+];
 
 export const regions = [
   "Hlavní město Praha",
