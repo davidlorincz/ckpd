@@ -27,9 +27,9 @@ const sections = [
   {
     title: "3. Poctivost v podnikání",
     items: [
-      "Člen nenabízí služby, pro které nemá odpovídající vybavení, zkušenost ani splněné zákonné podmínky.",
-      "Vůči klientům jedná transparentně: neslibuje, co provoz neumožňuje, a nezamlčuje omezení.",
-      "Nekonkuruje pomluvou ostatních pilotů a firem.",
+      "Člen nabízí jen služby, na které má odpovídající vybavení, zkušenost a splněné zákonné podmínky.",
+      "Vůči klientům jedná transparentně: slibuje jen to, co provoz umožňuje, a omezení říká předem.",
+      "Konkuruje kvalitou práce a férovým jednáním.",
     ],
   },
   {
@@ -54,7 +54,7 @@ export default function CodeOfConductPage() {
     <>
       <PageHeader
         title="Etický kodex"
-        lead="Zásady, ke kterým se hlásí každý člen komory. Kodex není vymáhán úřadem — je vymáhán tím, že na něm stojí důvěra v obor."
+        lead="Zásady, ke kterým se hlásí každý člen komory. Kodex drží to nejcennější, co obor má: důvěru veřejnosti, klientů i úřadů."
       />
       <section>
         <Container className="py-12 sm:py-16">

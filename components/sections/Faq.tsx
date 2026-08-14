@@ -1,7 +1,7 @@
 const faq = [
   {
     q: "Musím být členem komory, abych mohl létat?",
-    a: "Ne. Komora není zřízena zákonem a členství v ní není podmínkou provozu bezpilotního systému. Pravidla provozu a evidenci provozovatelů má na starosti Úřad pro civilní letectví (ÚCL). Komora je dobrovolný profesní spolek — sdružuje ty, kdo chtějí, aby obor měl společný hlas.",
+    a: "Létat můžeš i bez členství — podmínky provozu a evidenci provozovatelů má na starosti Úřad pro civilní letectví (ÚCL). Komora je dobrovolný profesní spolek: sdružuje ty, kdo chtějí, aby obor měl společný hlas, lepší standardy a konkrétní výhody.",
   },
   {
     q: "Co mi členství reálně přinese?",
@@ -13,7 +13,7 @@ const faq = [
   },
   {
     q: "Jak probíhá přijetí?",
-    a: "Odešleš přihlášku, o přijetí rozhodne Rada komory na nejbližším zasedání, poté přijde e-mail s pokyny k platbě příspěvku a po jeho připsání je členství aktivní. Členství vzniká rozhodnutím orgánu spolku, ne nákupem — proto to není okamžité.",
+    a: "Odešleš přihlášku, o přijetí rozhodne Rada komory na nejbližším zasedání, poté přijde e-mail s pokyny k platbě příspěvku a po jeho připsání je členství aktivní. Členství vzniká rozhodnutím Rady — právě díky tomu má členská základna u úřadů reálnou váhu.",
   },
   {
     q: "Kolik členství stojí a jak se platí?",
@@ -21,11 +21,11 @@ const faq = [
   },
   {
     q: "Vydává komora průkazy nebo osvědčení pilota?",
-    a: "Ne. Nevydáváme průkazy způsobilosti, osvědčení ani nic, co by nahrazovalo doklady od ÚCL, a nezkoušíme piloty. Členům vystavujeme pouze potvrzení o členství v komoře. Cokoli, co souvisí s podmínkami provozu, řeší výhradně ÚCL.",
+    a: "Doklady pilota a vše, co souvisí s podmínkami provozu, vydává výhradně ÚCL — role jsou jasně rozdělené. Od komory dostaneš potvrzení o členství, vzorové dokumenty, standardy a podporu v tom, co úřad neřeší: praxi, data a společný hlas oboru.",
   },
   {
     q: "Zveřejňujete seznam členů?",
-    a: "Ne. Seznam členů se nezveřejňuje; člen může se zveřejněním svého jména vyslovit souhlas v přihlášce (výchozí stav je nesouhlas). Veřejně uvádíme jen souhrnné počty členů.",
+    a: "Tvoje soukromí je chráněné: jméno zveřejníme jedině s tvým výslovným souhlasem, který můžeš (ale nemusíš) udělit v přihlášce. Veřejně uvádíme souhrnné počty členů.",
   },
   {
     q: "Jaký je vztah komory k DRONPRO?",
@@ -33,7 +33,7 @@ const faq = [
   },
   {
     q: "K čemu komora používá data o mém provozu?",
-    a: "Údaje o nalétaných hodinách a zaměření provozu zpracováváme výhradně souhrnně a anonymizovaně — jako podklad pro Zprávu o stavu DRONového provozu v ČR a pro jednání s úřady. Individuální data nikomu nepředáváme.",
+    a: "Údaje o nalétaných hodinách a zaměření provozu zpracováváme výhradně souhrnně a anonymizovaně — jako podklad pro Zprávu o stavu DRONového provozu v ČR a pro jednání s úřady. Individuální data zůstávají jen u komory.",
   },
   {
     q: "Můžu se zapojit víc než jen příspěvkem?",

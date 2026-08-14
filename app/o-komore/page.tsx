@@ -27,18 +27,17 @@ export default function AboutPage() {
             <p>
               V České republice létají tisíce pilotů DRONů — od hobby letců po
               profesionální provozovatele v energetice, geodézii, zemědělství
-              nebo u záchranných složek. Legislativa, která jejich provoz
-              určuje, ale vzniká převážně bez nich. Jednotlivec, který chce
-              připomínkovat vyhlášku nebo evropské nařízení, nemá reálnou šanci
-              být slyšet. Komora vznikla proto, aby tento hlas existoval.
+              nebo u záchranných složek. Komora vznikla, aby tenhle rostoucí
+              obor měl společný hlas: aby u tvorby pravidel, která jeho provoz
+              určují, seděl ten, kdo skutečně létá. Společný hlas prosadí to,
+              na co je jednotlivec sám krátký.
             </p>
             <p>
               Sdružujeme jednotlivé piloty i firmy a jednáme za ně s Úřadem pro
               civilní letectví, Ministerstvem dopravy ČR a dalšími institucemi.
-              Nejsme spolek nadšenců ani zájmová skupina jedné firmy — jsme
-              profesní organizace, která staví na datech: sbíráme informace o
-              reálném provozu, incidentech a potřebách oboru a publikujeme je
-              ve Zprávě o stavu DRONového provozu v ČR.
+              Jsme profesní organizace, která staví na datech: sbíráme
+              informace o reálném provozu, incidentech a potřebách oboru a
+              publikujeme je ve Zprávě o stavu DRONového provozu v ČR.
             </p>
             <p>
               Chceme, aby regulace držela krok s technologií. Propojujeme
@@ -47,8 +46,7 @@ export default function AboutPage() {
               legálně a co nejdostupněji. Proto vedle zastupování kultivujeme
               obor zevnitř: vydáváme etický kodex, doporučené provozní postupy
               a vzorové dokumenty, které zvednou úroveň běžné praxe.
-              Důvěryhodný obor si nakonec vyjedná lepší podmínky než obor, o
-              kterém úřady nic nevědí.
+              Důvěryhodný obor, který úřady znají, si vyjedná lepší podmínky.
             </p>
           </div>
         </Container>
@@ -56,24 +54,64 @@ export default function AboutPage() {
 
       <section className="border-b border-hairline bg-paper-2">
         <Container className="py-14 sm:py-16">
-          <h2 className="text-[26px] sm:text-[34px]">Čemu se nevěnujeme</h2>
-          <div className="measure mt-6 space-y-4 text-[16.5px] leading-relaxed text-ink-2">
+          <h2 className="text-[26px] sm:text-[34px]">
+            Jak se dělíme o role s úřadem
+          </h2>
+          <p className="measure mt-6 text-[16.5px] leading-relaxed text-ink-2">
+            Bezpilotní letectví stojí na dvou pilířích, které se doplňují.
+            Stát určuje pravidla — obor je naplňuje životem. Každý dělá to,
+            co umí nejlíp:
+          </p>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div className="border border-hairline bg-paper p-6 sm:p-7">
+              <h3 className="text-[19px]">Úřad pro civilní letectví</h3>
+              <ul className="mt-4 space-y-2.5 text-[15.5px] leading-relaxed text-ink-2">
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-hairline" />
+                  určuje podmínky provozu bezpilotních systémů
+                </li>
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-hairline" />
+                  vydává doklady pilotů a vede úřední evidenci provozovatelů
+                </li>
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-hairline" />
+                  vykonává dozor nad provozem
+                </li>
+              </ul>
+            </div>
+            <div className="border border-hairline bg-paper p-6 sm:p-7">
+              <h3 className="text-[19px]">Komora</h3>
+              <ul className="mt-4 space-y-2.5 text-[15.5px] leading-relaxed text-ink-2">
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-brass" />
+                  dává oboru hlas při tvorbě a připomínkování pravidel
+                </li>
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-brass" />
+                  rozvíjí standardy, dobrou praxi a vzorové dokumenty
+                </li>
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-brass" />
+                  sbírá data o reálném provozu a zpřístupňuje je
+                </li>
+                <li className="flex gap-3">
+                  <span aria-hidden className="mt-[11px] h-px w-4 shrink-0 bg-brass" />
+                  propojuje piloty, firmy a odborníky a přináší členům výhody
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="measure mt-8 space-y-4 text-[16.5px] leading-relaxed text-ink-2">
             <p>
-              Nejsme úřad a nechceme ho suplovat.{" "}
-              <strong className="text-ink">
-                Nevydáváme průkazy způsobilosti ani osvědčení, nezkoušíme
-                piloty a nevedeme žádnou úřední evidenci provozovatelů.
-              </strong>{" "}
-              To vše je role Úřadu pro civilní letectví a členství v komoře na
-              tom nic nemění — není podmínkou provozu bezpilotního systému a
-              žádnou výhodu u úřadů samo o sobě nezakládá.
+              Členství v komoře je dobrovolné — létat můžeš i bez něj. S námi
+              ale má tvůj hlas váhu a obor partnera, který za něj jedná.
             </p>
             <p>
-              Neprodáváme techniku a nejsme odbytový kanál žádného prodejce.
-              Výhody, které členům poskytují partneři komory, jsou jejich
-              dobrovolným plněním — komora z nich nemá provize a její
-              stanoviska si nikdo nekupuje. Komora je místo, kde se obor
-              domlouvá na společných zájmech a standardech.
+              Komora je místo, kde se obor domlouvá na společných zájmech a
+              standardech. Výhody, které členům poskytují partneři komory,
+              jsou jejich dobrovolným plněním — stanoviska komory vznikají
+              nezávisle a bez provizí.
             </p>
           </div>
         </Container>
@@ -111,8 +149,8 @@ export default function AboutPage() {
                 <p>
                   Komora byla zapsána 8. května 2026 u Městského soudu v Praze.
                   Zakládajícím členem a sponzorem je DRONPRO s.r.o. — firma,
-                  která při práci s tisíci pilotů narážela na to, že obor nemá
-                  u úřadů žádné zastoupení.
+                  která při práci s tisíci pilotů viděla, jak moc oboru pomůže
+                  zastoupení u úřadů, a rozhodla se ho pomoct založit.
                 </p>
                 <p>
                   Právě proto je komora postavena tak, aby na jedné firmě

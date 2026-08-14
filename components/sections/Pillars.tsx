@@ -10,7 +10,7 @@ const pillars = [
   {
     icon: IconInstitution,
     title: "Zastupujeme",
-    text: "Připomínkujeme legislativu a jednáme s ÚCL a Ministerstvem dopravy ČR. Hájíme zájmy pilotů a provozovatelů tam, kde jednotlivec slyšet není.",
+    text: "Připomínkujeme legislativu a jednáme s ÚCL a Ministerstvem dopravy ČR. Dáváme pilotům a provozovatelům hlas, který má u úřadů váhu.",
   },
   {
     icon: IconStandard,

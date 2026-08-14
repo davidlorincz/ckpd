@@ -124,8 +124,8 @@ export default function ContactPage() {
                   bezpilotních systémů, zapsán 8. 5. 2026.
                 </li>
                 <li>
-                  Sdružuje jednotlivé piloty i firmy; členství není podmínkou
-                  provozu.
+                  Sdružuje jednotlivé piloty i firmy; členství je dobrovolné a
+                  otevřené všem.
                 </li>
                 <li>
                   Připravuje Zprávu o stavu DRONového provozu v ČR — první

@@ -35,7 +35,7 @@ export default function MembershipPage() {
     <>
       <PageHeader
         title="Členství"
-        lead="Komora je tak silná, jak silná je její členská báze. Členství je dobrovolné, otevřené jednotlivcům i firmám — a k ničemu tě nezavazuje kromě toho, že obor bude mít společný hlas."
+        lead="Komora je tak silná, jak silná je její členská báze. Členství je dobrovolné a otevřené jednotlivcům i firmám — čím víc nás je, tím silnější hlas obor má."
       />
 
       <section className="border-b border-hairline">
@@ -138,8 +138,8 @@ export default function MembershipPage() {
         <Container className="py-14 sm:py-16">
           <h2 className="text-[26px] sm:text-[34px]">Přihláška</h2>
           <p className="measure mt-4 text-[15.5px] leading-relaxed text-ink-2">
-            Přihláška je nezávazná do rozhodnutí Rady a nevzniká z ní povinnost
-            platby. Údaje slouží jen pro vyřízení přihlášky a evidenci členů.
+            O přijetí rozhoduje Rada komory a příspěvek platíš až po přijetí.
+            Údaje slouží jen pro vyřízení přihlášky a evidenci členů.
           </p>
           <div className="mt-10 max-w-3xl">
             <MembershipForm />

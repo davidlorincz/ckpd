@@ -7,7 +7,7 @@ export function CtaBlock() {
     <section className="bg-deep">
       <Container className="py-16 text-center sm:py-20">
         <p className="mx-auto max-w-2xl font-serif text-[26px] font-medium leading-snug text-paper sm:text-[34px]">
-          Čím víc nás je, tím víc to platí.
+          Létáme každý sám. Jednáme společně.
         </p>
         <div className="mt-8">
           <Cta href="/clenstvi" variant="onDark">
