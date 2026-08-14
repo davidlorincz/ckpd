@@ -87,7 +87,7 @@ export const memberBenefits: {
     pro: true,
   },
   { label: "10% sleva na enterprise techniku", zakladni: false, pro: true },
-  { label: "Až 75% sleva na vybraná školení", zakladni: false, pro: true },
+  { label: "Až 75% sleva na vybraná školení", zakladni: true, pro: true },
   {
     label: "Dodatečná 25% sleva na zápůjčku techniky",
     zakladni: false,
