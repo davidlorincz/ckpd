@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { DocumentLink } from "@/components/ui/DocumentLink";
+import { SHOW_MEMBERS } from "@/lib/flags";
 import { org } from "@/lib/site";
 
 /**
@@ -21,6 +22,9 @@ const docs: {
     label: "Výpis ze spolkového rejstříku",
     external: true,
   },
+  ...(SHOW_MEMBERS
+    ? [{ href: "/clenove", label: "Veřejný seznam členů" }]
+    : []),
 ];
 
 export function Transparency() {

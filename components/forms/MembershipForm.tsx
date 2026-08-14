@@ -272,8 +272,10 @@ export function MembershipForm() {
             className="translate-y-[1px] accent-[#10393f]"
           />
           <span>
-            Souhlasím se zveřejněním svého jména v seznamu členů.{" "}
-            <span className="text-ink-2/70">(nepovinné)</span>
+            Souhlasím s uvedením svého jména ve veřejném seznamu členů.{" "}
+            <span className="text-ink-2/70">
+              (nepovinné, ale doporučené — každé jméno přidává komoře váhu)
+            </span>
           </span>
         </label>
 

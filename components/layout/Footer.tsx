@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { SHOW_MEMBERS } from "@/lib/flags";
 import { disclosureLine, legalLine, nav, org } from "@/lib/site";
 
 const legalLinks = [
@@ -61,6 +62,16 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              {SHOW_MEMBERS && (
+                <li>
+                  <Link
+                    href="/clenove"
+                    className="text-paper/85 underline-offset-4 hover:text-paper hover:underline"
+                  >
+                    Seznam členů
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 

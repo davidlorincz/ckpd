@@ -9,6 +9,13 @@
 export const SHOW_STATS = false;
 export const SHOW_BODIES = false;
 
+/**
+ * SHOW_MEMBERS — veřejný seznam členů na /clenove. Zapnout, až budou první
+ * přijatí členové se souhlasem se zveřejněním (lib/members.ts). Zveřejnit
+ * lze výhradně jména členů, kteří dali souhlas (§ 236 obč. zák., GDPR).
+ */
+export const SHOW_MEMBERS = false;
+
 /** Reálná čísla doplnit před zapnutím SHOW_STATS. */
 export const stats = [
   { value: 0, label: "členů celkem" },

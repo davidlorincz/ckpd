@@ -24,6 +24,7 @@ pnpm lint:content # kontrola zakázané slovní zásoby (PRD § 8)
 |---|---|---|
 | `SHOW_STATS` | vypnuto | až budou reálná čísla (nikdy smyšlená) |
 | `SHOW_BODIES` | vypnuto | až budou obsazené orgány (Rada + Revizní komise) — **bez toho web nespouštět** (PRD § 4.7) |
+| `SHOW_MEMBERS` | vypnuto | až budou první členové se souhlasem se zveřejněním — jména do `lib/members.ts`; zveřejňovat jen se souhlasem (§ 236 obč. zák.) |
 
 ## Obsahová pravidla
 

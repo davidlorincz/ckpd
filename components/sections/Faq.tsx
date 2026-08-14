@@ -25,7 +25,7 @@ const faq = [
   },
   {
     q: "Zveřejňujete seznam členů?",
-    a: "Tvoje soukromí je chráněné: jméno zveřejníme jedině s tvým výslovným souhlasem, který můžeš (ale nemusíš) udělit v přihlášce. Veřejně uvádíme souhrnné počty členů.",
+    a: "Ano — komora vede veřejný seznam členů, protože viditelná členská základna je největší důkaz síly oboru. Tvoje jméno v něm uvedeme s tvým souhlasem, který můžeš udělit v přihlášce a kdykoli později udělit i odvolat. Doporučujeme ho dát: každé jméno v seznamu přidává váhu hlasu, kterým komora jedná.",
   },
   {
     q: "Jaký je vztah komory k DRONPRO?",

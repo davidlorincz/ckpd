@@ -60,12 +60,13 @@ export default function PrivacyPage() {
             </div>
 
             <div>
-              <h2 className="text-[22px] text-ink">Zveřejnění v seznamu členů</h2>
+              <h2 className="text-[22px] text-ink">Veřejný seznam členů</h2>
               <p className="mt-3">
-                Seznam členů se nezveřejňuje. Jméno člena zveřejníme pouze na
-                základě jeho výslovného souhlasu uděleného v přihlášce nebo
-                později; souhlas je dobrovolný, výchozí stav je neudělen a lze
-                ho kdykoli odvolat.
+                Komora vede veřejný seznam členů na svém webu. Jméno člena v
+                něm uvedeme pouze na základě jeho výslovného souhlasu
+                uděleného v přihlášce nebo později; souhlas je dobrovolný,
+                výchozí stav je neudělen a lze ho kdykoli odvolat e-mailem —
+                jméno poté ze seznamu bez zbytečného odkladu odstraníme.
               </p>
             </div>
 
