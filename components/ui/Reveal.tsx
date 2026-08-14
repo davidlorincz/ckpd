@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * Vstupní animace sekce: fade + 4 px posun, 200 ms ease-out (PRD § 6.6).
- * `prefers-reduced-motion` řeší CSS — třída .reveal se bez preference
- * neaplikuje, obsah je viditelný okamžitě.
+ * `prefers-reduced-motion` řeší CSS. Animace nikdy nesmí obsah schovat:
+ * prvky ve viewportu se odkryjí hned, ostatní přes IntersectionObserver,
+ * a pojistný časovač odkryje vše i tam, kde observer nefunguje.
  */
 export function Reveal({
   className,
@@ -20,17 +21,34 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const show = () => el.classList.add("is-visible");
+
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      show();
+      return;
+    }
+
+    // pojistka: observer po observe() vždy pošle iniciální callback;
+    // když nepřijde, je rozbitý a obsah se odkryje bez animace
+    const failsafe = window.setTimeout(show, 1500);
+
     const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("is-visible");
+      (entries) => {
+        window.clearTimeout(failsafe);
+        if (entries.some((e) => e.isIntersecting)) {
+          show();
           io.disconnect();
         }
       },
       { rootMargin: "0px 0px -10% 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+
+    return () => {
+      io.disconnect();
+      window.clearTimeout(failsafe);
+    };
   }, []);
 
   return (
