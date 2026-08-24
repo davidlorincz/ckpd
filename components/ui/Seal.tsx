@@ -10,12 +10,12 @@ type SealProps = {
 
 /**
  * Kruhová pečeť ČKPD: tenký dvojitý kruh, text po obvodu, uprostřed
- * čtyřrotorový znak. Musí být inline SVG, aby text převzal Source Serif 4
+ * čtyřrotorový znak. Musí být inline SVG, aby text převzal Rapid Variable
  * z page CSS. Verze bez obvodového textu (favicon, malé rozměry) = samotný
  * znak v public/brand/znak.svg.
  */
 export function Seal({ className, variant = "deep", decorative }: SealProps) {
-  const color = variant === "deep" ? "#10393f" : "#faf8f4";
+  const color = variant === "deep" ? "#2626ff" : "#ffffff";
   const symbol =
     variant === "deep" ? "/brand/znak.svg" : "/brand/znak-inverse.svg";
 
@@ -40,7 +40,7 @@ export function Seal({ className, variant = "deep", decorative }: SealProps) {
         fill={color}
         fontSize="31"
         letterSpacing="4"
-        fontWeight="550"
+        fontWeight="500"
         className="font-serif"
       >
         <textPath href="#seal-arc-top" startOffset="50%" textAnchor="middle">
@@ -51,7 +51,7 @@ export function Seal({ className, variant = "deep", decorative }: SealProps) {
         fill={color}
         fontSize="29"
         letterSpacing="8"
-        fontWeight="550"
+        fontWeight="500"
         className="font-serif"
       >
         <textPath href="#seal-arc-bottom" startOffset="50%" textAnchor="middle">

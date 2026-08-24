@@ -4,8 +4,8 @@ export function PageHeader({
   title,
   lead,
 }: {
-  title: string;
-  lead?: string;
+  title: React.ReactNode;
+  lead?: React.ReactNode;
 }) {
   return (
     <div className="paper-grid border-b border-hairline">

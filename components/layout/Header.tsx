@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { nav } from "@/lib/site";
+import { useEditMode } from "@/contexts/EditModeContext";
 
 /**
  * Sticky hlavička: značka + název ve dvou řádcích vlevo, navigace vpravo,
@@ -16,6 +17,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { isEditMode, signOut } = useEditMode();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -76,6 +78,22 @@ export function Header() {
           >
             Přihláška
           </Link>
+          {isEditMode && (
+            <span className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 rounded-[2px] bg-green-600 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                Edit
+              </span>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="text-[13px] text-ink-2 underline-offset-4 hover:underline"
+                title="Odhlásit se z editace"
+              >
+                Odhlásit
+              </button>
+            </span>
+          )}
         </nav>
 
         <button

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { CtaBlock } from "@/components/sections/CtaBlock";
 import { SHOW_MEMBERS } from "@/lib/flags";
 import { members } from "@/lib/members";
+import { E } from "@/components/editor/EditableText";
 
 export const metadata: Metadata = {
   title: "Seznam členů",
@@ -24,8 +25,14 @@ export default function MembersPage() {
   return (
     <>
       <PageHeader
-        title="Seznam členů"
-        lead="Komora je tak důvěryhodná, jak viditelní jsou její členové. Tady jsou piloti a firmy, které dávají oboru společný hlas — uvedení se souhlasem každého člena."
+        title={<E k="clenove.header.title">Seznam členů</E>}
+        lead={
+          <E k="clenove.header.lead">
+            Komora je tak důvěryhodná, jak viditelní jsou její členové. Tady
+            jsou piloti a firmy, které dávají oboru společný hlas — uvedení se
+            souhlasem každého člena.
+          </E>
+        }
       />
       <section className="border-b border-hairline">
         <Container className="py-12 sm:py-16">
@@ -33,10 +40,18 @@ export default function MembersPage() {
             <table className="w-full min-w-[560px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-hairline text-[13.5px] uppercase tracking-wider text-ink-2">
-                  <th className="py-3 pr-4 font-medium">Člen</th>
-                  <th className="py-3 pr-4 font-medium">Členství</th>
-                  <th className="py-3 pr-4 font-medium">Kraj</th>
-                  <th className="py-3 font-medium">Zaměření</th>
+                  <th className="py-3 pr-4 font-medium">
+                    <E k="clenove.table.thClen">Člen</E>
+                  </th>
+                  <th className="py-3 pr-4 font-medium">
+                    <E k="clenove.table.thClenstvi">Členství</E>
+                  </th>
+                  <th className="py-3 pr-4 font-medium">
+                    <E k="clenove.table.thKraj">Kraj</E>
+                  </th>
+                  <th className="py-3 font-medium">
+                    <E k="clenove.table.thZamereni">Zaměření</E>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -46,7 +61,7 @@ export default function MembersPage() {
                       {m.name}
                     </td>
                     <td className="py-3.5 pr-4 text-ink-2">
-                      {tierLabel[m.tier]}
+                      <E k={`clenove.tier.${m.tier}`}>{tierLabel[m.tier]}</E>
                     </td>
                     <td className="py-3.5 pr-4 text-ink-2">
                       {m.region ?? "—"}
@@ -60,8 +75,10 @@ export default function MembersPage() {
             </table>
           </div>
           <p className="mt-5 text-[14px] text-ink-2">
-            Seznam obsahuje členy, kteří udělili souhlas se zveřejněním.
-            Souhlas lze kdykoli udělit i odvolat e-mailem.
+            <E k="clenove.note">
+              Seznam obsahuje členy, kteří udělili souhlas se zveřejněním.
+              Souhlas lze kdykoli udělit i odvolat e-mailem.
+            </E>
           </p>
         </Container>
       </section>

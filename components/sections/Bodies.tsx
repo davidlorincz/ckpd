@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SHOW_BODIES } from "@/lib/flags";
+import { E } from "@/components/editor/EditableText";
 
 export type Person = {
   name: string;
@@ -44,9 +45,13 @@ export function Bodies({ detailed = false }: { detailed?: boolean }) {
   return (
     <section className="border-b border-hairline">
       <Container className="py-16 sm:py-20">
-        <h2 className="text-[26px] sm:text-[34px]">Orgány komory</h2>
+        <h2 className="text-[26px] sm:text-[34px]">
+          <E k="home.bodies.title">Orgány komory</E>
+        </h2>
 
-        <h3 className="mt-10 text-[19px] text-ink-2">Rada komory</h3>
+        <h3 className="mt-10 text-[19px] text-ink-2">
+          <E k="home.bodies.radaTitle">Rada komory</E>
+        </h3>
         <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
           {rada.map((p) => (
             <PersonCard key={p.name} person={p} />
@@ -55,7 +60,9 @@ export function Bodies({ detailed = false }: { detailed?: boolean }) {
 
         {revizniKomise.length > 0 && (
           <>
-            <h3 className="mt-12 text-[19px] text-ink-2">Revizní komise</h3>
+            <h3 className="mt-12 text-[19px] text-ink-2">
+              <E k="home.bodies.revizniTitle">Revizní komise</E>
+            </h3>
             <div className="mt-5 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
               {revizniKomise.map((p) => (
                 <PersonCard key={p.name} person={p} />
@@ -66,9 +73,11 @@ export function Bodies({ detailed = false }: { detailed?: boolean }) {
 
         {detailed && (
           <p className="measure mt-10 text-[15.5px] leading-relaxed text-ink-2">
-            Rada komory je statutárním orgánem spolku, Revizní komise nezávislým
-            kontrolním orgánem. Složení obou orgánů je zapsáno ve spolkovém
-            rejstříku.
+            <E k="home.bodies.detail">
+              Rada komory je statutárním orgánem spolku, Revizní komise
+              nezávislým kontrolním orgánem. Složení obou orgánů je zapsáno ve
+              spolkovém rejstříku.
+            </E>
           </p>
         )}
       </Container>

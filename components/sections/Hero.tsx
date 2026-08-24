@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { Cta } from "@/components/ui/Cta";
 import { Seal } from "@/components/ui/Seal";
+import { E } from "@/components/editor/EditableText";
 
 /**
  * Typografický hero na papírovém podkladu s jemným rastrem a vodoznakem
@@ -17,18 +18,26 @@ export function Hero() {
       </div>
       <Container className="relative py-20 sm:py-28">
         <h1 className="max-w-3xl text-[34px] leading-[1.05] sm:text-[56px]">
-          Zastupujeme piloty DRONů v&nbsp;České republice.
+          <E k="home.hero.title">Zastupujeme piloty DRONů v České republice.</E>
         </h1>
         <p className="measure mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2 sm:text-[19px]">
-          Dobrovolný profesní spolek pilotů a provozovatelů bezpilotních
-          systémů. Propojujeme piloty, odborníky a stát, aby regulace držela
-          krok s technologií — a létat šlo bezpečně, legálně a co
-          nejdostupněji.
+          <E k="home.hero.lead">
+            Dobrovolný profesní spolek pilotů a provozovatelů bezpilotních
+            systémů. Propojujeme piloty, odborníky a stát, aby regulace držela
+            krok s technologií — a létat šlo bezpečně, legálně a co
+            nejdostupněji.
+          </E>
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
-          <Cta href="/clenstvi">Stát se členem</Cta>
+          <Cta href="/clenstvi">
+            <E k="home.hero.ctaPrimary" editable={false}>
+              Stát se členem
+            </E>
+          </Cta>
           <Cta href="/kontakt" variant="secondary">
-            Pro úřady a média
+            <E k="home.hero.ctaSecondary" editable={false}>
+              Pro úřady a média
+            </E>
           </Cta>
         </div>
       </Container>

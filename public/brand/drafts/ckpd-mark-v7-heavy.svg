@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="700" height="300">
+<g transform="translate(20,0)">
+  <line x1="268" y1="29" x2="268" y2="271" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="255" y1="42" x2="306" y2="42" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="306" y1="29" x2="306" y2="56" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="255" y1="258" x2="306" y2="258" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="306" y1="271" x2="306" y2="244" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="392" y1="29" x2="392" y2="271" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="405" y1="42" x2="354" y2="42" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="354" y1="29" x2="354" y2="56" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="405" y1="258" x2="354" y2="258" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <line x1="354" y1="271" x2="354" y2="244" stroke="#2626FF" stroke-width="26" stroke-linecap="butt"/>
+  <circle cx="330" cy="150" r="24" fill="#2626FF"/>
+  <line x1="182" y1="78" x2="182" y2="222" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <line x1="182" y1="150" x2="62" y2="52" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <line x1="182" y1="150" x2="62" y2="248" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <ellipse cx="76" cy="48" rx="82" ry="26" stroke="#2626FF" stroke-width="13" fill="none"/>
+  <ellipse cx="76" cy="252" rx="82" ry="26" stroke="#2626FF" stroke-width="13" fill="none"/>
+  <line x1="478" y1="78" x2="478" y2="222" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <line x1="478" y1="150" x2="598" y2="52" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <line x1="478" y1="150" x2="598" y2="248" stroke="#2626FF" stroke-width="30" stroke-linecap="butt" fill="none"/>
+  <ellipse cx="584" cy="48" rx="82" ry="26" stroke="#2626FF" stroke-width="13" fill="none"/>
+  <ellipse cx="584" cy="252" rx="82" ry="26" stroke="#2626FF" stroke-width="13" fill="none"/>
+</g>
+</svg>

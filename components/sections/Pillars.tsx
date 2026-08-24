@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { E } from "@/components/editor/EditableText";
 import {
   IconInstitution,
   IconMeasure,
@@ -28,14 +29,18 @@ export function Pillars() {
   return (
     <section className="border-b border-hairline">
       <Container className="py-16 sm:py-20">
-        <h2 className="text-[26px] sm:text-[34px]">Co děláme</h2>
+        <h2 className="text-[26px] sm:text-[34px]">
+          <E k="home.pillars.title">Co děláme</E>
+        </h2>
         <div className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
-          {pillars.map((p) => (
+          {pillars.map((p, i) => (
             <Reveal key={p.title}>
               <p.icon className="h-11 w-11 text-deep" />
-              <h3 className="mt-5 text-[22px]">{p.title}</h3>
+              <h3 className="mt-5 text-[22px]">
+                <E k={`home.pillars.${i}.title`}>{p.title}</E>
+              </h3>
               <p className="mt-3 text-[15.5px] leading-relaxed text-ink-2">
-                {p.text}
+                <E k={`home.pillars.${i}.text`}>{p.text}</E>
               </p>
             </Reveal>
           ))}

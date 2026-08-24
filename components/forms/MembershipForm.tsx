@@ -5,12 +5,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
-import { operationFocus, org, regions } from "@/lib/site";
+import { membershipTiers, operationFocus, org, regions } from "@/lib/site";
+import { E } from "@/components/editor/EditableText";
 
-const memberTypes = [
-  { value: "zakladni", label: "Základní", fee: "500 Kč / kvartál" },
-  { value: "pro", label: "PRO", fee: "500 Kč / měsíc" },
-] as const;
+/** Odvozeno z ceníku v lib/site.ts — jediný zdroj pravdy pro varianty a ceny. */
+const memberTypes = membershipTiers.map((t) => ({
+  value: t.key,
+  label: t.label,
+  fee: t.fee,
+}));
 
 const schema = z
   .object({
@@ -51,7 +54,7 @@ type FormData = z.infer<typeof schema>;
 const inputCls =
   "w-full rounded-[2px] border border-hairline bg-paper px-3.5 py-2.5 text-[15.5px] text-ink placeholder:text-ink-2/60 focus:border-deep";
 const labelCls = "mb-1.5 block text-[14px] font-medium text-ink";
-const errCls = "mt-1.5 text-[13.5px] text-[#9e2b25]";
+const errCls = "mt-1.5 text-[13.5px] text-destructive";
 
 function Err({ msg }: { msg?: string }) {
   return msg ? <p className={errCls}>{msg}</p> : null;
@@ -77,17 +80,21 @@ export function MembershipForm() {
     return (
       <div className="border border-hairline bg-paper-2 p-8 text-center">
         <p className="font-serif text-[22px] text-ink">
-          Příjem přihlášek zatím nebyl spuštěn.
+          <E k="form.success.title">Příjem přihlášek zatím nebyl spuštěn.</E>
         </p>
         <p className="measure mx-auto mt-3 text-[15.5px] leading-relaxed text-ink-2">
-          Evidenci členů právě dokončujeme. Nech nám na sebe kontakt na{" "}
+          <E k="form.success.body1">
+            Evidenci členů právě dokončujeme. Nech nám na sebe kontakt na
+          </E>{" "}
           <a
             href={`mailto:${org.email}`}
             className="text-brass underline-offset-4 hover:underline"
           >
             {org.email}
           </a>{" "}
-          a ozveme se, jakmile bude přihláška aktivní.
+          <E k="form.success.body2">
+            a ozveme se, jakmile bude přihláška aktivní.
+          </E>
         </p>
       </div>
     );
@@ -97,7 +104,7 @@ export function MembershipForm() {
     <form onSubmit={handleSubmit(() => setSubmitted(true))} noValidate>
       <fieldset>
         <legend className={cn(labelCls, "text-[15px]")}>
-          Varianta členství
+          <E k="form.legends.memberType">Varianta členství</E>
         </legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {memberTypes.map((t) => (
@@ -111,7 +118,7 @@ export function MembershipForm() {
                 type="radio"
                 value={t.value}
                 {...register("memberType")}
-                className="translate-y-[1px] accent-[#10393f]"
+                className="translate-y-[1px] accent-[#2626ff]"
               />
               <span>
                 <span className="block text-[15px] font-medium text-ink">
@@ -130,7 +137,7 @@ export function MembershipForm() {
       <div className="mt-7 grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="mf-name" className={labelCls}>
-            Jméno a příjmení / název firmy
+            <E k="form.labels.name">Jméno a příjmení / název firmy</E>
           </label>
           <input
             id="mf-name"
@@ -144,7 +151,10 @@ export function MembershipForm() {
 
         <div>
           <label htmlFor="mf-ico" className={labelCls}>
-            IČO <span className="font-normal text-ink-2">(nepovinné)</span>
+            <E k="form.labels.ico">IČO</E>{" "}
+            <span className="font-normal text-ink-2">
+              <E k="form.labels.icoNote">(nepovinné)</E>
+            </span>
           </label>
           <input
             id="mf-ico"
@@ -158,7 +168,7 @@ export function MembershipForm() {
 
         <div>
           <label htmlFor="mf-email" className={labelCls}>
-            E-mail
+            <E k="form.labels.email">E-mail</E>
           </label>
           <input
             id="mf-email"
@@ -172,7 +182,7 @@ export function MembershipForm() {
 
         <div>
           <label htmlFor="mf-phone" className={labelCls}>
-            Telefon
+            <E k="form.labels.phone">Telefon</E>
           </label>
           <input
             id="mf-phone"
@@ -186,8 +196,10 @@ export function MembershipForm() {
 
         <div>
           <label htmlFor="mf-ucl" className={labelCls}>
-            Registrační číslo operátora ÚCL{" "}
-            <span className="font-normal text-ink-2">(nepovinné)</span>
+            <E k="form.labels.uclOperator">Registrační číslo operátora ÚCL</E>{" "}
+            <span className="font-normal text-ink-2">
+              <E k="form.labels.uclOperatorNote">(nepovinné)</E>
+            </span>
           </label>
           <input
             id="mf-ucl"
@@ -200,7 +212,7 @@ export function MembershipForm() {
 
         <div>
           <label htmlFor="mf-region" className={labelCls}>
-            Kraj
+            <E k="form.labels.region">Kraj</E>
           </label>
           <select
             id="mf-region"
@@ -223,8 +235,10 @@ export function MembershipForm() {
 
       <fieldset className="mt-7">
         <legend className={cn(labelCls, "text-[15px]")}>
-          Zaměření provozu{" "}
-          <span className="font-normal text-ink-2">(vyber vše, co sedí)</span>
+          <E k="form.legends.focus">Zaměření provozu</E>{" "}
+          <span className="font-normal text-ink-2">
+            <E k="form.legends.focusNote">(vyber vše, co sedí)</E>
+          </span>
         </legend>
         <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
           {operationFocus.map((f) => (
@@ -236,7 +250,7 @@ export function MembershipForm() {
                 type="checkbox"
                 value={f}
                 {...register("focus")}
-                className="translate-y-[1px] accent-[#10393f]"
+                className="translate-y-[1px] accent-[#2626ff]"
               />
               {f}
             </label>
@@ -250,17 +264,22 @@ export function MembershipForm() {
           <input
             type="checkbox"
             {...register("agreeStatutes")}
-            className="translate-y-[1px] accent-[#10393f]"
+            className="translate-y-[1px] accent-[#2626ff]"
           />
           <span>
-            Souhlasím se stanovami komory a s{" "}
+            <E k="form.consents.statutes">Souhlasím se stanovami komory a s</E>{" "}
             <a
               href="/eticky-kodex"
               className="text-brass underline-offset-4 hover:underline"
             >
-              etickým kodexem
+              <E k="form.consents.statutesLink" editable={false}>
+                etickým kodexem
+              </E>
             </a>
-            . <span className="text-ink">(povinné)</span>
+            .{" "}
+            <span className="text-ink">
+              <E k="form.consents.statutesRequired">(povinné)</E>
+            </span>
           </span>
         </label>
         <Err msg={errors.agreeStatutes?.message} />
@@ -269,12 +288,16 @@ export function MembershipForm() {
           <input
             type="checkbox"
             {...register("publicListing")}
-            className="translate-y-[1px] accent-[#10393f]"
+            className="translate-y-[1px] accent-[#2626ff]"
           />
           <span>
-            Souhlasím s uvedením svého jména ve veřejném seznamu členů.{" "}
+            <E k="form.consents.publicListing">
+              Souhlasím s uvedením svého jména ve veřejném seznamu členů.
+            </E>{" "}
             <span className="text-ink-2/70">
-              (nepovinné, ale doporučené — každé jméno přidává komoře váhu)
+              <E k="form.consents.publicListingNote">
+                (nepovinné, ale doporučené — každé jméno přidává komoře váhu)
+              </E>
             </span>
           </span>
         </label>
@@ -283,18 +306,24 @@ export function MembershipForm() {
           <input
             type="checkbox"
             {...register("agreeGdpr")}
-            className="translate-y-[1px] accent-[#10393f]"
+            className="translate-y-[1px] accent-[#2626ff]"
           />
           <span>
-            Souhlasím se{" "}
+            <E k="form.consents.gdpr">Souhlasím se</E>{" "}
             <a
               href="/ochrana-osobnich-udaju"
               className="text-brass underline-offset-4 hover:underline"
             >
-              zpracováním osobních údajů
+              <E k="form.consents.gdprLink" editable={false}>
+                zpracováním osobních údajů
+              </E>
             </a>{" "}
-            pro účely vyřízení přihlášky a vedení evidence členů.{" "}
-            <span className="text-ink">(povinné)</span>
+            <E k="form.consents.gdprPurpose">
+              pro účely vyřízení přihlášky a vedení evidence členů.
+            </E>{" "}
+            <span className="text-ink">
+              <E k="form.consents.gdprRequired">(povinné)</E>
+            </span>
           </span>
         </label>
         <Err msg={errors.agreeGdpr?.message} />
@@ -305,11 +334,15 @@ export function MembershipForm() {
           type="submit"
           className="rounded-[2px] bg-deep px-7 py-3 text-[15px] font-medium text-paper transition-colors hover:bg-deep-2"
         >
-          Odeslat přihlášku
+          <E k="form.submit" editable={false}>
+            Odeslat přihlášku
+          </E>
         </button>
         <p className="text-[13.5px] leading-snug text-ink-2">
-          O přijetí rozhoduje Rada komory. Pokyny k platbě přijdou e-mailem —
-          přihláška není platbou.
+          <E k="form.submitNote">
+            O přijetí rozhoduje Rada komory. Pokyny k platbě přijdou e-mailem —
+            přihláška není platbou.
+          </E>
         </p>
       </div>
     </form>

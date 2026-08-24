@@ -2,6 +2,7 @@ import { Container } from "@/components/ui/Container";
 import { DocumentLink } from "@/components/ui/DocumentLink";
 import { SHOW_MEMBERS } from "@/lib/flags";
 import { org } from "@/lib/site";
+import { E } from "@/components/editor/EditableText";
 
 /**
  * Blok Transparentnost (PRD § 4.8): seznam dokumentů + „Jak jsme financováni".
@@ -33,7 +34,9 @@ export function Transparency() {
       <Container className="py-16 sm:py-20">
         <div className="grid gap-12 md:grid-cols-2">
           <div>
-            <h2 className="text-[26px] sm:text-[34px]">Transparentnost</h2>
+            <h2 className="text-[26px] sm:text-[34px]">
+              <E k="home.transparency.title">Transparentnost</E>
+            </h2>
             <div className="mt-6">
               {docs.map((d) => (
                 <DocumentLink key={d.label} {...d} />
@@ -41,16 +44,22 @@ export function Transparency() {
             </div>
           </div>
           <div className="md:pt-2">
-            <h3 className="text-[19px]">Jak jsme financováni</h3>
+            <h3 className="text-[19px]">
+              <E k="home.transparency.fundingTitle">Jak jsme financováni</E>
+            </h3>
             <p className="measure mt-4 text-[15.5px] leading-relaxed text-ink-2">
-              Činnost komory je financována členskými příspěvky, dary a
-              sponzoringem. Zakládajícím členem a sponzorem komory je DRONPRO
-              s.r.o.; orgány komory rozhodují nezávisle a výhody, které
-              členům poskytují partneři, jsou jejich dobrovolným plněním.
+              <E k="home.transparency.funding1">
+                Činnost komory je financována členskými příspěvky, dary a
+                sponzoringem. Zakládajícím členem a sponzorem komory je DRONPRO
+                s.r.o.; orgány komory rozhodují nezávisle a výhody, které
+                členům poskytují partneři, jsou jejich dobrovolným plněním.
+              </E>
             </p>
             <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
-              Hospodaření shrnujeme ve výroční zprávě a účetní závěrku
-              zveřejňujeme ve sbírce listin spolkového rejstříku.
+              <E k="home.transparency.funding2">
+                Hospodaření shrnujeme ve výroční zprávě a účetní závěrku
+                zveřejňujeme ve sbírce listin spolkového rejstříku.
+              </E>
             </p>
           </div>
         </div>

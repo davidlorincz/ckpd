@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { formatDate, getStanoviska } from "@/lib/stanoviska";
+import { E } from "@/components/editor/EditableText";
 
 export const metadata: Metadata = {
   title: "Stanoviska",
@@ -16,15 +17,28 @@ export default function PositionsPage() {
   return (
     <>
       <PageHeader
-        title="Stanoviska"
-        lead="Věcná stanoviska k legislativě a regulaci bezpilotních systémů — vždy se zdroji a s návrhem konkrétního řešení."
+        title={<E k="stanoviska.header.title">Stanoviska</E>}
+        lead={
+          <E k="stanoviska.header.lead">
+            Věcná stanoviska k legislativě a regulaci bezpilotních systémů —
+            vždy se zdroji a s návrhem konkrétního řešení.
+          </E>
+        }
       />
       <section>
         <Container className="py-12 sm:py-16">
           {items.length === 0 ? (
             <p className="measure text-[16px] text-ink-2">
-              První stanovisko připravujeme. Novinářské dotazy rádi zodpovíme —
-              viz <Link href="/kontakt" className="text-brass underline-offset-4 hover:underline">kontakt pro média</Link>.
+              <E k="stanoviska.empty.text">
+                První stanovisko připravujeme. Novinářské dotazy rádi
+                zodpovíme — viz
+              </E>{" "}
+              <Link href="/kontakt" className="text-brass underline-offset-4 hover:underline">
+                <E k="stanoviska.empty.link" editable={false}>
+                  kontakt pro média
+                </E>
+              </Link>
+              .
             </p>
           ) : (
             <div className="max-w-3xl">
@@ -45,7 +59,7 @@ export default function PositionsPage() {
                     </Link>
                     {s.draft ? (
                       <span className="ml-3 align-middle border border-brass px-2 py-0.5 text-[12px] font-sans font-medium uppercase tracking-wider text-brass">
-                        návrh k revizi
+                        <E k="stanoviska.draftBadge">návrh k revizi</E>
                       </span>
                     ) : null}
                   </h2>

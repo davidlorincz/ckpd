@@ -3,25 +3,57 @@
 @import "shadcn/tailwind.css";
 
 /*
- * ČKPD — „Pečeť a papír"
- * Tokeny dle PRD § 6.2. Pouze světlý režim (v1).
+ * ČKPD — brand sync s DRONPRO
+ * Primární BLUE BASE #2626FF, navy #000064, font Rapid Variable.
+ * Sémantické názvy tokenů zachovány (paper/ink/deep/brass), hodnoty přemapovány.
  */
 
-@theme {
-  --color-paper: #faf8f4;
-  --color-paper-2: #f2eee6;
-  --color-hairline: #ddd6c9;
-  --color-ink: #14181a;
-  --color-ink-2: #4c5559;
-  --color-deep: #10393f;
-  --color-deep-2: #1b5158;
-  --color-brass: #99682f;
-  --color-brass-2: #c08a45;
+@font-face {
+  font-family: "Rapid Variable";
+  src: url("/fonts/DronProRapidVariable-ThinExt.woff2") format("woff2");
+  font-weight: 200;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rapid Variable";
+  src: url("/fonts/DronProRapidVariable-RegExt.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rapid Variable";
+  src: url("/fonts/DronProRapidVariable-MedExt.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rapid Variable";
+  src: url("/fonts/DronProRapidVariable-BoldExt.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rapid Variable";
+  src: url("/fonts/DronProRapidVariable-BlackExt.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
 
-  --font-serif: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+@theme {
+  --color-paper: #ffffff;
+  --color-paper-2: #ededff;
+  --color-hairline: #b6b3ff;
+  --color-ink: #000064;
+  --color-ink-2: #55557f;
+  --color-deep: #000064;
+  --color-deep-2: #2626ff;
+  --color-brass: #2626ff;
+  --color-brass-2: #b6b3ff;
+
+  --font-serif: "Rapid Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  --shadow-paper: 0 1px 2px rgba(20, 24, 26, 0.06);
+  --shadow-paper: 0 1px 2px rgba(0, 0, 100, 0.06);
 
   --radius-none: 0;
   --radius-hard: 2px;
@@ -57,24 +89,24 @@
 }
 
 :root {
-  --background: #faf8f4;
-  --foreground: #14181a;
-  --card: #faf8f4;
-  --card-foreground: #14181a;
-  --popover: #faf8f4;
-  --popover-foreground: #14181a;
-  --primary: #10393f;
-  --primary-foreground: #faf8f4;
-  --secondary: #f2eee6;
-  --secondary-foreground: #14181a;
-  --muted: #f2eee6;
-  --muted-foreground: #4c5559;
-  --accent: #f2eee6;
-  --accent-foreground: #14181a;
+  --background: #ffffff;
+  --foreground: #000064;
+  --card: #ffffff;
+  --card-foreground: #000064;
+  --popover: #ffffff;
+  --popover-foreground: #000064;
+  --primary: #2626ff;
+  --primary-foreground: #ffffff;
+  --secondary: #ededff;
+  --secondary-foreground: #000064;
+  --muted: #ededff;
+  --muted-foreground: #55557f;
+  --accent: #ededff;
+  --accent-foreground: #000064;
   --destructive: #9e2b25;
-  --border: #ddd6c9;
-  --input: #ddd6c9;
-  --ring: #99682f;
+  --border: #b6b3ff;
+  --input: #b6b3ff;
+  --ring: #2626ff;
   --radius: 2px;
 }
 
@@ -97,15 +129,16 @@
   h2,
   h3,
   h4 {
-    @apply font-serif text-ink;
-    font-weight: 550;
-    letter-spacing: -0.01em;
+    @apply font-serif text-brass;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
     text-wrap: balance;
   }
 
   ::selection {
-    background: #10393f;
-    color: #faf8f4;
+    background: #2626ff;
+    color: #ffffff;
   }
 
   :focus-visible {
@@ -127,8 +160,8 @@
   /* jemný papírový rastr do hera (bez obrázku, čistě CSS) */
   .paper-grid {
     background-image:
-      linear-gradient(to right, rgba(20, 24, 26, 0.035) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(20, 24, 26, 0.035) 1px, transparent 1px);
+      linear-gradient(to right, rgba(38, 38, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(38, 38, 255, 0.05) 1px, transparent 1px);
     background-size: 56px 56px;
   }
 

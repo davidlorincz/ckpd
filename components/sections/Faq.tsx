@@ -1,3 +1,5 @@
+import { E } from "@/components/editor/EditableText";
+
 const faq = [
   {
     q: "Musím být členem komory, abych mohl létat?",
@@ -47,10 +49,10 @@ const faq = [
 export function Faq() {
   return (
     <div className="border-t border-hairline">
-      {faq.map((item) => (
+      {faq.map((item, i) => (
         <details key={item.q} className="group border-b border-hairline">
           <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 py-4 font-serif text-[17px] font-medium text-ink [&::-webkit-details-marker]:hidden">
-            {item.q}
+            <E k={`home.faq.${i}.question`}>{item.q}</E>
             <span
               aria-hidden
               className="shrink-0 text-brass transition-transform group-open:rotate-45"
@@ -59,7 +61,7 @@ export function Faq() {
             </span>
           </summary>
           <p className="measure pb-5 text-[15.5px] leading-relaxed text-ink-2">
-            {item.a}
+            <E k={`home.faq.${i}.answer`}>{item.a}</E>
           </p>
         </details>
       ))}

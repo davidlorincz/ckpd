@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ČKPD — wordmark řezy</title>
+<style>
+  body { margin: 0; font-family: system-ui; background: #f4f4f8; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+  .cell { background: #fff; padding: 24px; text-align: center; }
+  .cell.navy { background: #000064; }
+  .cell img { width: 100%; max-width: 460px; height: auto; }
+  .cell.navy img { filter: brightness(0) invert(1); }
+  .cell p { margin: 8px 0 0; font-size: 11px; color: #555; }
+  .cell.navy p { color: #B6B3FF; }
+</style>
+<div class="grid">
+  <div class="cell"><img src="ckpd-wordmark-w1-skoda.svg"><p>w1 — řez 24°, mezera 7.5 %</p></div>
+  <div class="cell navy"><img src="ckpd-wordmark-w1-skoda.svg"><p>w1 na navy</p></div>
+  <div class="cell"><img src="ckpd-wordmark-w2-steep.svg"><p>w2 — strmější 38°</p></div>
+  <div class="cell"><img src="ckpd-wordmark-w3-wide.svg"><p>w3 — širší mezera 11 %</p></div>
+</div>

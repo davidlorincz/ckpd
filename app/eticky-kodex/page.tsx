@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { E } from "@/components/editor/EditableText";
 
 export const metadata: Metadata = {
   title: "Etický kodex",
@@ -53,36 +54,45 @@ export default function CodeOfConductPage() {
   return (
     <>
       <PageHeader
-        title="Etický kodex"
-        lead="Zásady, ke kterým se hlásí každý člen komory. Kodex drží to nejcennější, co obor má: důvěru veřejnosti, klientů i úřadů."
+        title={<E k="eticky.header.title">Etický kodex</E>}
+        lead={
+          <E k="eticky.header.lead">
+            Zásady, ke kterým se hlásí každý člen komory. Kodex drží to
+            nejcennější, co obor má: důvěru veřejnosti, klientů i úřadů.
+          </E>
+        }
       />
       <section>
         <Container className="py-12 sm:py-16">
           <p className="mb-10 inline-block border border-brass bg-paper-2 px-3 py-1.5 text-[13px] font-medium uppercase tracking-wider text-brass">
-            Návrh — finální znění schvaluje Rada komory
+            <E k="eticky.badge">Návrh — finální znění schvaluje Rada komory</E>
           </p>
           <div className="max-w-3xl space-y-10">
-            {sections.map((s) => (
+            {sections.map((s, i) => (
               <div key={s.title}>
-                <h2 className="text-[22px]">{s.title}</h2>
+                <h2 className="text-[22px]">
+                  <E k={`eticky.sections.${i}.title`}>{s.title}</E>
+                </h2>
                 <ul className="mt-4 space-y-3 text-[16px] leading-relaxed text-ink-2">
-                  {s.items.map((item) => (
+                  {s.items.map((item, j) => (
                     <li key={item} className="flex gap-3">
                       <span
                         aria-hidden
                         className="mt-[12px] h-px w-4 shrink-0 bg-brass"
                       />
-                      {item}
+                      <E k={`eticky.sections.${i}.items.${j}`}>{item}</E>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
             <p className="border-t border-hairline pt-6 text-[14.5px] leading-relaxed text-ink-2">
-              Porušení kodexu projednává Revizní komise; závažné nebo opakované
-              porušení může být důvodem ukončení členství podle stanov. Kodex
-              se vztahuje na jednání člena související s provozem bezpilotních
-              systémů a s činností komory.
+              <E k="eticky.footer">
+                Porušení kodexu projednává Revizní komise; závažné nebo
+                opakované porušení může být důvodem ukončení členství podle
+                stanov. Kodex se vztahuje na jednání člena související s
+                provozem bezpilotních systémů a s činností komory.
+              </E>
             </p>
           </div>
         </Container>
