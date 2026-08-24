@@ -25,7 +25,19 @@ type EditableTextProps = {
  * Pro běžné návštěvníky renderuje čistý fragment bez wrapperu —
  * nulový dopad na DOM i styly.
  */
-export function EditableText({
+/**
+ * Bez nakonfigurovaného Convexu (chybí NEXT_PUBLIC_CONVEX_URL) renderuje
+ * rovnou výchozí text — vnitřek s Convex hooky se vůbec nemontuje,
+ * jinak by useMutation bez ConvexProvideru shodil build/prerender.
+ */
+export function EditableText(props: EditableTextProps) {
+  if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+    return <>{props.children}</>;
+  }
+  return <EditableTextInner {...props} />;
+}
+
+function EditableTextInner({
   k,
   children,
   className = "",
