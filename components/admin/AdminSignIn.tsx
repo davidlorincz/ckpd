@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SignIn, useUser } from "@clerk/nextjs";
 import { useEditMode } from "@/contexts/EditModeContext";
+import { UserAdmin } from "@/components/admin/UserAdmin";
 
 /**
  * /admin: nepřihlášený vidí Clerk přihlášení, přihlášený admin
@@ -32,6 +33,7 @@ function AdminSignInInner() {
   }
 
   return (
+    <div className="flex w-full max-w-2xl flex-col items-center">
     <div className="max-w-md border border-hairline bg-paper-2 p-8 text-center">
       {isEditMode ? (
         <>
@@ -72,6 +74,8 @@ function AdminSignInInner() {
           </button>
         </>
       )}
+    </div>
+    {isEditMode && <UserAdmin />}
     </div>
   );
 }
