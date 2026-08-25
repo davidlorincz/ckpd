@@ -43,12 +43,12 @@ export function Header() {
           <Image
             src="/brand/znak.svg"
             alt=""
-            width={44}
+            width={90}
             height={44}
             priority
             className={cn(
               "transition-[width,height] duration-200",
-              scrolled ? "h-9 w-9" : "h-11 w-11",
+              scrolled ? "h-9 w-[73px]" : "h-11 w-[90px]",
             )}
           />
           <span className="font-serif text-[15px] font-semibold leading-[1.15] tracking-tight text-ink sm:text-base">

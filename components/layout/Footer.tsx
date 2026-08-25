@@ -20,9 +20,9 @@ export function Footer() {
               <Image
                 src="/brand/znak-inverse.svg"
                 alt=""
-                width={40}
+                width={82}
                 height={40}
-                className="h-10 w-10"
+                className="h-10 w-[82px]"
               />
               <p className="font-serif text-lg font-semibold leading-tight">
                 <E k="layout.footer.orgNameLine1">Česká komora</E>
