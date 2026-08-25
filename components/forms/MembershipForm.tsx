@@ -12,7 +12,7 @@ import { E } from "@/components/editor/EditableText";
 const memberTypes = membershipTiers.map((t) => ({
   value: t.key,
   label: t.label,
-  fee: t.fee,
+  fee: `${t.price} / ${t.period}`,
 }));
 
 const schema = z

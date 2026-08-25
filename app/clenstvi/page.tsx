@@ -69,8 +69,14 @@ export default function MembershipPage() {
                       <span className="block font-serif text-[19px] font-semibold text-ink">
                         <E k={`clenstvi.tiers.${t.key}.label`}>{t.label}</E>
                       </span>
-                      <span className="tnum block text-[14px] font-normal text-deep">
-                        <E k={`clenstvi.tiers.${t.key}.fee`}>{t.fee}</E>
+                      <span className="tnum block font-serif font-normal">
+                        <span className="text-[19px] font-semibold text-deep">
+                          <E k={`clenstvi.tiers.${t.key}.price`}>{t.price}</E>
+                        </span>{" "}
+                        <span className="text-[13px] text-ink-2">
+                          /{" "}
+                          <E k={`clenstvi.tiers.${t.key}.period`}>{t.period}</E>
+                        </span>
                       </span>
                     </th>
                   ))}
@@ -106,7 +112,7 @@ export default function MembershipPage() {
           <div className="mt-5 space-y-1.5 text-[14px] text-ink-2">
             <p>
               {membershipTiers
-                .map((t) => `${t.label}: ${t.feeNote}`)
+                .map((t) => `${t.label}: ${t.price} / ${t.period}`)
                 .join(" · ")}
               .{" "}
               <E k="clenstvi.cenik.note">

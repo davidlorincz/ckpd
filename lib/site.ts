@@ -43,15 +43,15 @@ export const membershipTiers = [
   {
     key: "zakladni",
     label: "Základní",
-    fee: "500 Kč / kvartál",
-    feeNote: "2 000 Kč ročně, platí se po čtvrtletích",
+    price: "199 Kč",
+    period: "měsíc",
     claim: "Být u toho.",
   },
   {
     key: "pro",
     label: "PRO",
-    fee: "500 Kč / měsíc",
-    feeNote: "6 000 Kč ročně, platí se měsíčně",
+    price: "499 Kč",
+    period: "měsíc",
     claim: "Pro ty, kdo dronem vydělávají.",
   },
 ] as const;

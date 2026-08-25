@@ -35,14 +35,9 @@ export function Audiences() {
               key={tier.key}
               className="flex flex-col border border-hairline bg-paper p-7 shadow-paper sm:p-9"
             >
-              <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-[22px]">
-                  <E k={`home.audiences.${tier.key}.label`}>{tier.label}</E>
-                </h3>
-                <p className="tnum shrink-0 font-serif text-[19px] font-semibold text-deep">
-                  <E k={`home.audiences.${tier.key}.fee`}>{tier.fee}</E>
-                </p>
-              </div>
+              <h3 className="text-[22px]">
+                <E k={`home.audiences.${tier.key}.label`}>{tier.label}</E>
+              </h3>
               <p className="mt-1 font-serif text-[17px] italic text-ink-2">
                 <E k={`home.audiences.${tier.key}.claim`}>{tier.claim}</E>
               </p>
@@ -70,9 +65,15 @@ export function Audiences() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-8 flex items-center justify-between gap-4 border-t border-hairline pt-5">
-                <p className="tnum text-[14px] text-ink-2">
-                  <E k={`home.audiences.${tier.key}.feeNote`}>{tier.feeNote}</E>
+              <div className="mt-8 flex flex-wrap items-baseline justify-between gap-4 border-t border-hairline pt-5">
+                <p className="tnum font-serif text-deep">
+                  <span className="text-[30px] font-bold leading-none">
+                    <E k={`home.audiences.${tier.key}.price`}>{tier.price}</E>
+                  </span>{" "}
+                  <span className="text-[15px] font-normal text-ink-2">
+                    /{" "}
+                    <E k={`home.audiences.${tier.key}.period`}>{tier.period}</E>
+                  </span>
                 </p>
                 <Cta
                   href="/clenstvi"
