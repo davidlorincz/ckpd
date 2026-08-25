@@ -332,7 +332,7 @@ export function MembershipForm() {
       <div className="mt-8 flex flex-wrap items-center gap-5">
         <button
           type="submit"
-          className="rounded-[2px] bg-deep px-7 py-3 text-[15px] font-medium text-paper transition-colors hover:bg-deep-2"
+          className="rounded-[2px] bg-action px-7 py-3 text-[15px] font-medium text-white transition-colors hover:bg-action-2"
         >
           <E k="form.submit" editable={false}>
             Odeslat přihlášku

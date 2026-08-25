@@ -33,8 +33,9 @@ export function Transparency() {
     <section className="border-b border-hairline">
       <Container className="py-16 sm:py-20">
         <div className="grid gap-12 md:grid-cols-2">
-          <div>
-            <h2 className="text-[26px] sm:text-[34px]">
+          <div className="@container">
+            {/* clamp přes šířku sloupce drží dlouhé slovo uvnitř (nesmí přetéct do vedlejšího) */}
+            <h2 className="text-[clamp(18px,6cqw,34px)]">
               <E k="home.transparency.title">Transparentnost</E>
             </h2>
             <div className="mt-6">

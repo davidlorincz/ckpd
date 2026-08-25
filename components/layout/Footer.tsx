@@ -12,7 +12,7 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-deep text-paper">
+    <footer className="paper-grid-dark bg-deep text-paper">
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>

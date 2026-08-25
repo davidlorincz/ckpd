@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
@@ -131,5 +131,23 @@ export const update = mutation({
       editedAt: now,
     });
     return { updated: true };
+  },
+});
+
+/**
+ * Smaže přepis klíče, takže se zase zobrazí výchozí text z kódu.
+ * Jen pro CLI migrace (`npx convex run content:removeOverride '{"key":"..."}'`)
+ * — internal mutation není volatelná z klienta.
+ */
+export const removeOverride = internalMutation({
+  args: { key: v.string() },
+  handler: async (ctx, { key }) => {
+    const existing = await ctx.db
+      .query("content")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    if (!existing) return { removed: false };
+    await ctx.db.delete(existing._id);
+    return { removed: true };
   },
 });

@@ -3,14 +3,15 @@ import { cn } from "@/lib/utils";
 
 type CtaProps = {
   href: string;
-  variant?: "primary" | "secondary" | "onDark";
+  variant?: "primary" | "secondary" | "onDark" | "conversion";
   className?: string;
   children: React.ReactNode;
 };
 
 /**
  * Institucionální tlačítko: radius 2 px, žádný stín, žádný gradient.
- * primary = plná deep, secondary = obrys, onDark = papírové na tmavé ploše.
+ * primary = plná deep, secondary = obrys, onDark = papírové na tmavé ploše,
+ * conversion = zelené konverzní CTA (DRONPRO zelená), funguje na světlé i tmavé.
  */
 export function Cta({ href, variant = "primary", className, children }: CtaProps) {
   return (
@@ -24,6 +25,8 @@ export function Cta({ href, variant = "primary", className, children }: CtaProps
           "border border-deep text-deep hover:bg-deep hover:text-paper",
         variant === "onDark" &&
           "bg-paper text-deep hover:bg-paper-2",
+        variant === "conversion" &&
+          "bg-action text-white hover:bg-action-2",
         className,
       )}
     >

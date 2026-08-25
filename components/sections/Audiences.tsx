@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Cta } from "@/components/ui/Cta";
 import { Reveal } from "@/components/ui/Reveal";
 import { memberBenefits, membershipTiers } from "@/lib/site";
 import { E } from "@/components/editor/EditableText";
@@ -74,14 +74,15 @@ export function Audiences() {
                 <p className="tnum text-[14px] text-ink-2">
                   <E k={`home.audiences.${tier.key}.feeNote`}>{tier.feeNote}</E>
                 </p>
-                <Link
+                <Cta
                   href="/clenstvi"
-                  className="shrink-0 text-[15px] font-medium text-brass underline-offset-4 hover:underline"
+                  variant="secondary"
+                  className="shrink-0 px-4 py-2 text-[14px]"
                 >
                   <E k="home.audiences.allBenefitsLink" editable={false}>
                     Všechny výhody →
                   </E>
-                </Link>
+                </Cta>
               </div>
             </Reveal>
           ))}
