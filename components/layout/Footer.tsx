@@ -16,19 +16,14 @@ export function Footer() {
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <Image
-                src="/brand/znak-inverse.svg"
-                alt=""
-                width={82}
+                src="/brand/lockup-inverse.svg"
+                alt="ČKPD — Česká komora pilotů DRONů z.s."
+                width={177}
                 height={40}
-                className="h-10 w-[82px]"
+                className="h-10 w-[177px]"
               />
-              <p className="font-serif text-lg font-semibold leading-tight">
-                <E k="layout.footer.orgNameLine1">Česká komora</E>
-                <br />
-                <E k="layout.footer.orgNameLine2">pilotů DRONů z.s.</E>
-              </p>
             </div>
             <address className="tnum mt-5 text-[14px] not-italic leading-relaxed text-paper/75">
               IČO {org.ico}

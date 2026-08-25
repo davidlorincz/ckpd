@@ -41,21 +41,16 @@ export function Header() {
           )}
         >
           <Image
-            src="/brand/znak.svg"
-            alt=""
-            width={90}
+            src="/brand/lockup.svg"
+            alt="ČKPD — Česká komora pilotů DRONů"
+            width={195}
             height={44}
             priority
             className={cn(
               "transition-[width,height] duration-200",
-              scrolled ? "h-9 w-[73px]" : "h-11 w-[90px]",
+              scrolled ? "h-9 w-[159px]" : "h-11 w-[195px]",
             )}
           />
-          <span className="font-serif text-[15px] font-semibold leading-[1.15] tracking-tight text-ink sm:text-base">
-            Česká komora
-            <br />
-            pilotů DRONů
-          </span>
         </Link>
 
         <nav aria-label="Hlavní navigace" className="hidden items-center gap-7 md:flex">
