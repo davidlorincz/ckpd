@@ -162,16 +162,16 @@
   /* jemný papírový rastr do hera (bez obrázku, čistě CSS) */
   .paper-grid {
     background-image:
-      linear-gradient(to right, rgba(38, 38, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(38, 38, 255, 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgba(38, 38, 255, 0.09) 1.5px, transparent 1.5px),
+      linear-gradient(to bottom, rgba(38, 38, 255, 0.09) 1.5px, transparent 1.5px);
     background-size: 56px 56px;
   }
 
   /* rastr pro tmavé (deep) plochy — světlé linky s nízkou alfou */
   .paper-grid-dark {
     background-image:
-      linear-gradient(to right, rgba(182, 179, 255, 0.08) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(182, 179, 255, 0.08) 1px, transparent 1px);
+      linear-gradient(to right, rgba(182, 179, 255, 0.14) 1.5px, transparent 1.5px),
+      linear-gradient(to bottom, rgba(182, 179, 255, 0.14) 1.5px, transparent 1.5px);
     background-size: 56px 56px;
   }
 
