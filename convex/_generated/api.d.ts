@@ -8,7 +8,15 @@
  * @module
  */
 
+import type * as billing from "../billing.js";
 import type * as content from "../content.js";
+import type * as crons from "../crons.js";
+import type * as http from "../http.js";
+import type * as lib_auth from "../lib/auth.js";
+import type * as lib_code from "../lib/code.js";
+import type * as members from "../members.js";
+import type * as partnerKeys from "../partnerKeys.js";
+import type * as verification from "../verification.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +25,15 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  billing: typeof billing;
   content: typeof content;
+  crons: typeof crons;
+  http: typeof http;
+  "lib/auth": typeof lib_auth;
+  "lib/code": typeof lib_code;
+  members: typeof members;
+  partnerKeys: typeof partnerKeys;
+  verification: typeof verification;
 }>;
 
 /**

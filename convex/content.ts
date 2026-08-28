@@ -1,5 +1,6 @@
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/auth";
 
 /**
  * Zakázaná slovní zásoba (PRD § 8) — stejná pravidla jako
@@ -42,13 +43,6 @@ function checkForbiddenVocabulary(text: string): string | null {
     }
   }
   return null;
-}
-
-async function requireAdmin(ctx: { auth: { getUserIdentity: () => Promise<Record<string, unknown> | null> } }) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Nepřihlášený uživatel.");
-  if (identity.role !== "admin") throw new Error("Chybí admin role.");
-  return identity;
 }
 
 /** Celý slovník přepisů jedním dotazem — { key: value }. Veřejné čtení. */

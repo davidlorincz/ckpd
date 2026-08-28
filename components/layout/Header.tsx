@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { nav } from "@/lib/site";
 import { useEditMode } from "@/contexts/EditModeContext";
+import { MemberLink } from "@/components/member/MemberLink";
 
 /**
  * Sticky hlavička: značka + název ve dvou řádcích vlevo, navigace vpravo,
@@ -67,12 +68,7 @@ export function Header() {
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/clenstvi#prihlaska"
-            className="border border-deep px-4 py-2 text-[15px] font-medium text-deep transition-colors hover:bg-deep hover:text-paper"
-          >
-            Přihláška
-          </Link>
+          <MemberLink className="border border-deep px-4 py-2 text-[15px] font-medium text-deep transition-colors hover:bg-deep hover:text-paper" />
           {isEditMode && (
             <span className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 rounded-[2px] bg-green-600 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white">
@@ -130,12 +126,7 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/clenstvi#prihlaska"
-              className="my-3 border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep"
-            >
-              Přihláška
-            </Link>
+            <MemberLink className="my-3 border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep" />
           </div>
         </nav>
       )}

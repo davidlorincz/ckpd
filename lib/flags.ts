@@ -23,3 +23,11 @@ export const stats = [
   { value: 0, label: "hodin nalétáno členy", note: "self-reported" },
   { value: 0, label: "stanovisek k legislativě" },
 ] as const;
+
+/**
+ * Platební brána. `mock` = platba se jen nasimuluje a nic se nestrhne;
+ * `stripe` = ostrý provoz. Přepnutí nemění UI ani datový tok — obě cesty
+ * končí ve stejné Convex funkci `billing.applyActivation`.
+ */
+export const BILLING_PROVIDER = (process.env.NEXT_PUBLIC_BILLING_PROVIDER ??
+  "mock") as "mock" | "stripe";

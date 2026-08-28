@@ -2,15 +2,21 @@
 
 import { ReactNode, useMemo } from "react";
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
+import { csCZ } from "@clerk/localizations";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { hasClerk, hasConvex } from "@/lib/env";
+import { clerkAppearance } from "@/lib/clerkAppearance";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
 /**
- * Clerk + Convex provider. Když chybí NEXT_PUBLIC_CONVEX_URL,
- * renderuje děti bez obalu — build i web fungují i bez backendu
- * (texty pak jedou čistě z kódu).
+ * Clerk + Convex providery. Osy jsou dvě a nesmí se plést:
+ * Clerk drží přihlášení (členská sekce, admin), Convex data.
+ *
+ *  - Clerk i Convex  → oba providery, Convex ověřuje přes Clerk JWT
+ *  - jen Clerk       → přihlášení funguje, texty jedou z kódu
+ *  - ani jedno       → čistý statický web bez backendu
  */
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   const client = useMemo(
@@ -18,10 +24,17 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  if (!client) return <>{children}</>;
+  if (!hasClerk) return <>{children}</>;
+
+  if (!hasConvex || !client)
+    return (
+      <ClerkProvider localization={csCZ} appearance={clerkAppearance}>
+        {children}
+      </ClerkProvider>
+    );
 
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={csCZ} appearance={clerkAppearance}>
       <ConvexProviderWithClerk client={client} useAuth={useAuth}>
         {children}
       </ConvexProviderWithClerk>

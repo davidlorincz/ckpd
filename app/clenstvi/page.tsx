@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Faq } from "@/components/sections/Faq";
-import { MembershipForm } from "@/components/forms/MembershipForm";
+import { Cta } from "@/components/ui/Cta";
 import { memberBenefits, membershipTiers } from "@/lib/site";
 import { E } from "@/components/editor/EditableText";
 
@@ -14,20 +15,20 @@ export const metadata: Metadata = {
 
 const steps = [
   {
-    title: "Odešleš přihlášku",
-    text: "Zabere to tři minuty. Žádná platba předem.",
+    title: "Založíš si účet",
+    text: "Stačí e-mail a heslo. Účet je zdarma a nezavazuje k ničemu.",
   },
   {
-    title: "Rozhodne Rada",
-    text: "O přijetí člena rozhoduje Rada komory na nejbližším zasedání.",
+    title: "Vybereš variantu",
+    text: "Základní, nebo PRO. Obě mají stejný hlas, liší se rozsahem výhod.",
   },
   {
-    title: "Zaplatíš příspěvek",
-    text: "Po přijetí přijde e-mail s pokyny k platbě převodem.",
+    title: "Zaplatíš kartou",
+    text: "Platba běží přes zabezpečenou bránu. Zrušit jde kdykoli.",
   },
   {
     title: "Jsi člen",
-    text: "Potvrdíme ti členství a přidáme tě do členské komunikace.",
+    text: "Hned. V účtu najdeš členské číslo, doklady a datum obnovy.",
   },
 ] as const;
 
@@ -165,17 +166,31 @@ export default function MembershipPage() {
       <section id="prihlaska" className="scroll-mt-24 border-b border-hairline bg-paper-2">
         <Container className="py-14 sm:py-16">
           <h2 className="text-[26px] sm:text-[34px]">
-            <E k="clenstvi.prihlaska.title">Přihláška</E>
+            <E k="clenstvi.prihlaska.title">Přidej se</E>
           </h2>
           <p className="measure mt-4 text-[15.5px] leading-relaxed text-ink-2">
             <E k="clenstvi.prihlaska.intro">
-              O přijetí rozhoduje Rada komory a příspěvek platíš až po
-              přijetí. Údaje slouží jen pro vyřízení přihlášky a evidenci
-              členů.
+              Účet je zdarma a variantu členství si vybereš až v něm. Členství
+              je aktivní hned po zaplacení a zrušit obnovování jde kdykoli.
+              Údaje slouží jen pro vedení evidence členů.
             </E>
           </p>
-          <div className="mt-10 max-w-3xl">
-            <MembershipForm />
+          <div className="mt-8 flex flex-wrap items-center gap-5">
+            <Cta href="/registrace" variant="conversion">
+              <E k="clenstvi.prihlaska.cta" editable={false}>
+                Stát se členem
+              </E>
+            </Cta>
+            <p className="text-[14px] text-ink-2">
+              <E k="clenstvi.prihlaska.signin">Už máš účet?</E>{" "}
+              <Link
+                href="/prihlaseni"
+                className="text-brass underline-offset-4 hover:underline"
+              >
+                Přihlas se
+              </Link>
+              .
+            </p>
           </div>
         </Container>
       </section>

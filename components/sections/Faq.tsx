@@ -15,19 +15,19 @@ const faq = [
   },
   {
     q: "Jak probíhá přijetí?",
-    a: "Odešleš přihlášku, o přijetí rozhodne Rada komory na nejbližším zasedání, poté přijde e-mail s pokyny k platbě příspěvku a po jeho připsání je členství aktivní. Členství vzniká rozhodnutím Rady — právě díky tomu má členská základna u úřadů reálnou váhu.",
+    a: "Založíš si účet, vybereš variantu členství a zaplatíš kartou. Členství je aktivní hned po zaplacení — žádné čekání na zasedání. V účtu pak najdeš své členské číslo, doklady o platbách a datum, do kdy máš příspěvek uhrazený.",
   },
   {
     q: "Kolik členství stojí a jak se platí?",
-    a: "Základní členství stojí 500 Kč za kvartál, varianta PRO 500 Kč měsíčně. Platí se převodem na účet komory na základě pokynů, které přijdou e-mailem po přijetí. Výše příspěvků vyplývá ze stanov a obě varianty mají stejný hlas — liší se jen rozsahem výhod.",
+    a: "Základní členství stojí 199 Kč měsíčně, varianta PRO 499 Kč měsíčně. Platí se kartou a obnovuje se automaticky; zrušit obnovování jde kdykoli ve svém účtu a členství pak doběhne do konce zaplaceného období. Obě varianty mají stejný hlas — liší se jen rozsahem výhod.",
   },
   {
     q: "Vydává komora průkazy nebo osvědčení pilota?",
-    a: "Doklady pilota a vše, co souvisí s podmínkami provozu, vydává výhradně ÚCL — role jsou jasně rozdělené. Od komory dostaneš potvrzení o členství, vzorové dokumenty, standardy a podporu v tom, co úřad neřeší: praxi, data a společný hlas oboru.",
+    a: "Doklady pilota a vše, co souvisí s podmínkami provozu, vydává výhradně ÚCL — role jsou jasně rozdělené. Od komory dostaneš potvrzení o členství, vzorové dokumenty, standardy a podporu v tom, co úřad neřeší: praxi, data a společný hlas oboru. Ke členství patří i členské číslo a ověřovací kód, kterým partnerům komory prokážeš, že tvé členství platí.",
   },
   {
     q: "Zveřejňujete seznam členů?",
-    a: "Ano — komora vede veřejný seznam členů, protože viditelná členská základna je největší důkaz síly oboru. Tvoje jméno v něm uvedeme s tvým souhlasem, který můžeš udělit v přihlášce a kdykoli později udělit i odvolat. Doporučujeme ho dát: každé jméno v seznamu přidává váhu hlasu, kterým komora jedná.",
+    a: "Ano — komora vede veřejný seznam členů, protože viditelná členská základna je největší důkaz síly oboru. Tvoje jméno v něm uvedeme s tvým souhlasem, který můžeš kdykoli udělit i odvolat ve svém účtu. Doporučujeme ho dát: každé jméno v seznamu přidává váhu hlasu, kterým komora jedná.",
   },
   {
     q: "Jaký je vztah komory k DRONPRO?",

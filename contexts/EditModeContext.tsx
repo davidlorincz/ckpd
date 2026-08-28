@@ -2,6 +2,7 @@
 
 import { createContext, useContext, ReactNode } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
+import { hasClerk } from "@/lib/env";
 
 type EditModeState = {
   /** true = přihlášený admin, texty jdou editovat kliknutím */
@@ -16,7 +17,7 @@ const EditModeContext = createContext<EditModeState>({
   signOut: async () => {},
 });
 
-/** Vnitřek vyžaduje ClerkProvider — montuje se jen když je Convex/Clerk nakonfigurován. */
+/** Vnitřek vyžaduje ClerkProvider — montuje se jen když je Clerk nakonfigurován. */
 function EditModeProviderInner({ children }: { children: ReactNode }) {
   const { user, isLoaded } = useUser();
   const clerk = useClerk();
@@ -39,8 +40,9 @@ function EditModeProviderInner({ children }: { children: ReactNode }) {
 }
 
 export function EditModeProvider({ children }: { children: ReactNode }) {
-  // Bez Convexu/Clerku (chybějící env) zůstává výchozí kontext: nikdo needituje.
-  if (!process.env.NEXT_PUBLIC_CONVEX_URL) return <>{children}</>;
+  // Bez Clerku (chybějící env) zůstává výchozí kontext: nikdo needituje.
+  // Guard musí být na Clerku, ne na Convexu — uvnitř jsou Clerk hooky.
+  if (!hasClerk) return <>{children}</>;
   return <EditModeProviderInner>{children}</EditModeProviderInner>;
 }
 

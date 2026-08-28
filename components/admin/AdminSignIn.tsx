@@ -4,15 +4,17 @@ import Link from "next/link";
 import { SignIn, useUser } from "@clerk/nextjs";
 import { useEditMode } from "@/contexts/EditModeContext";
 import { UserAdmin } from "@/components/admin/UserAdmin";
+import { PartnerKeys } from "@/components/admin/PartnerKeys";
+import { hasClerk } from "@/lib/env";
 
 /**
  * /admin: nepřihlášený vidí Clerk přihlášení, přihlášený admin
  * potvrzení + odkaz zpět na web (edituje se přímo na stránkách).
  */
 export function AdminSignIn() {
-  // Bez backendu (chybějící env) nemá stránka co nabídnout — a Clerk hooky
+  // Bez Clerku (chybějící env) nemá stránka co nabídnout — a Clerk hooky
   // by mimo ClerkProvider spadly.
-  if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+  if (!hasClerk) {
     return (
       <p className="text-ink-2">Administrace není nakonfigurovaná (chybí backend).</p>
     );
@@ -76,6 +78,7 @@ function AdminSignInInner() {
       )}
     </div>
     {isEditMode && <UserAdmin />}
+    {isEditMode && <PartnerKeys />}
     </div>
   );
 }

@@ -123,6 +123,41 @@ export default function PrivacyPage() {
 
             <div>
               <h2 className="text-[22px] text-ink">
+                <E k="gdpr.overovani.title">Ověřování členství partnery</E>
+              </h2>
+              <p className="mt-3">
+                <E k="gdpr.overovani.p1">
+                  Členovi vydáváme členské číslo a ověřovací kód. Partnerům
+                  komory, kteří členům poskytují výhody, komora na základě
+                  tohoto kódu potvrdí jen tolik, kolik je k uznání výhody
+                  potřeba: že členství platí, jaká je jeho varianta, do kdy je
+                  příspěvek uhrazen a od kdy členství trvá.
+                </E>
+              </p>
+              <p className="mt-3">
+                <E k="gdpr.overovani.p2">
+                  Jméno partnerovi sdělíme pouze tehdy, pokud člen udělil
+                  souhlas se zveřejněním; odvolání souhlasu se projeví
+                  okamžitě. E-mail, telefon, IČO ani registrační číslo
+                  operátora nesdělujeme nikdy. Bez znalosti ověřovacího kódu
+                  nelze zjistit, zda je konkrétní osoba členem — kód zná jen
+                  člen sám a předává ho z vlastního rozhodnutí.
+                </E>
+              </p>
+              <p className="mt-3">
+                <E k="gdpr.overovani.p3">
+                  Každý dotaz partnera zaznamenáváme (kdo se ptal, kdy a s
+                  jakým výsledkem) z důvodu bezpečnosti a doložitelnosti —
+                  právním titulem je oprávněný zájem na ochraně evidence.
+                  Záznamy uchováváme 90 dní a pak je mažeme. Kód si člen může
+                  kdykoli přegenerovat ve svém účtu; tím starý kód okamžitě
+                  pozbývá platnosti.
+                </E>
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-[22px] text-ink">
                 <E k="gdpr.prava.title">Vaše práva</E>
               </h2>
               <p className="mt-3">
