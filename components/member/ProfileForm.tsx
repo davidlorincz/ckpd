@@ -23,7 +23,11 @@ const schema = z
     phone: z.string().optional(),
     uclOperator: z.string().optional(),
     region: z.string().optional(),
-    focus: z.array(z.string()),
+    // POZOR: pole se NESMÍ jmenovat `focus`. HTML vystavuje pojmenované prvky
+    // formuláře jako jeho vlastnosti, takže `name="focus"` přepíše
+    // `form.focus()` seznamem zaškrtávátek — a Next.js, který po prokliku
+    // fokusuje kořen stránky, na tom spadne.
+    focusAreas: z.array(z.string()),
     profile: z.string().max(90, "Popis se vejde do 90 znaků.").optional(),
     publicListing: z.boolean(),
   })
@@ -63,7 +67,7 @@ export function ProfileForm() {
     formState: { errors, isSubmitting, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { focus: [], publicListing: false },
+    defaultValues: { focusAreas: [], publicListing: false },
   });
 
   // Předvyplnit JEN jednou, jakmile data poprvé dorazí.
@@ -83,7 +87,7 @@ export function ProfileForm() {
       phone: member.phone ?? "",
       uclOperator: member.uclOperator ?? "",
       region: member.region ?? "",
-      focus: member.focus ?? [],
+      focusAreas: member.focus ?? [],
       profile: member.profile ?? "",
       publicListing: member.publicListing ?? false,
     });
@@ -113,8 +117,9 @@ export function ProfileForm() {
   }
 
   async function onSubmit(data: FormData) {
+    const { focusAreas, ...rest } = data;
     try {
-      await updateProfile(data);
+      await updateProfile({ ...rest, focus: focusAreas });
       toast.success("Profil uložen.");
       reset(data);
     } catch (e) {
@@ -123,141 +128,149 @@ export function ProfileForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-8">
-      <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">
-        <h2 className="text-[20px] sm:text-[24px]">Profil</h2>
-        <p className="mt-3 text-[15.5px] leading-relaxed text-ink-2">
-          E-mail <span className="text-ink">{member.email}</span> je tvůj
-          přihlašovací údaj — mění se v nastavení účtu.
-        </p>
+    // Kořenem segmentu je <div>, ne <form>: Next.js na něj po prokliku volá
+    // .focus(), a u formuláře to může přestat být funkce (viz `focusAreas`).
+    <div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="flex flex-col gap-8"
+      >
+        <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">
+          <h2 className="text-[20px] sm:text-[24px]">Profil</h2>
+          <p className="mt-3 text-[15.5px] leading-relaxed text-ink-2">
+            E-mail <span className="text-ink">{member.email}</span> je tvůj
+            přihlašovací údaj — mění se v nastavení účtu.
+          </p>
 
-        <div className="mt-7 grid gap-5 sm:grid-cols-2">
-          <div>
-            <label htmlFor="pf-name" className={labelCls}>
-              Jméno a příjmení / název firmy
-            </label>
-            <input id="pf-name" type="text" autoComplete="name" className={inputCls} {...register("name")} />
-            <Err msg={errors.name?.message} />
-          </div>
-
-          <div>
-            <label htmlFor="pf-ico" className={labelCls}>
-              IČO <span className="font-normal text-ink-2">(nepovinné)</span>
-            </label>
-            <input id="pf-ico" type="text" inputMode="numeric" className={inputCls} {...register("ico")} />
-            <Err msg={errors.ico?.message} />
-          </div>
-
-          <div>
-            <label htmlFor="pf-phone" className={labelCls}>
-              Telefon
-            </label>
-            <input id="pf-phone" type="tel" autoComplete="tel" className={inputCls} {...register("phone")} />
-            <Err msg={errors.phone?.message} />
-          </div>
-
-          <div>
-            <label htmlFor="pf-ucl" className={labelCls}>
-              Registrační číslo operátora ÚCL{" "}
-              <span className="font-normal text-ink-2">(nepovinné)</span>
-            </label>
-            <input
-              id="pf-ucl"
-              type="text"
-              placeholder="CZExxxxxxxxxxxx"
-              className={inputCls}
-              {...register("uclOperator")}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="pf-region" className={labelCls}>
-              Kraj
-            </label>
-            <select id="pf-region" className={cn(inputCls, "appearance-none")} {...register("region")}>
-              <option value="">Nevyplněno</option>
-              {regions.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="pf-profile" className={labelCls}>
-              Krátký popis{" "}
-              <span className="font-normal text-ink-2">(do veřejného seznamu)</span>
-            </label>
-            <input
-              id="pf-profile"
-              type="text"
-              placeholder="inspekce fotovoltaik, Brno"
-              className={inputCls}
-              {...register("profile")}
-            />
-            <Err msg={errors.profile?.message} />
-          </div>
-        </div>
-
-        <fieldset className="mt-7">
-          <legend className={cn(labelCls, "text-[15px]")}>
-            Zaměření provozu{" "}
-            <span className="font-normal text-ink-2">(vyber vše, co sedí)</span>
-          </legend>
-          <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
-            {operationFocus.map((f) => (
-              <label
-                key={f}
-                className="flex cursor-pointer items-baseline gap-2.5 py-1 text-[15px] text-ink"
-              >
-                <input
-                  type="checkbox"
-                  value={f}
-                  {...register("focus")}
-                  className="translate-y-[1px] accent-[#2626ff]"
-                />
-                {f}
+          <div className="mt-7 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="pf-name" className={labelCls}>
+                Jméno a příjmení / název firmy
               </label>
-            ))}
+              <input id="pf-name" type="text" autoComplete="name" className={inputCls} {...register("name")} />
+              <Err msg={errors.name?.message} />
+            </div>
+
+            <div>
+              <label htmlFor="pf-ico" className={labelCls}>
+                IČO <span className="font-normal text-ink-2">(nepovinné)</span>
+              </label>
+              <input id="pf-ico" type="text" inputMode="numeric" className={inputCls} {...register("ico")} />
+              <Err msg={errors.ico?.message} />
+            </div>
+
+            <div>
+              <label htmlFor="pf-phone" className={labelCls}>
+                Telefon
+              </label>
+              <input id="pf-phone" type="tel" autoComplete="tel" className={inputCls} {...register("phone")} />
+              <Err msg={errors.phone?.message} />
+            </div>
+
+            <div>
+              <label htmlFor="pf-ucl" className={labelCls}>
+                Registrační číslo operátora ÚCL{" "}
+                <span className="font-normal text-ink-2">(nepovinné)</span>
+              </label>
+              <input
+                id="pf-ucl"
+                type="text"
+                placeholder="CZExxxxxxxxxxxx"
+                className={inputCls}
+                {...register("uclOperator")}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="pf-region" className={labelCls}>
+                Kraj
+              </label>
+              <select id="pf-region" className={cn(inputCls, "appearance-none")} {...register("region")}>
+                <option value="">Nevyplněno</option>
+                {regions.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="pf-profile" className={labelCls}>
+                Krátký popis{" "}
+                <span className="font-normal text-ink-2">(do veřejného seznamu)</span>
+              </label>
+              <input
+                id="pf-profile"
+                type="text"
+                placeholder="inspekce fotovoltaik, Brno"
+                className={inputCls}
+                {...register("profile")}
+              />
+              <Err msg={errors.profile?.message} />
+            </div>
           </div>
-        </fieldset>
-      </section>
 
-      <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">
-        <h2 className="text-[20px] sm:text-[24px]">Zveřejnění</h2>
-        <label className="mt-5 flex cursor-pointer items-baseline gap-3 text-[14.5px] leading-relaxed text-ink-2">
-          <input
-            type="checkbox"
-            {...register("publicListing")}
-            className="translate-y-[1px] accent-[#2626ff]"
-          />
-          <span>
-            Souhlasím s uvedením svého jména ve veřejném seznamu členů.{" "}
-            <span className="text-ink-2/70">
-              (nepovinné, ale doporučené — každé jméno přidává komoře váhu)
+          <fieldset className="mt-7">
+            <legend className={cn(labelCls, "text-[15px]")}>
+              Zaměření provozu{" "}
+              <span className="font-normal text-ink-2">(vyber vše, co sedí)</span>
+            </legend>
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
+              {operationFocus.map((f) => (
+                <label
+                  key={f}
+                  className="flex cursor-pointer items-baseline gap-2.5 py-1 text-[15px] text-ink"
+                >
+                  <input
+                    type="checkbox"
+                    value={f}
+                    {...register("focusAreas")}
+                    className="translate-y-[1px] accent-[#2626ff]"
+                  />
+                  {f}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </section>
+
+        <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">
+          <h2 className="text-[20px] sm:text-[24px]">Zveřejnění</h2>
+          <label className="mt-5 flex cursor-pointer items-baseline gap-3 text-[14.5px] leading-relaxed text-ink-2">
+            <input
+              type="checkbox"
+              {...register("publicListing")}
+              className="translate-y-[1px] accent-[#2626ff]"
+            />
+            <span>
+              Souhlasím s uvedením svého jména ve veřejném seznamu členů.{" "}
+              <span className="text-ink-2/70">
+                (nepovinné, ale doporučené — každé jméno přidává komoře váhu)
+              </span>
             </span>
-          </span>
-        </label>
-        <p className="measure mt-4 text-[13.5px] leading-relaxed text-ink-2">
-          Souhlas ovlivňuje i ověřování partnery: bez něj jim komora potvrdí
-          jen to, že členství platí, ale jméno nesdělí. Odvolat ho jde kdykoli
-          a projeví se okamžitě.
-        </p>
-      </section>
+          </label>
+          <p className="measure mt-4 text-[13.5px] leading-relaxed text-ink-2">
+            Souhlas ovlivňuje i ověřování partnery: bez něj jim komora potvrdí
+            jen to, že členství platí, ale jméno nesdělí. Odvolat ho jde kdykoli
+            a projeví se okamžitě.
+          </p>
+        </section>
 
-      <div className="flex items-center gap-5">
-        <button
-          type="submit"
-          disabled={isSubmitting || !isDirty}
-          className="rounded-[2px] bg-action px-7 py-3 text-[15px] font-medium text-white transition-colors hover:bg-action-2 disabled:opacity-50"
-        >
-          {isSubmitting ? "Ukládám…" : "Uložit změny"}
-        </button>
-        {!isDirty && (
-          <p className="text-[13.5px] text-ink-2">Nic k uložení.</p>
-        )}
-      </div>
-    </form>
+        <div className="flex items-center gap-5">
+          <button
+            type="submit"
+            disabled={isSubmitting || !isDirty}
+            className="rounded-[2px] bg-action px-7 py-3 text-[15px] font-medium text-white transition-colors hover:bg-action-2 disabled:opacity-50"
+          >
+            {isSubmitting ? "Ukládám…" : "Uložit změny"}
+          </button>
+          {!isDirty && (
+            <p className="text-[13.5px] text-ink-2">Nic k uložení.</p>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }
