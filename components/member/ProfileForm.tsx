@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -66,9 +66,17 @@ export function ProfileForm() {
     defaultValues: { focus: [], publicListing: false },
   });
 
-  // Předvyplnění, jakmile dorazí data z Convexu.
+  // Předvyplnit JEN jednou, jakmile data poprvé dorazí.
+  //
+  // `useQuery` je živá subscription: každá změna členského záznamu (potvrzení
+  // platby, přidělení členského čísla, sjednocení e-mailu) sem pošle nový
+  // objekt. Kdyby se z něj formulář plnil pokaždé, přepsalo by to rozepsané
+  // údaje uprostřed psaní a tlačítko Uložit by zšedlo — přesně to se dělo.
+  // Nový výchozí stav se nastaví až po úspěšném uložení (`reset(data)` níž).
+  const seeded = useRef(false);
   useEffect(() => {
-    if (!member) return;
+    if (!member || seeded.current) return;
+    seeded.current = true;
     reset({
       name: member.name ?? "",
       ico: member.ico ?? "",
@@ -82,7 +90,27 @@ export function ProfileForm() {
   }, [member, reset]);
 
   if (member === undefined) return <MemberSkeleton />;
-  if (member === null) return null;
+
+  // Členský záznam ještě nevznikl (zakládá ho EnsureMember v layoutu).
+  // Bez téhle větve by tu byla prázdná stránka bez vysvětlení.
+  if (member === null) {
+    return (
+      <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">
+        <h2 className="text-[20px]">Zakládáme tvůj profil</h2>
+        <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
+          Chvilku to trvá. Když se nic nestane, načti stránku znovu — a pokud
+          ani to nepomůže, ozvi se nám na {" "}
+          <a
+            href="mailto:info@ckpd.cz"
+            className="text-brass underline-offset-4 hover:underline"
+          >
+            info@ckpd.cz
+          </a>
+          .
+        </p>
+      </section>
+    );
+  }
 
   async function onSubmit(data: FormData) {
     try {

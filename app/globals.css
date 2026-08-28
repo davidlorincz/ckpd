@@ -143,6 +143,32 @@
     color: #ffffff;
   }
 
+  /*
+   * Tailwind 4 přepnul preflight tlačítek na `cursor: default` — na webu
+   * plném tlačítek to vypadá, jako by nebyla klikatelná. Vracíme ruku
+   * všemu, co reaguje na klik, a u vypnutých prvků říkáme proč.
+   */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label:has(input[type="checkbox"]:not(:disabled)),
+  label:has(input[type="radio"]:not(:disabled)),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  input[type="submit"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-brass);
     outline-offset: 2px;
