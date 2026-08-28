@@ -25,6 +25,17 @@ export const stats = [
 ] as const;
 
 /**
+ * SHOW_MEMBER_AREA — členská sekce, přihlašování a platební tok.
+ *
+ * VÝCHOZÍ STAV JE VYPNUTO a to je záměr. Dokud běží mock platba, dala by
+ * se na veřejném webu nakliknout členství zdarma — a to by přidělilo
+ * skutečné členské číslo do evidence. Zapnout až s ostrou platební bránou,
+ * nastavením `NEXT_PUBLIC_SHOW_MEMBER_AREA=1`.
+ */
+export const SHOW_MEMBER_AREA =
+  process.env.NEXT_PUBLIC_SHOW_MEMBER_AREA === "1";
+
+/**
  * Platební brána. `mock` = platba se jen nasimuluje a nic se nestrhne;
  * `stripe` = ostrý provoz. Přepnutí nemění UI ani datový tok — obě cesty
  * končí ve stejné Convex funkci `billing.applyActivation`.

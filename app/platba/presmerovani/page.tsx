@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { SHOW_MEMBER_AREA } from "@/lib/flags";
 import { Suspense } from "react";
 import { CheckoutRedirect } from "@/components/member/CheckoutRedirect";
 
@@ -8,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function CheckoutRedirectPage() {
+  if (!SHOW_MEMBER_AREA) notFound();
   return (
     <Suspense fallback={null}>
       <CheckoutRedirect />

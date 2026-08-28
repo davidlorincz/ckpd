@@ -4,7 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Faq } from "@/components/sections/Faq";
 import { Cta } from "@/components/ui/Cta";
-import { memberBenefits, membershipTiers } from "@/lib/site";
+import { SHOW_MEMBER_AREA } from "@/lib/flags";
+import { memberBenefits, membershipTiers, org } from "@/lib/site";
 import { E } from "@/components/editor/EditableText";
 
 export const metadata: Metadata = {
@@ -175,23 +176,39 @@ export default function MembershipPage() {
               Údaje slouží jen pro vedení evidence členů.
             </E>
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-5">
-            <Cta href="/registrace" variant="conversion">
-              <E k="clenstvi.prihlaska.cta" editable={false}>
-                Stát se členem
-              </E>
-            </Cta>
-            <p className="text-[14px] text-ink-2">
-              <E k="clenstvi.prihlaska.signin">Už máš účet?</E>{" "}
-              <Link
-                href="/prihlaseni"
+          {SHOW_MEMBER_AREA ? (
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              <Cta href="/registrace" variant="conversion">
+                <E k="clenstvi.prihlaska.cta" editable={false}>
+                  Stát se členem
+                </E>
+              </Cta>
+              <p className="text-[14px] text-ink-2">
+                <E k="clenstvi.prihlaska.signin">Už máš účet?</E>{" "}
+                <Link
+                  href="/prihlaseni"
+                  className="text-brass underline-offset-4 hover:underline"
+                >
+                  Přihlas se
+                </Link>
+                .
+              </p>
+            </div>
+          ) : (
+            <p className="measure mt-8 text-[15.5px] leading-relaxed text-ink-2">
+              <E k="clenstvi.prihlaska.brzy">
+                Přihlášky spouštíme, jakmile bude hotová platební brána. Napiš
+                nám a ozveme se ti hned, jak to bude možné:
+              </E>{" "}
+              <a
+                href={`mailto:${org.email}`}
                 className="text-brass underline-offset-4 hover:underline"
               >
-                Přihlas se
-              </Link>
+                {org.email}
+              </a>
               .
             </p>
-          </div>
+          )}
         </Container>
       </section>
     </>

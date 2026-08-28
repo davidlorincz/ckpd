@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { Container } from "@/components/ui/Container";
 import { MemberNav } from "@/components/member/MemberNav";
 import { EnsureMember } from "@/components/member/EnsureMember";
+import { SHOW_MEMBER_AREA } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Můj účet",
@@ -24,6 +26,8 @@ export default async function MemberLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!SHOW_MEMBER_AREA) notFound();
+
   const { userId, redirectToSignIn } = await auth();
   if (!userId) return redirectToSignIn({ returnBackUrl: "/muj-ucet" });
 
