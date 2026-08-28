@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
 import { useConvexAuth, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { hasConvex } from "@/lib/env";
@@ -12,27 +11,22 @@ import { hasConvex } from "@/lib/env";
  * Záměrně místo Clerk webhooku: webhook by chtěl `svix`, signing secret
  * a tunel na dev i na každý preview deploy. Mutace je idempotentní.
  *
- * E-mail a jméno posíláme jen jako zálohu pro případ, že JWT šablona
- * „convex" nemá claimy `email` / `name`. Hodnota z tokenu má vždy přednost.
+ * Nic jí nepředáváme — e-mail a jméno si vezme z ověřeného Clerk JWT.
  */
 function EnsureMemberInner() {
   const { isAuthenticated } = useConvexAuth();
-  const { user } = useUser();
   const ensureSelf = useMutation(api.members.ensureSelf);
   const done = useRef(false);
 
   useEffect(() => {
     // Počkat, až Convex uvidí Clerk token — jinak mutace spadne na neautorizaci.
-    if (!isAuthenticated || !user || done.current) return;
+    if (!isAuthenticated || done.current) return;
     done.current = true;
-    ensureSelf({
-      email: user.primaryEmailAddress?.emailAddress ?? undefined,
-      name: user.fullName ?? undefined,
-    }).catch(() => {
+    ensureSelf().catch(() => {
       // Další načtení stránky to zkusí znovu; profil se dá doplnit i ručně.
       done.current = false;
     });
-  }, [isAuthenticated, user, ensureSelf]);
+  }, [isAuthenticated, ensureSelf]);
 
   return null;
 }

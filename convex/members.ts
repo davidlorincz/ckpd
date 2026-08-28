@@ -44,19 +44,17 @@ export const getSelf = query({
  * a tunel na dev. Webhook má smysl doplnit až pro `user.deleted` (GDPR).
  */
 export const ensureSelf = mutation({
-  // `email` a `name` jsou ZÁLOHA pro případ, že Clerk JWT šablona „convex"
-  // ty claimy nevystavuje. Když v tokenu jsou, mají přednost — hodnota
-  // z tokenu je ověřená, tahle ne. Nic se podle nich neautorizuje: identitu
-  // drží `clerkUserId` ze `sub` a člen si profil stejně může přepsat sám.
-  args: {
-    email: v.optional(v.string()),
-    name: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
+  // Bez argumentů schválně: e-mail i jméno se berou VÝHRADNĚ z ověřeného
+  // Clerk JWT (šablona „convex" vystavuje claimy `email` a `name`). Do
+  // evidence členů se tak nedá zapsat cizí ani vymyšlený e-mail.
+  // Kdyby claimy z šablony zmizely, vznikne prázdný profil — bezpečné
+  // selhání, člen si ho doplní sám.
+  args: {},
+  handler: async (ctx) => {
     const identity = await requireIdentity(ctx);
     const clerkUserId = subjectOf(identity);
-    const email = emailOf(identity) || args.email?.trim() || "";
-    const name = nameOf(identity) || args.name?.trim() || "";
+    const email = emailOf(identity);
+    const name = nameOf(identity);
 
     const existing = await ctx.db
       .query("members")
