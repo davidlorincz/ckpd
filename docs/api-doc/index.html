@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ověření členství ČKPD — API pro partnery</title>
+<meta name="description" content="Jak partner komory ověří přes API, že členství ČKPD platí a v jaké variantě.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Ověření členství ČKPD — API pro partnery">
+<meta property="og:description" content="Jak partner komory ověří přes API, že členství ČKPD platí a v jaké variantě.">
+<meta property="og:type" content="article">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='2' fill='none' stroke='%232626ff' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ff3200'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Saira:wght@600;700&display=swap">
+
+<style>
+  /* ---------------------------------------------------------------
+     Tokeny přebírají identitu ckpd.cz: BLUE BASE #2626ff, navy #000064,
+     hairline #b6b3ff, konverzní zelená #0eb24f. Radius 2 px, žádné stíny.
+     --------------------------------------------------------------- */
+  :root {
+    --bg:        #ffffff;
+    --surface:   #f4f4ff;
+    --surface-2: #ededff;
+    --hairline:  #b6b3ff;
+    --ink:       #000064;
+    --ink-2:     #55557f;
+    --ink-3:     #7c7ca3;
+    --accent:    #2626ff;
+    --ok:        #0b8a3e;
+    --ok-bg:     #e6f6ec;
+    --warn:      #8a5a00;
+    --warn-bg:   #fdf3e0;
+    --danger:    #9e2b25;
+    --danger-bg: #fbeceb;
+    --code-bg:   #f7f7ff;
+    --code-ink:  #1a1a4d;
+
+    --measure: 66ch;
+    --radius: 2px;
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg:        #04041c;
+      --surface:   #0a0a2e;
+      --surface-2: #101040;
+      --hairline:  #26265e;
+      --ink:       #e9e9ff;
+      --ink-2:     #a6a6d0;
+      --ink-3:     #7f7fac;
+      --accent:    #8a8aff;
+      --ok:        #4ad07f;
+      --ok-bg:     #0a2a19;
+      --warn:      #e0ad55;
+      --warn-bg:   #2c2109;
+      --danger:    #f0857e;
+      --danger-bg: #2e100e;
+      --code-bg:   #08082a;
+      --code-ink:  #d9d9ff;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #04041c;
+    --surface:   #0a0a2e;
+    --surface-2: #101040;
+    --hairline:  #26265e;
+    --ink:       #e9e9ff;
+    --ink-2:     #a6a6d0;
+    --ink-3:     #7f7fac;
+    --accent:    #8a8aff;
+    --ok:        #4ad07f;
+    --ok-bg:     #0a2a19;
+    --warn:      #e0ad55;
+    --warn-bg:   #2c2109;
+    --danger:    #f0857e;
+    --danger-bg: #2e100e;
+    --code-bg:   #08082a;
+    --code-ink:  #d9d9ff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------------------------------------------------- typografie */
+  h1, h2, h3 {
+    font-family: "Saira", "Inter", system-ui, sans-serif;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  h1 { font-size: clamp(30px, 5.5vw, 46px); line-height: 1.06; }
+  h2 { font-size: clamp(21px, 3vw, 27px); line-height: 1.15; }
+  h3 {
+    font-size: 15px;
+    letter-spacing: 0.07em;
+    color: var(--ink);
+  }
+  p { margin: 0; max-width: var(--measure); }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+
+  code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+  :not(pre) > code {
+    font-size: 0.88em;
+    background: var(--code-bg);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 0.08em 0.34em;
+    color: var(--code-ink);
+    overflow-wrap: anywhere;
+  }
+
+  .eyebrow {
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .lede { font-size: 18px; color: var(--ink-2); }
+  .note { font-size: 14.5px; color: var(--ink-2); }
+
+  /* -------------------------------------------------------- layout */
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+  .cols { display: block; }
+  main { min-width: 0; display: flex; flex-direction: column; gap: 52px; }
+
+  header.masthead {
+    border-bottom: 1px solid var(--hairline);
+    padding: 44px 0 34px;
+    margin-bottom: 52px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .brandline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .reticle {
+    width: 19px; height: 19px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+  .reticle span {
+    width: 6px; height: 6px;
+    background: #ff3200;
+    border-radius: 50%;
+  }
+  .brandname {
+    font-family: "Saira", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .brandmeta { font-size: 13px; color: var(--ink-3); }
+
+  section { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: 24px; }
+  .sec-head { display: flex; flex-direction: column; gap: 8px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* --------------------------------------------------------- karty */
+  .card {
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card.accent { border-left: 3px solid var(--accent); }
+  .card.good   { border-left: 3px solid var(--ok); }
+  .card.warn   { border-left: 3px solid var(--warn); }
+
+  /* --------------------------------------------------------- kód */
+  .code-block {
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+  .code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--hairline);
+    background: var(--surface-2);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-family: "Inter", sans-serif;
+  }
+  .code-head .status {
+    letter-spacing: 0.06em;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+  }
+  .status.ok  { color: var(--ok); }
+  .status.bad { color: var(--danger); }
+  pre {
+    margin: 0;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--code-ink);
+    tab-size: 2;
+  }
+  .k { color: var(--accent); }
+  .s { color: var(--ok); }
+  .n { color: var(--danger); }
+  .c { color: var(--ink-3); font-style: italic; }
+
+  /* -------------------------------------------------------- tabulky */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--hairline); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; min-width: 460px; font-size: 14.5px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  thead th {
+    font-size: 11.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.mono { font-family: "JetBrains Mono", monospace; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .fieldname { color: var(--accent); font-weight: 500; }
+
+  .pill {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--radius);
+  }
+  .pill.p200 { background: var(--ok-bg);     color: var(--ok); }
+  .pill.p400 { background: var(--warn-bg);   color: var(--warn); }
+  .pill.p401 { background: var(--danger-bg); color: var(--danger); }
+
+  /* ------------------------------------------------- seznam kroků */
+  ol.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; counter-reset: s; }
+  ol.steps > li {
+    counter-increment: s;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  ul.plain { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  /*
+     Odrážka musí být kreslená přes ::before v toku, ne gridem: v grid
+     kontejneru se každý vnořený prvek (<strong>, <code>) stane vlastní
+     buňkou, text se pak láme po jednom slovu a kód přeteče přes okolí.
+  */
+  ul.plain > li {
+    position: relative;
+    padding-left: 28px;
+    max-width: var(--measure);
+  }
+  ul.plain > li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 16px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .split { display: grid; gap: 16px; }
+  @media (min-width: 720px) { .split { grid-template-columns: 1fr 1fr; } }
+
+  /* ------------------------------------------------------------ TOC */
+  nav.toc { display: none; }
+  @media (min-width: 1080px) {
+    .cols { display: grid; grid-template-columns: 1fr 210px; gap: 56px; align-items: start; }
+    nav.toc {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      position: sticky;
+      top: 28px;
+      padding-left: 18px;
+      border-left: 1px solid var(--hairline);
+      font-size: 13.5px;
+    }
+    nav.toc a { color: var(--ink-2); text-decoration: none; }
+    nav.toc a:hover { color: var(--accent); text-decoration: underline; }
+    nav.toc .eyebrow { margin-bottom: 3px; }
+  }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 26px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="brandline">
+      <span class="reticle" aria-hidden="true"><span></span></span>
+      <span class="brandname">ČKPD</span>
+      <span class="brandmeta">Česká komora pilotů DRONů · IČO 24902497</span>
+    </div>
+    <h1>Ověření členství přes API</h1>
+    <p class="lede">
+      Partner komory se zeptá na ověřovací kód člena a dostane zpět, jestli
+      členství platí a v jaké variantě. Slouží k uznávání členských výhod —
+      slev, přístupů a nabídek zakázek.
+    </p>
+    <p class="note">
+      Rozhraní je určené pro komunikaci mezi servery. Klíč nikdy nevystavuj
+      v prohlížeči — endpoint proto záměrně neposílá CORS hlavičky, aby to
+      nešlo ani omylem.
+    </p>
+  </header>
+
+  <div class="cols">
+    <main>
+
+      <!-- ------------------------------------------------ jak začít -->
+      <section id="zacatek">
+        <div class="sec-head">
+          <span class="eyebrow">Než zavoláš první dotaz</span>
+          <h2>Jak získat přístup</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <div class="stack">
+              <h3>Požádej komoru o klíč</h3>
+              <p class="note">
+                Napiš na <a href="mailto:info@ckpd.cz">info@ckpd.cz</a> a uveď
+                název partnera, kontaktní e-mail a k čemu ověřování slouží.
+                Klíč vydává administrace komory a je vázaný jen na tvou
+                organizaci — zrušení kteréhokoli jiného klíče se tě nedotkne.
+              </p>
+            </div>
+          </li>
+          <li>
+            <div class="stack">
+              <h3>Ulož si klíč hned při převzetí</h3>
+              <p class="note">
+                Klíč ve tvaru <code>ckpd_live_…</code> se ukáže jen jednou.
+                Komora ho u sebe drží pouze v podobě otisku, takže ztracený
+                klíč nelze obnovit — jen nahradit novým. Zacházej s ním jako
+                s heslem k účtu.
+              </p>
+            </div>
+          </li>
+          <li>
+            <div class="stack">
+              <h3>Nech člena vložit jeho ověřovací kód</h3>
+              <p class="note">
+                Kód zná jen člen sám a předává ti ho z vlastního rozhodnutí.
+                Stačí jednou, při propojení účtu.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- --------------------------------------------------- dotaz -->
+      <section id="dotaz">
+        <div class="sec-head">
+          <span class="eyebrow">Požadavek</span>
+          <h2>Ověření kódu</h2>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>Požadavek</span><span class="status">GET</span></div>
+<pre><span class="k">GET</span> https://ckpd.vercel.app/api/v1/verify?code=CKPD-2026-0142-K7M9XQ2T
+<span class="k">Authorization:</span> Bearer ckpd_live_…</pre>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Prostředí</th><th>Základ adresy</th><th>Stav</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ostrá adresa</td>
+                <td class="mono">https://ckpd.vercel.app</td>
+                <td><span class="pill p200">v provozu</span></td>
+              </tr>
+              <tr>
+                <td>Přímý původ</td>
+                <td class="mono">https://combative-woodpecker-952.eu-west-1.convex.site</td>
+                <td><span class="pill p200">v provozu</span></td>
+              </tr>
+              <tr>
+                <td>Cílová adresa</td>
+                <td class="mono">https://ckpd.cz</td>
+                <td><span class="pill p400">připravuje se</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card accent">
+          <h3>Základ adresy si drž v konfiguraci</h3>
+          <p class="note">
+            Cesta <code>/api/v1/verify</code> ani formát dotazu se měnit
+            nebudou — komora zatím jen dokončuje přechod na doménu
+            <code>ckpd.cz</code>. Až se tak stane, přepíšeš jednu hodnotu
+            v konfiguraci a hotovo. Adresu proto nezapisuj natvrdo do kódu.
+          </p>
+          <p class="note">
+            <strong>Přímý původ</strong> v tabulce míří na server komory
+            s obejitím webu. Použij ho jen tehdy, když ti vadí případný výpadek
+            webové vrstvy — jinak se drž ostré adresy.
+          </p>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>Příklad · curl</span><span class="status">shell</span></div>
+<pre><span class="c"># základ adresy a klíč drž v proměnných prostředí</span>
+CKPD_API_BASE=<span class="s">"https://ckpd.vercel.app"</span>
+
+curl -s \
+  -H <span class="s">"Authorization: Bearer $CKPD_API_KEY"</span> \
+  <span class="s">"$CKPD_API_BASE/api/v1/verify?code=CKPD-2026-0142-K7M9XQ2T"</span></pre>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------- odpovědi -->
+      <section id="odpovedi">
+        <div class="sec-head">
+          <span class="eyebrow">Odpověď</span>
+          <h2>Co se vrátí</h2>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>Platné členství</span><span class="status ok">200 OK</span></div>
+<pre>{
+  <span class="k">"valid"</span>: <span class="n">true</span>,
+  <span class="k">"memberNumber"</span>: <span class="s">"CKPD-2026-0142"</span>,
+  <span class="k">"tier"</span>: <span class="s">"pro"</span>,
+  <span class="k">"tierLabel"</span>: <span class="s">"PRO"</span>,
+  <span class="k">"price"</span>: <span class="n">499</span>,
+  <span class="k">"currency"</span>: <span class="s">"CZK"</span>,
+  <span class="k">"period"</span>: <span class="s">"měsíc"</span>,
+  <span class="k">"memberSince"</span>: <span class="s">"2026-06-14"</span>,
+  <span class="k">"paidUntil"</span>: <span class="s">"2026-09-30"</span>,
+  <span class="k">"name"</span>: <span class="s">"Jan Novák"</span>
+}</pre>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Pole</th><th>Význam</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono"><span class="fieldname">memberNumber</span></td>
+                <td>Členské číslo. Neměnné a není tajné — klidně ho zobraz v účtu člena.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="fieldname">tier</span></td>
+                <td><code>zakladni</code>, <code>pro</code> nebo <code>cestne</code>. Podle toho odstupňuj výhody.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="fieldname">memberSince</span></td>
+                <td>Datum vzniku členství, formát <code>RRRR-MM-DD</code>.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="fieldname">paidUntil</span></td>
+                <td>Do kdy je příspěvek uhrazen. Po tomhle datu se zeptej znovu.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="fieldname">name</span></td>
+                <td>Jméno člena — pouze pokud dal souhlas se zveřejněním. Jinak <code>null</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>Neplatné</span><span class="status">200 OK</span></div>
+<pre>{ <span class="k">"valid"</span>: <span class="n">false</span> }</pre>
+        </div>
+
+        <div class="card warn">
+          <h3>Tuhle odpověď nerozklíčuješ</h3>
+          <p class="note">
+            Neznámý kód, překlep i členství, které skončilo — všechno vrací
+            bajt po bajtu stejnou odpověď. Je to záměr: z odpovědí nejde
+            zjistit, které kódy existují. Pro tvou aplikaci to znamená jediné —
+            výhodu neuznávej.
+          </p>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------- chyby -->
+      <section id="chyby">
+        <div class="sec-head">
+          <span class="eyebrow">Chybové stavy</span>
+          <h2>Když něco nesedí</h2>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Kód</th><th>Tělo</th><th>Kdy nastane</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono"><span class="pill p400">400</span></td>
+                <td class="mono">missing_code</td>
+                <td>Chybí parametr <code>code</code>.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="pill p401">401</span></td>
+                <td class="mono">unauthorized</td>
+                <td>Chybí hlavička <code>Authorization</code>, nebo je klíč neplatný či zrušený.</td>
+              </tr>
+              <tr>
+                <td class="mono"><span class="pill p401">429</span></td>
+                <td class="mono">rate_limited</td>
+                <td>Překročen limit dotazů. Odpověď nese <code>Retry-After: 60</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Na každou odpověď se vrací <code>X-RateLimit-Limit</code>,
+          <code>X-RateLimit-Remaining</code> a <code>X-RateLimit-Reset</code>
+          (unixový čas). Výchozí limit je <strong>60 dotazů za minutu</strong>;
+          po dohodě jde zvýšit.
+        </p>
+      </section>
+
+      <!-- ------------------------------------------------ formát kódu -->
+      <section id="format">
+        <div class="sec-head">
+          <span class="eyebrow">Formát</span>
+          <h2>Číslo versus kód</h2>
+        </div>
+        <p>Člen má dvě věci a nesmí se plést:</p>
+
+        <div class="split">
+          <div class="card">
+            <span class="eyebrow">Členské číslo</span>
+            <p class="mono" style="font-size:15px; letter-spacing:0.04em;">CKPD-2026-0142</p>
+            <p class="note">
+              Identita člena. Není tajná, můžeš ji zobrazovat i ukládat.
+              Vrací se v odpovědi.
+            </p>
+          </div>
+          <div class="card accent">
+            <span class="eyebrow">Ověřovací kód</span>
+            <p class="mono" style="font-size:15px; letter-spacing:0.04em;">CKPD-2026-0142-K7M9XQ2T</p>
+            <p class="note">
+              Členské číslo plus osm náhodných znaků. Tímhle se ověřuje.
+              Zacházej s ním jako s heslem.
+            </p>
+          </div>
+        </div>
+
+        <div class="card warn">
+          <h3>Samotné členské číslo rozhraní odmítne</h3>
+          <p class="note">
+            Kdyby stačilo, dal by se rozsah <code>0001</code>–<code>9999</code>
+            projet a stáhnout tak celou členskou základnu. Proto ověřuje až
+            kód s tajnou částí.
+          </p>
+        </div>
+
+        <p class="note">
+          Vstup se před vyhledáním normalizuje, takže tolerujeme malá písmena,
+          mezery místo pomlček, chybějící předponu <code>CKPD-</code> i klasické
+          záměny <code>I</code> a <code>l</code> za <code>1</code> a
+          <code>O</code> za <code>0</code>. Znaková sada je Crockford base32 —
+          <span class="mono">0–9</span> a <span class="mono">A–Z</span> bez
+          <code>I</code>, <code>L</code>, <code>O</code> a <code>U</code>.
+        </p>
+      </section>
+
+      <!-- --------------------------------------------------- zapojení -->
+      <section id="zapojeni">
+        <div class="sec-head">
+          <span class="eyebrow">Doporučený postup</span>
+          <h2>Jak to zapojit</h2>
+        </div>
+        <div class="card good">
+          <h3>Ověř jednou, ulož výsledek</h3>
+          <p class="note">
+            Nech člena vložit kód při propojení účtu, ověř ho a ulož si u sebe
+            jen <code>memberNumber</code>, <code>tier</code> a
+            <code>paidUntil</code>. Kód u sebe držet nemusíš. Po datu
+            <code>paidUntil</code> se zeptej znovu — buď si kód ulož
+            bezpečně jako heslo, nebo si o něj řekni znovu.
+          </p>
+        </div>
+        <ul class="plain">
+          <li><strong>Necachuj odpovědi.</strong> Členství může skončit a odvolaný souhlas se zveřejněním se musí projevit hned. Endpoint proto posílá <code>Cache-Control: no-store</code>.</li>
+          <li><strong>Neposílej kódy do logů</strong> třetích stran ani do analytiky.</li>
+          <li><strong>Neptej se dávkově</strong> na kódy, které ti člen nedal. Každý dotaz včetně neúspěšného se u komory zaznamenává a série neúspěchů vypadá jako hádání kódů.</li>
+          <li><strong>Seznam členů rozhraní nevydá.</strong> Ověřit jde jen kód, který ti člen sám dal — dotaz podle e-mailu nebo jména neexistuje záměrně.</li>
+        </ul>
+      </section>
+
+      <!-- ------------------------------------------------------ GDPR -->
+      <section id="udaje">
+        <div class="sec-head">
+          <span class="eyebrow">Osobní údaje</span>
+          <h2>Co komora sděluje a co ne</h2>
+        </div>
+        <div class="split">
+          <div class="card good">
+            <span class="eyebrow">Sdělí</span>
+            <ul class="plain" style="margin-top:2px;">
+              <li>že členství platí</li>
+              <li>variantu a cenu</li>
+              <li>od kdy členství trvá a do kdy je uhrazeno</li>
+              <li>jméno — jen se souhlasem člena</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="eyebrow">Nesdělí nikdy</span>
+            <ul class="plain" style="margin-top:2px;">
+              <li>e-mail</li>
+              <li>telefon</li>
+              <li>IČO</li>
+              <li>registrační číslo operátora</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">
+          Dotazy partnerů komora zaznamenává z důvodu bezpečnosti
+          a doložitelnosti a uchovává je 90 dní. Člen si může kód kdykoli
+          přegenerovat — starý tím okamžitě pozbývá platnosti, takže se
+          připrav na to, že dřív funkční kód přestane platit.
+        </p>
+      </section>
+
+    </main>
+
+    <nav class="toc" aria-label="Obsah stránky">
+      <span class="eyebrow">Obsah</span>
+      <a href="#zacatek">Jak získat přístup</a>
+      <a href="#dotaz">Ověření kódu</a>
+      <a href="#odpovedi">Co se vrátí</a>
+      <a href="#chyby">Když něco nesedí</a>
+      <a href="#format">Číslo versus kód</a>
+      <a href="#zapojeni">Jak to zapojit</a>
+      <a href="#udaje">Osobní údaje</a>
+      <a href="#administrace" style="color:var(--ink-3);">Interní · vydávání klíčů</a>
+    </nav>
+  </div>
+
+  <div class="cols" style="margin-top:56px;">
+    <section id="administrace" style="border-top:1px solid var(--hairline); padding-top:34px;">
+      <div class="sec-head">
+        <span class="eyebrow">Interní · pro administraci komory</span>
+        <h2>Kde se klíče vydávají</h2>
+      </div>
+      <p class="note">
+        Tahle část není pro partnery — popisuje správu na straně komory.
+      </p>
+
+      <ol class="steps">
+        <li>
+          <div class="stack">
+            <h3>Otevři administraci</h3>
+            <p class="note">
+              Sekce <code>/admin</code> na webu komory. Vidí ji jen přihlášený
+              účet s admin rolí; ostatním se ukáže jen přihlášení.
+            </p>
+          </div>
+        </li>
+        <li>
+          <div class="stack">
+            <h3>Vydej klíč partnerovi</h3>
+            <p class="note">
+              V bloku <strong>Partnerské klíče k ověřování členství</strong>
+              vyplň název partnera a kontaktní e-mail a klikni na
+              <strong>Vydat klíč</strong>. Klíč se zobrazí jedinkrát — zkopíruj
+              ho a předej partnera bezpečnou cestou. V databázi zůstává jen
+              jeho otisk, takže ztracený klíč nelze dohledat, jen nahradit.
+            </p>
+          </div>
+        </li>
+        <li>
+          <div class="stack">
+            <h3>Sleduj a případně zruš</h3>
+            <p class="note">
+              Tabulka ukazuje u každého partnera začátek klíče, limit dotazů za
+              minutu, počet dotazů za 30 dní, poslední použití a stav.
+              Tlačítko <strong>Zrušit</strong> klíč zneplatní okamžitě.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="card accent">
+        <h3>Poslední dotazy</h3>
+        <p class="note">
+          Pod tabulkou klíčů je přehled posledních sta dotazů včetně
+          neúspěšných — kdo se ptal, kdy, na jaký kód a s jakým výsledkem.
+          Slouží k tomu, aby šlo poznat, že si někdo kódy zkouší hádat.
+          Záznamy se po 90 dnech automaticky mažou.
+        </p>
+      </div>
+
+      <p class="note">
+        Členská čísla se přidělují postupně a jsou trvalá. Ověřovací kód si
+        člen může kdykoli přegenerovat ve svém účtu — tím starý okamžitě
+        pozbývá platnosti a partner potřebuje nový.
+      </p>
+    </section>
+    <div></div>
+  </div>
+
+  <footer>
+    <p class="note">
+      Dotazy k rozhraní a žádosti o klíč:
+      <a href="mailto:info@ckpd.cz">info@ckpd.cz</a>
+    </p>
+    <p class="note" style="color: var(--ink-3);">
+      Česká komora pilotů DRONů z.s. · IČO 24902497 · zapsáno u Městského soudu
+      v Praze, sp. zn. L 81935. Členské výhody poskytované partnery komory jsou
+      jejich dobrovolným plněním vůči členům.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
