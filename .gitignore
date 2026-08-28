@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# generovaný náhled titulků (zdroj je content/digiuniverzita/*.json)
+/content/digiuniverzita/vtt/

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { nav } from "@/lib/site";
 import { useEditMode } from "@/contexts/EditModeContext";
 import { MemberLink } from "@/components/member/MemberLink";
+import { DigiNavLink } from "@/components/digiuniverzita/DigiNavLink";
 
 /**
  * Sticky hlavička: značka + název ve dvou řádcích vlevo, navigace vpravo,
@@ -68,13 +69,40 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <DigiNavLink
+            active={pathname.startsWith("/digiuniverzita")}
+            className={cn(
+              "text-[15px] font-medium text-ink-2 transition-colors hover:text-ink",
+              pathname.startsWith("/digiuniverzita") &&
+                "text-ink underline decoration-brass decoration-2 underline-offset-8",
+            )}
+          />
+          {isEditMode && (
+            <Link
+              href="/admin"
+              aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+              className={cn(
+                "text-[15px] font-medium text-ink-2 transition-colors hover:text-ink",
+                pathname.startsWith("/admin") &&
+                  "text-ink underline decoration-brass decoration-2 underline-offset-8",
+              )}
+            >
+              Administrace
+            </Link>
+          )}
           <MemberLink className="border border-deep px-4 py-2 text-[15px] font-medium text-deep transition-colors hover:bg-deep hover:text-paper" />
           {isEditMode && (
             <span className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded-[2px] bg-green-600 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+              {/* Štítek hlásí, že je zapnutá editace textů přímo na stránkách —
+                  a zároveň je to nejkratší cesta do administrace. */}
+              <Link
+                href="/admin"
+                title="Editace textů je zapnutá — přejít do administrace"
+                className="flex items-center gap-1.5 rounded-[2px] bg-green-600 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-green-700"
+              >
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
                 Edit
-              </span>
+              </Link>
               <button
                 type="button"
                 onClick={() => signOut()}
@@ -126,6 +154,15 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+            <DigiNavLink className="border-b border-hairline py-3 text-[16px] font-medium text-ink" />
+            {isEditMode && (
+              <Link
+                href="/admin"
+                className="border-b border-hairline py-3 text-[16px] font-medium text-ink"
+              >
+                Administrace
+              </Link>
+            )}
             <MemberLink className="my-3 border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep" />
           </div>
         </nav>

@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       // administrace a strojové API. Nic z toho nepatří do indexu.
       disallow: [
         "/muj-ucet",
+        "/digiuniverzita",
         "/prihlaseni",
         "/registrace",
         "/platba",

@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { hashKey } from "./lib/code";
 
 /**
@@ -73,5 +74,145 @@ const verifyHandler = httpAction(async (ctx, request) => {
 });
 
 http.route({ path: "/api/v1/verify", method: "GET", handler: verifyHandler });
+
+/**
+ * Dopsání pozice ve videu při odchodu ze stránky.
+ *
+ * PROČ VLASTNÍ HTTP CESTA A NE OBYČEJNÁ MUTACE: když divák zavře kartu,
+ * Convex mutace přes websocket už nemusí odejít. Klient sem proto posílá
+ * `fetch(..., { keepalive: true })`, který zavření stránky přežije.
+ * Záměrně ne `sendBeacon` — ten neumí nastavit hlavičky, takže by neprošla
+ * autentizace, a `beforeunload` je prokazatelně nespolehlivý.
+ *
+ * Autorizaci i ořez délky úseku řeší `progress.heartbeat` — tahle cesta
+ * nesmí být volnější než běžný zápis.
+ */
+const beaconHandler = httpAction(async (ctx, request) => {
+  let payload: { lessonId?: string; from?: number; to?: number };
+  try {
+    payload = await request.json();
+  } catch {
+    return new Response(null, { status: 400 });
+  }
+
+  const { lessonId, from, to } = payload;
+  if (typeof lessonId !== "string" || typeof from !== "number" || typeof to !== "number") {
+    return new Response(null, { status: 400 });
+  }
+
+  await ctx.runMutation(api.progress.heartbeat, {
+    lessonId: lessonId as Id<"lessons">,
+    from,
+    to,
+  });
+
+  // Klient odpověď nečte — stránka už je pryč.
+  return new Response(null, { status: 204, headers: corsHeaders(request) });
+});
+
+/** Beacon jde z prohlížeče, takže na rozdíl od partnerského API CORS potřebuje. */
+function corsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get("origin");
+  return origin
+    ? {
+        "access-control-allow-origin": origin,
+        "access-control-allow-headers": "content-type, authorization",
+        "access-control-allow-methods": "POST, OPTIONS",
+        vary: "origin",
+      }
+    : {};
+}
+
+http.route({ path: "/api/progress/beacon", method: "POST", handler: beaconHandler });
+http.route({
+  path: "/api/progress/beacon",
+  method: "OPTIONS",
+  handler: httpAction(async (_ctx, request) =>
+    new Response(null, { status: 204, headers: corsHeaders(request) }),
+  ),
+});
+
+/**
+ * Webhook z Muxu.
+ *
+ * Enkódování běží asynchronně, takže `videoAssetId` doplní až tenhle
+ * callback. Lekci pozná podle `passthrough`, které se nastavuje při
+ * zakládání uploadu ve tvaru `kurz/lekce`.
+ *
+ * Podpis se ověřuje vždy — bez něj by kdokoli mohl přepsat, které video
+ * se u lekce přehrává.
+ */
+const muxWebhook = httpAction(async (ctx, request) => {
+  const secret = process.env.MUX_WEBHOOK_SECRET;
+  if (!secret) return new Response("webhook není nastavený", { status: 503 });
+
+  const signature = request.headers.get("mux-signature") ?? "";
+  const raw = await request.text();
+
+  // `Mux-Signature: t=<unix>,v1=<hmac sha256 nad "t.raw">`
+  const parts = Object.fromEntries(
+    signature.split(",").map((p) => {
+      const [k, ...rest] = p.split("=");
+      return [k.trim(), rest.join("=")];
+    }),
+  );
+  if (!parts.t || !parts.v1) return new Response(null, { status: 400 });
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const mac = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${parts.t}.${raw}`),
+  );
+  const expected = [...new Uint8Array(mac)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // porovnání v konstantním čase — délky se nejdřív srovnají
+  if (
+    expected.length !== parts.v1.length ||
+    expected.split("").reduce((acc, ch, i) => acc | (ch.charCodeAt(0) ^ parts.v1.charCodeAt(i)), 0) !== 0
+  ) {
+    return new Response(null, { status: 401 });
+  }
+
+  const event = JSON.parse(raw) as {
+    type?: string;
+    data?: {
+      passthrough?: string;
+      duration?: number;
+      playback_ids?: { id: string; policy: string }[];
+    };
+  };
+
+  if (event.type !== "video.asset.ready") return new Response(null, { status: 204 });
+
+  const passthrough = event.data?.passthrough ?? "";
+  const [courseSlug, lessonSlug] = passthrough.split("/");
+  const playbackId = event.data?.playback_ids?.[0]?.id;
+  if (!courseSlug || !lessonSlug || !playbackId) {
+    return new Response(null, { status: 204 });
+  }
+
+  await ctx.runMutation(internal.digiuniverzita.attachVideo, {
+    courseSlug,
+    lessonSlug,
+    videoProvider: "mux",
+    videoAssetId: playbackId,
+    durationSeconds: event.data?.duration
+      ? Math.round(event.data.duration)
+      : undefined,
+  });
+
+  return new Response(null, { status: 204 });
+});
+
+http.route({ path: "/api/mux/webhook", method: "POST", handler: muxWebhook });
 
 export default http;

@@ -121,3 +121,19 @@ export async function hashKey(key: string): Promise<string> {
 export function keyPrefixOf(key: string): string {
   return key.slice(0, 18);
 }
+
+/* ------------------------------------------------------------------ slugy */
+
+/**
+ * Název → slug do adresy. Diakritika se rozkládá a odstraňuje, aby
+ * „Létání u letišť" dalo `letani-u-letist` a ne procenta v URL.
+ */
+export function slugify(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}

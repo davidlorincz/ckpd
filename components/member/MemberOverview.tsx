@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { MembershipStatusCard } from "@/components/member/MembershipStatusCard";
 import { VerificationCodeCard } from "@/components/member/VerificationCodeCard";
 import { MemberSkeleton } from "@/components/member/MemberSkeleton";
+import { ContinueCard } from "@/components/digiuniverzita/ContinueCard";
 import { memberBenefits } from "@/lib/site";
 import { isActive } from "@/lib/membership";
 
@@ -59,6 +60,8 @@ export function MemberOverview() {
         cancelAtPeriodEnd={member.cancelAtPeriodEnd}
         memberNumber={member.memberNumber}
       />
+
+      {active && <ContinueCard />}
 
       {active && (
         <VerificationCodeCard

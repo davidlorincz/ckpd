@@ -76,6 +76,16 @@ export const memberBenefits: {
   },
   { label: "Prémiový obsah v Dronzóně", zakladni: true, pro: true },
   {
+    label: "DIGI univerzita — videokurzy k legislativě a provozu",
+    zakladni: true,
+    pro: true,
+  },
+  {
+    label: "DIGI univerzita v plném rozsahu (hobby i průmysl)",
+    zakladni: false,
+    pro: true,
+  },
+  {
     label: "Bezplatné webináře a workshopy k novým produktům",
     zakladni: true,
     pro: true,

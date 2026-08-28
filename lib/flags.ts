@@ -42,3 +42,12 @@ export const SHOW_MEMBER_AREA =
  */
 export const BILLING_PROVIDER = (process.env.NEXT_PUBLIC_BILLING_PROVIDER ??
   "mock") as "mock" | "stripe";
+
+/**
+ * SHOW_DIGIUNIVERZITA — videokurzy v členské sekci.
+ *
+ * Vypnuto, dokud lekce neprojdou fakt-checkem lektora. Komora publikující
+ * výklad legislativy nesmí spustit obsah, který nikdo odborně nezrevidoval.
+ */
+export const SHOW_DIGIUNIVERZITA =
+  process.env.NEXT_PUBLIC_SHOW_DIGIUNIVERZITA === "1";
