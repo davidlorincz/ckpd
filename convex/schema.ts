@@ -364,6 +364,27 @@ export default defineSchema({
     .index("by_lesson", ["lessonId"]),
 
   /**
+   * Evidence vydaných podpisů k videu.
+   *
+   * Podepsaná adresa je z principu vidět v prohlížeči a člen ji může poslat
+   * dál. Zabránit tomu nejde, ale jde poznat, čí odkaz to byl: token nese
+   * `jti`, které je čitelné přímo z adresy i bez klíče, a tady k němu leží
+   * člen a lekce. Uniklý odkaz tak vede ke konkrétnímu členství, ne
+   * k anonymnímu „někdo".
+   *
+   * Retence 90 dní jako u ostatního auditu (convex/crons.ts).
+   */
+  playbackTokens: defineTable({
+    /** Krátký identifikátor v claimu `jti`. */
+    jti: v.string(),
+    memberId: v.id("members"),
+    lessonId: v.id("lessons"),
+    issuedAt: v.number(),
+  })
+    .index("by_jti", ["jti"])
+    .index("by_issued", ["issuedAt"]),
+
+  /**
    * Kvíz na konci modulu nebo kurzu.
    *
    * Otázky se losují při každém pokusu — pool je záměrně mnohem větší než

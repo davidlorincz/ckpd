@@ -446,6 +446,8 @@ export const playbackTarget = internalQuery({
       provider: lesson.videoProvider,
       assetId: lesson.videoAssetId,
       durationSeconds: lesson.durationSeconds,
+      /** `null` u veřejné ukázky — tam není komu podpis přiřadit. */
+      memberId: access.memberId,
     };
   },
 });
@@ -474,5 +476,17 @@ export const lessonsMissingVideo = internalQuery({
         position: l.position,
         sourceMaster: l.sourceMaster ?? null,
       }));
+  },
+});
+
+/** Zapíše vydaný podpis, aby šel uniklý odkaz dohledat ke členovi. */
+export const logPlaybackToken = internalMutation({
+  args: {
+    jti: v.string(),
+    memberId: v.id("members"),
+    lessonId: v.id("lessons"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("playbackTokens", { ...args, issuedAt: Date.now() });
   },
 });

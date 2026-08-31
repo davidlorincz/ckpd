@@ -9,7 +9,7 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./lib/auth";
-import { slugify } from "./lib/code";
+import { extractPlaybackJti, slugify } from "./lib/code";
 import { publishStateValidator, tierValidator } from "./schema";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
@@ -539,6 +539,57 @@ export const courseDetail = query({
         .sort((a, b) => a.position - b.position)
         .map((s) => ({ id: s._id, key: s.key, title: s.title })),
       lessons: detail,
+    };
+  },
+});
+
+/**
+ * Dohledání uniklého odkazu.
+ *
+ * Přijme celou adresu, samotný token i holé `jti`. Payload JWT je jen base64,
+ * takže `jti` se z odkazu přečte bez podpisového klíče — a podle něj se najde,
+ * komu a kdy byl vydán.
+ *
+ * Nedokazuje to, kdo odkaz šířil; dokazuje, čí přihlášení ho vytvořilo. To
+ * stačí na to, aby se s tím členem dalo mluvit.
+ */
+export const traceToken = query({
+  args: { input: v.string() },
+  handler: async (ctx, { input }) => {
+    await requireAdmin(ctx);
+
+    const raw = input.trim();
+    if (!raw) return null;
+
+    const jti = extractPlaybackJti(raw);
+    if (!jti) return { status: "bad_input" as const };
+
+    const row = await ctx.db
+      .query("playbackTokens")
+      .withIndex("by_jti", (q) => q.eq("jti", jti))
+      .unique();
+    // Po 90 dnech je záznam smazaný — to je jiná odpověď než „neexistuje".
+    if (!row) return { status: "not_found" as const, jti };
+
+    const [member, lesson] = await Promise.all([
+      ctx.db.get(row.memberId),
+      ctx.db.get(row.lessonId),
+    ]);
+
+    return {
+      status: "found" as const,
+      jti,
+      issuedAt: row.issuedAt,
+      member: member
+        ? {
+            name: member.name,
+            email: member.email,
+            memberNumber: member.memberNumber ?? null,
+            tier: member.tier ?? null,
+            status: member.status,
+          }
+        : null,
+      lesson: lesson ? { title: lesson.title, slug: lesson.slug } : null,
     };
   },
 });

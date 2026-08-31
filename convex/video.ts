@@ -48,7 +48,12 @@ type Playback = {
  * Mux podepisuje RS256 JWT. `aud` rozlišuje, k čemu token opravňuje:
  * `v` playback, `t` poster, `s` storyboard. Každý zdroj chce vlastní token.
  */
-function signMux(playbackId: string, audience: "v" | "t" | "s", expSeconds: number) {
+function signMux(
+  playbackId: string,
+  audience: "v" | "t" | "s",
+  expSeconds: number,
+  jti?: string,
+) {
   const keyId = process.env.MUX_SIGNING_KEY_ID;
   const keyBase64 = process.env.MUX_SIGNING_PRIVATE_KEY;
   if (!keyId || !keyBase64) return null;
@@ -72,15 +77,22 @@ function signMux(playbackId: string, audience: "v" | "t" | "s", expSeconds: numb
       exp: expSeconds,
       kid: keyId,
       ...(restriction ? { playback_restriction_id: restriction } : {}),
+      /**
+       * Otisk vydání. Čitelný přímo z adresy i bez klíče (payload JWT je jen
+       * base64), takže z uniklého odkazu jde v administraci dohledat, komu
+       * byl vydán. Mux nestandardní claimy propouští — ověřeno proti ostrému
+       * assetu.
+       */
+      ...(jti ? { jti } : {}),
     },
     privateKey,
     { algorithm: "RS256" },
   );
 }
 
-function muxPlayback(assetId: string): Playback {
+function muxPlayback(assetId: string, jti?: string): Playback {
   const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL_SECONDS;
-  const playbackToken = signMux(assetId, "v", exp);
+  const playbackToken = signMux(assetId, "v", exp, jti);
 
   if (!playbackToken) {
     // Bez podpisových klíčů se dá vyvíjet, ale nesmí se to dostat na produkci.
@@ -148,10 +160,23 @@ export const signedPlayback = action({
       { lessonId },
     );
     if (!target) return null;
+    if (target.provider !== "mux") return bunnyPlayback(target.assetId);
 
-    return target.provider === "mux"
-      ? muxPlayback(target.assetId)
-      : bunnyPlayback(target.assetId);
+    /*
+      Podpis se eviduje jen členovi. U veřejné ukázky není komu ho přiřadit
+      a zapisovat řádek za každého anonymního návštěvníka nemá smysl.
+    */
+    let jti: string | undefined;
+    if (target.memberId) {
+      jti = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+      await ctx.runMutation(internal.digiuniverzita.logPlaybackToken, {
+        jti,
+        memberId: target.memberId,
+        lessonId,
+      });
+    }
+
+    return muxPlayback(target.assetId, jti);
   },
 });
 

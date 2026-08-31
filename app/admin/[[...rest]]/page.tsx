@@ -4,6 +4,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { AdminSignIn } from "@/components/admin/AdminSignIn";
 import { AdminHeading } from "@/components/admin/AdminShell";
 import { AdminOverview } from "@/components/admin/AdminOverview";
+import { TokenTrace } from "@/components/admin/TokenTrace";
 
 export const metadata: Metadata = {
   title: "Administrace",
@@ -31,6 +32,7 @@ export default async function AdminPage() {
             lead="Stav členské základny a obsahu. Editace textů na webu se zapíná automaticky — projdi na kteroukoli stránku a klikni do textu."
           />
           <AdminOverview />
+          <TokenTrace />
         </>
       );
     }

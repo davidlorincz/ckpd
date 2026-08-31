@@ -25,7 +25,14 @@ export const cleanup = internalMutation({
       .take(1000);
     for (const row of old) await ctx.db.delete(row._id);
 
-    return { rateLimits: stale.length, logs: old.length };
+    // Evidence vydaných podpisů k videu — stejná retenční lhůta.
+    const tokens = await ctx.db
+      .query("playbackTokens")
+      .withIndex("by_issued", (q) => q.lt("issuedAt", cutoff))
+      .take(1000);
+    for (const row of tokens) await ctx.db.delete(row._id);
+
+    return { rateLimits: stale.length, logs: old.length, tokens: tokens.length };
   },
 });
 

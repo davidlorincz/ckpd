@@ -137,3 +137,39 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
+
+/* ------------------------------------------------- dohledání odkazu na video */
+
+/**
+ * Vytáhne identifikátor vydaného podpisu (`jti`) z toho, co admin vloží.
+ *
+ * Zvládne tři tvary, protože nikdo nebude řešit, který zkopíroval:
+ *  - celou adresu videa `https://stream.mux.com/…?token=eyJ…`
+ *  - samotný JWT
+ *  - holé `jti`
+ *
+ * Payload JWT je jen base64, takže se `jti` přečte bez podpisového klíče —
+ * o to tu jde: uniklý odkaz má vést ke členství, ne k anonymnímu „někdo".
+ * Podpis se tu záměrně neověřuje; to není potřeba, protože `jti` se stejně
+ * dohledává proti vlastní evidenci.
+ */
+export function extractPlaybackJti(input: string): string | null {
+  let candidate = input.trim();
+  if (!candidate) return null;
+
+  const fromUrl = /[?&]token=([^&\s]+)/.exec(candidate);
+  if (fromUrl) candidate = fromUrl[1];
+
+  const parts = candidate.split(".");
+  if (parts.length === 3) {
+    try {
+      const json = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+      const payload = JSON.parse(json) as { jti?: unknown };
+      return typeof payload.jti === "string" && payload.jti ? payload.jti : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return /^[a-f0-9]{6,32}$/i.test(candidate) ? candidate : null;
+}
