@@ -43,11 +43,22 @@ export type LessonPlayerProps = {
   onTimeUpdate?: (seconds: number) => void;
   /** Uzavření sledovaného úseku — pauza, konec, přetočení. */
   onCommit?: () => void;
+  /** Chyba přehrávání — typicky vypršelý podpis. */
+  onPlaybackError?: () => void;
 };
 
 export const LessonPlayer = forwardRef<MediaPlayerInstance, LessonPlayerProps>(
   function LessonPlayer(
-    { src, title, posterUrl, storyboardUrl, subtitlesUrl, onTimeUpdate, onCommit },
+    {
+      src,
+      title,
+      posterUrl,
+      storyboardUrl,
+      subtitlesUrl,
+      onTimeUpdate,
+      onCommit,
+      onPlaybackError,
+    },
     ref,
   ) {
     return (
@@ -71,6 +82,7 @@ export const LessonPlayer = forwardRef<MediaPlayerInstance, LessonPlayerProps>(
         onPause={() => onCommit?.()}
         onEnded={() => onCommit?.()}
         onSeeked={() => onCommit?.()}
+        onError={() => onPlaybackError?.()}
       >
         <MediaProvider>
           {posterUrl && (

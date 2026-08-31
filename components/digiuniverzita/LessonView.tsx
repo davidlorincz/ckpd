@@ -50,6 +50,13 @@ export function LessonView({
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [resumeDismissed, setResumeDismissed] = useState(false);
+  /**
+   * Přepodepsání po chybě. Podpis platí půl hodiny; když divák nechá lekci
+   * otevřenou přes noc a vrátí se k ní, Mux odmítne. Místo hlášky o chybě si
+   * vyžádáme novou adresu a navážeme na stejné sekundě.
+   */
+  const [resignAttempt, setResignAttempt] = useState(0);
+  const resumeAfterReload = useRef<number | null>(null);
 
   const { progress, track, commit, markCompleted } = useLessonProgress(
     lesson?.lessonId,
@@ -80,7 +87,16 @@ export function LessonView({
     return () => {
       cancelled = true;
     };
-  }, [lessonId, canPlay, requestPlayback]);
+  }, [lessonId, canPlay, requestPlayback, resignAttempt]);
+
+  /** Po výměně adresy vrátit přehrávač tam, kde byl. */
+  useEffect(() => {
+    const at = resumeAfterReload.current;
+    if (playback && at !== null && player.current) {
+      resumeAfterReload.current = null;
+      player.current.currentTime = at;
+    }
+  }, [playback]);
 
   /**
    * Titulky vyrobené z transkriptu. Blob se drží po dobu života komponenty
@@ -223,6 +239,12 @@ export function LessonView({
               track(t);
             }}
             onCommit={commit}
+            onPlaybackError={() => {
+              // jen jeden pokus — opakovaná chyba není vypršelý podpis
+              if (resignAttempt > 0) return;
+              resumeAfterReload.current = player.current?.currentTime ?? 0;
+              setResignAttempt((n) => n + 1);
+            }}
           />
 
           {/* Automatika sama nestačí — kdo si látku přečte v přepisu, musí

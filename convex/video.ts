@@ -21,11 +21,14 @@ import { action } from "./_generated/server";
 import { internal } from "./_generated/api";
 
 /**
- * Jak dlouho platí podpis. Krátká platnost omezuje cenu sdílené adresy;
- * delší lekce ji přežije, protože přehrávač si ji obnovuje (hls.js
- * `xhrSetup`) — Mux Player to sám neumí, proto jedeme na Vidstacku.
+ * Jak dlouho platí podpis.
+ *
+ * Půl hodiny je kompromis: nejdelší lekce má 8 minut, takže se do okna vejde
+ * i s pauzami, a zkopírovaná adresa je zároveň za chvíli k ničemu. Kdyby
+ * token přesto vypršel uprostřed, přehrávač si po chybě vyžádá nový a naváže
+ * na stejné sekundě (viz LessonView).
  */
-const TOKEN_TTL_SECONDS = 2 * 60 * 60;
+const TOKEN_TTL_SECONDS = 30 * 60;
 
 /** Strop rozlišení. Bez něj Mux účtuje vyšší tier, i když ho nikdo nepotřebuje. */
 const MAX_RESOLUTION = "1080p";
@@ -50,9 +53,26 @@ function signMux(playbackId: string, audience: "v" | "t" | "s", expSeconds: numb
   const keyBase64 = process.env.MUX_SIGNING_PRIVATE_KEY;
   if (!keyId || !keyBase64) return null;
 
+  /**
+   * Playback Restriction — druhá vrstva nad podpisem.
+   *
+   * Samotný podpis říká „tenhle token je pravý", ale ne „přehrává se tam,
+   * kde má". Restrikce k tomu přidá kontrolu hlavičky Referer proti seznamu
+   * domén a odmítne požadavky bez ní nebo s rizikovým User-Agentem.
+   * Prakticky to znamená, že zkopírovaná adresa v VLC, curlu, yt-dlp ani
+   * na cizím webu nehraje — a to i dokud token ještě platí.
+   */
+  const restriction = process.env.MUX_PLAYBACK_RESTRICTION_ID;
+
   const privateKey = Buffer.from(keyBase64, "base64").toString("utf8");
   return jwt.sign(
-    { sub: playbackId, aud: audience, exp: expSeconds, kid: keyId },
+    {
+      sub: playbackId,
+      aud: audience,
+      exp: expSeconds,
+      kid: keyId,
+      ...(restriction ? { playback_restriction_id: restriction } : {}),
+    },
     privateKey,
     { algorithm: "RS256" },
   );
