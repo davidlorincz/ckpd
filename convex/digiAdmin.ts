@@ -172,9 +172,12 @@ async function recountCourse(ctx: MutationCtx, courseId: Id<"courses">) {
     .query("lessons")
     .withIndex("by_course", (q) => q.eq("courseId", courseId))
     .collect();
+  // Stejné pravidlo jako v `digiuniverzita.seedCourse`: čísla kurzu popisují
+  // to, co člen uvidí, takže draft a archiv se do nich nepočítají.
+  const published = lessons.filter((l) => l.state === "published");
   await ctx.db.patch(courseId, {
-    lessonCount: lessons.length,
-    totalDurationSeconds: lessons.reduce((a, l) => a + l.durationSeconds, 0),
+    lessonCount: published.length,
+    totalDurationSeconds: published.reduce((a, l) => a + l.durationSeconds, 0),
     updatedAt: Date.now(),
   });
 }

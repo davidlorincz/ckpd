@@ -265,11 +265,14 @@ export const seedCourse = internalMutation({
       .withIndex("by_slug", (q) => q.eq("slug", course.slug))
       .unique();
 
+    // Jen publikované lekce — draft členům nezobrazujeme (`courseBySlug`
+    // filtruje podle `state`), takže součet přes všechny by v katalogu
+    // sliboval lekce a minuty, které nikdo neuvidí.
     const totals = lessons.reduce(
-      (acc, l) => ({
-        count: acc.count + 1,
-        duration: acc.duration + l.durationSeconds,
-      }),
+      (acc, l) =>
+        l.state === "published"
+          ? { count: acc.count + 1, duration: acc.duration + l.durationSeconds }
+          : acc,
       { count: 0, duration: 0 },
     );
 
@@ -421,6 +424,66 @@ export const attachVideo = internalMutation({
       updatedAt: Date.now(),
     });
     return { lessonId: lesson._id };
+  },
+});
+
+/**
+ * Odpojí od kurzu všechna videa a zahodí postup členů. Pro výměnu celé sady
+ * renderů za novou verzi: `seedCourse` schválně `videoAssetId` nepřepisuje
+ * (doplňuje ho až upload) a `attachVideo` prázdnou hodnotu nepřijme, takže
+ * bez tohohle kroku by nahrávací skript nenašel žádnou lekci k nahrání.
+ *
+ * Postup se maže záměrně — nová videa mají jinou stopáž, takže uložené pozice
+ * a pokrytí (`watchedRanges`) by ukazovaly na místa, která v novém střihu
+ * nejsou. Nechat je by členům vyrobilo nesmyslná procenta, ne kontinuitu.
+ */
+export const resetCourseVideos = internalMutation({
+  args: { courseSlug: v.string() },
+  handler: async (ctx, { courseSlug }) => {
+    const course = await ctx.db
+      .query("courses")
+      .withIndex("by_slug", (q) => q.eq("slug", courseSlug))
+      .unique();
+    if (!course) throw new Error(`Kurz ${courseSlug} neexistuje.`);
+
+    const lessons = await ctx.db
+      .query("lessons")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .collect();
+
+    const now = Date.now();
+    let detached = 0;
+    for (const lesson of lessons) {
+      if (!lesson.videoAssetId && !lesson.videoProvider) continue;
+      await ctx.db.patch(lesson._id, {
+        videoProvider: undefined,
+        videoAssetId: undefined,
+        updatedAt: now,
+      });
+      detached += 1;
+    }
+
+    const lessonRows = await ctx.db
+      .query("lessonProgress")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .collect();
+    for (const row of lessonRows) await ctx.db.delete(row._id);
+
+    // courseProgress nemá index podle kurzu (čte se vždy per člen), takže
+    // jednorázový průchod tabulkou. Řádků je tolik co členů × kurzů.
+    const courseRows = await ctx.db.query("courseProgress").collect();
+    let courseProgressDeleted = 0;
+    for (const row of courseRows) {
+      if (row.courseId !== course._id) continue;
+      await ctx.db.delete(row._id);
+      courseProgressDeleted += 1;
+    }
+
+    return {
+      detached,
+      lessonProgressDeleted: lessonRows.length,
+      courseProgressDeleted,
+    };
   },
 });
 

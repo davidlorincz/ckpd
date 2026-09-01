@@ -43,7 +43,7 @@ const COURSE = {
   title: "OPEN A1/A3 — legislativa dronů",
   perex:
     "Kompletní výklad pravidel pro otevřenou kategorii: od základních pojmů přes registraci " +
-    "a zeměpisné zóny až po povinnosti pilota v praxi. Jedenáct samostatných lekcí, každá do osmi minut.",
+    "a zeměpisné zóny až po povinnosti pilota v praxi. Deset samostatných lekcí, každá do devíti minut.",
   /** undefined = jakýkoli aktivní člen (Základní i PRO). PRO kurzy dostanou "pro". */
   requiredTier: undefined,
   /**
@@ -69,8 +69,8 @@ const LESSONS = [
     perex:
       "Kdo píše pravidla pro drony a kdo je u nás hlídá. Rozdíl mezi pilotem a provozovatelem, " +
       "zapojené a nezapojené osoby, shromáždění lidí a co znamená VLOS, EVLOS a BVLOS.",
-    youtubeId: "4xfhE9AQPnE",
-    master: "lekce1-final/lekce1-uvod-zakladni-pojmy-v1.mp4",
+    youtubeId: "9nUJhoDmZ40",
+    master: "lekce1-final/lekce1-uvod-zakladni-pojmy-v3.mp4",
   },
   {
     n: 2,
@@ -79,8 +79,8 @@ const LESSONS = [
     perex:
       "Dvě povinnosti, které vyřídíte online, než poprvé vzlétnete. Registrace provozovatele, " +
       "registrační značka, účet na webu ÚCL, online test a doklad o absolvování.",
-    youtubeId: "q89kiREW3gg",
-    master: "lekce2-final/lekce2-registrace-a-zkouska-v1.mp4",
+    youtubeId: "xR0OsLnOIMc",
+    master: "lekce2-final/lekce2-registrace-a-zkouska-v3.mp4",
   },
   {
     n: 3,
@@ -89,8 +89,8 @@ const LESSONS = [
     perex:
       "Tři kategorie podle rizika, hranice 120 metrů nad terénem, třídy C0 až C6 " +
       "a co dělat, když dron štítek nemá. Plus předletová příprava.",
-    youtubeId: "Ei7tZb_qrx0",
-    master: "lekce3-final/lekce3-kategorie-provozu-stitky-C-v1.mp4",
+    youtubeId: "s9IWih9yF78",
+    master: "lekce3-final/lekce3-kategorie-provozu-stitky-C-v3.mp4",
   },
   {
     n: 4,
@@ -99,8 +99,8 @@ const LESSONS = [
     perex:
       "Jak blízko lidí smíte létat a jak těžký dron k tomu potřebujete. Pravidlo 1:1, " +
       "průkaz A2, hustě osídlený prostor, pomalý režim a hranice 150 metrů od zástavby.",
-    youtubeId: "jgBL8n24o50",
-    master: "lekce4-final/lekce4-podkategorie-a1-a2-a3-v1.mp4",
+    youtubeId: "bOYR2i-9nl8",
+    master: "lekce4-final/lekce4-podkategorie-a1-a2-a3-v3.mp4",
   },
   {
     n: 5,
@@ -109,8 +109,8 @@ const LESSONS = [
     perex:
       "Co dělat, když se let do otevřené kategorie nevejde. Analýza rizik, standardní scénáře " +
       "a proč se u nás zatím nepoužívají.",
-    youtubeId: "ifwmVd3ElFQ",
-    master: "lekce5-final/lekce5-specificka-certifikovana-v1.mp4",
+    youtubeId: "X0iIxb1pp3w",
+    master: "lekce5-final/lekce5-specificka-certifikovana-v3.mp4",
   },
   {
     n: 6,
@@ -119,8 +119,8 @@ const LESSONS = [
     perex:
       "Praktický průchod dronemap.gov.cz: založení účtu, čtení zón, podmínky provozu " +
       "a zápis letu. Se záznamem skutečné obrazovky.",
-    youtubeId: "rzXNGkur7fI",
-    master: "lekce6-final/lekce6-digitalni-mapa-dronemap-v1.mp4",
+    youtubeId: "RZdB8FyCbuY",
+    master: "lekce6-final/lekce6-digitalni-mapa-dronemap-v3.mp4",
   },
   {
     n: 7,
@@ -129,8 +129,8 @@ const LESSONS = [
     perex:
       "Jak je poskládaný systém zeměpisných zón. FIR LKAA, role ŘLP, co je opatření obecné povahy " +
       "a proč platí základ plus to, co je zrovna pod vámi.",
-    youtubeId: "bEuryZ8uDWM",
-    master: "lekce7-final/lekce7-LKR310-system-vyhlasek-v1.mp4",
+    youtubeId: "cLa6C3Z4CDQ",
+    master: "lekce7-final/lekce7-LKR310-system-vyhlasek-v3.mp4",
   },
   {
     n: 8,
@@ -139,8 +139,8 @@ const LESSONS = [
     perex:
       "Ochranná pásma tří typů staveb, rozdíl mezi průletem a letem, kdo je správce " +
       "a jak se hlásí událost.",
-    youtubeId: "aoaHXMUFAbo",
-    master: "lekce8-final/lekce8-zeleznice-vedeni-vodni-zdroje-v1.mp4",
+    youtubeId: "ibC08FuqCA0",
+    master: "lekce8-final/lekce8-zeleznice-vedeni-vodni-zdroje-v3.mp4",
     /**
      * ⚠️ Video uvádí 50 m AGL podle chyby v tehdejší vyhlášce (potvrzeno ŘLP);
      * po opravě vyhlášky se přerenderuje na 30 m.
@@ -159,8 +159,8 @@ const LESSONS = [
     perex:
       "Řízená a neřízená letiště, řízený okrsek, gridy a ATZ. Jak poznat, kam smíte, " +
       "a jak si vyžádat koordinaci.",
-    youtubeId: "xDaf-m-6M5A",
-    master: "lekce9-final/lekce9-letani-u-letist-v5.mp4",
+    youtubeId: "D43gpkmJBXs",
+    master: "lekce9-final/lekce9-letani-u-letist-v3.mp4",
   },
   {
     n: 10,
@@ -169,8 +169,8 @@ const LESSONS = [
     perex:
       "Zbývajících pět vyhlášek: hustě osídlený prostor, ochranná pásma silnic, národní parky " +
       "a chráněné oblasti, objekty důležité pro obranu státu a zakázané prostory. Plus NOTAM.",
-    youtubeId: "4imv9AaW0fo",
-    master: "lekce10-final/lekce10-HOP-silnice-priroda-ODOS-prostory-v2.mp4",
+    youtubeId: "cxhoX65zfpU",
+    master: "lekce10-final/lekce10-HOP-silnice-priroda-ODOS-prostory-v3.mp4",
   },
   {
     n: 11,
@@ -179,8 +179,15 @@ const LESSONS = [
     perex:
       "Co je na provozovateli a co na pilotovi. Pojištění, firmware, návrat domů, létání za " +
       "soumraku, checklist před vzletem a co dělat, když do prostoru míří vrtulník.",
-    youtubeId: "i5sjRC2pr9A",
-    master: "lekce11-final/lekce11-povinnosti-a-letani-v-praxi-v1.mp4",
+    youtubeId: "vHp8m50kEZA",
+    master: "lekce11-final/lekce11-povinnosti-a-letani-v-praxi-v3.mp4",
+    /**
+     * Free plán Muxu drží nejvýš 10 assetů a kurz má 11 lekcí. Master i titulky
+     * jsou hotové, chybí jen místo u providera — proto draft, ne archiv:
+     * po přechodu na Pay-As-You-Go stačí nahrát video a přepnout na published.
+     */
+    state: "draft",
+    stateNote: "⏳ Hotová, čeká na volný slot u Muxu (free plán drží 10 assetů).",
   },
 ];
 
@@ -277,7 +284,16 @@ const lessons = LESSONS.map((meta, index) => {
   };
 });
 
-const totalDurationSeconds = lessons.reduce((a, l) => a + l.durationSeconds, 0);
+/**
+ * Do čísel kurzu se počítají jen publikované lekce — katalog a detail kurzu
+ * draftované lekce členům nezobrazují (`courseBySlug` filtruje podle `state`),
+ * takže součet přes všechny by sliboval víc, než je vidět.
+ */
+const publishedLessons = lessons.filter((l) => l.state === "published");
+const totalDurationSeconds = publishedLessons.reduce(
+  (a, l) => a + l.durationSeconds,
+  0,
+);
 
 const seed = {
   $schema: "./a1a3.schema.json",
@@ -289,7 +305,7 @@ const seed = {
       title: s.title,
       position: i + 1,
     })),
-    lessonCount: lessons.length,
+    lessonCount: publishedLessons.length,
     totalDurationSeconds,
   },
   lessons,
@@ -310,7 +326,8 @@ if (process.argv.includes("--vtt")) {
 const mins = Math.round(totalDurationSeconds / 60);
 const caps = lessons.reduce((a, l) => a + l.transcript.length, 0);
 console.log(
-  `${path.relative(process.cwd(), OUT)} — ${lessons.length} lekcí, ${mins} min, ${caps} titulků`,
+  `${path.relative(process.cwd(), OUT)} — ${publishedLessons.length} publikovaných lekcí` +
+    ` z ${lessons.length}, ${mins} min, ${caps} titulků`,
 );
 const drafts = lessons.filter((l) => l.state === "draft");
 if (drafts.length) {
