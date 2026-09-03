@@ -19,11 +19,13 @@ import type * as lib_auth from "../lib/auth.js";
 import type * as lib_code from "../lib/code.js";
 import type * as lib_entitlement from "../lib/entitlement.js";
 import type * as lib_ranges from "../lib/ranges.js";
+import type * as lib_sandbox from "../lib/sandbox.js";
 import type * as members from "../members.js";
 import type * as notes from "../notes.js";
 import type * as partnerKeys from "../partnerKeys.js";
 import type * as progress from "../progress.js";
 import type * as quizzes from "../quizzes.js";
+import type * as sandbox from "../sandbox.js";
 import type * as verification from "../verification.js";
 import type * as video from "../video.js";
 
@@ -45,11 +47,13 @@ declare const fullApi: ApiFromModules<{
   "lib/code": typeof lib_code;
   "lib/entitlement": typeof lib_entitlement;
   "lib/ranges": typeof lib_ranges;
+  "lib/sandbox": typeof lib_sandbox;
   members: typeof members;
   notes: typeof notes;
   partnerKeys: typeof partnerKeys;
   progress: typeof progress;
   quizzes: typeof quizzes;
+  sandbox: typeof sandbox;
   verification: typeof verification;
   video: typeof video;
 }>;

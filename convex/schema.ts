@@ -25,6 +25,18 @@ export const statusValidator = v.union(
 );
 
 /**
+ * Režim ověřovacího API.
+ *  live — ostrý provoz, ptá se do evidence členů (`/api/v1/verify`)
+ *  test — pískoviště nad pevnou sadou fiktivních členů
+ *         (`/api/v1/sandbox/verify`, convex/lib/sandbox.ts)
+ *
+ * Oba světy jsou oddělené: testovací klíč reálného člena nedohledá a ostrý
+ * klíč testovací kód taky ne. Jinak by šlo testovací kód uplatnit u partnera
+ * jako platné členství.
+ */
+export const apiModeValidator = v.union(v.literal("live"), v.literal("test"));
+
+/**
  * Publikační stav obsahu DIGI univerzity. `draft` je vidět jen v dev režimu
  * a v adminu — stejné pravidlo jako u stanovisek (lib/stanoviska.ts).
  */
@@ -147,6 +159,11 @@ export default defineSchema({
     keyHash: v.string(),
     /** Prvních pár znaků klíče, aby šel v adminu poznat. Není tajný. */
     keyPrefix: v.string(),
+    /**
+     * Do kterého světa klíč patří. Starší řádky ho nemají — režim se u nich
+     * dopočítá z prefixu (`ckpd_test_`), takže není potřeba migrace.
+     */
+    mode: v.optional(apiModeValidator),
     scopes: v.array(v.string()),
     active: v.boolean(),
     rateLimitPerMin: v.number(),
@@ -175,9 +192,25 @@ export default defineSchema({
       v.literal("unauthorized"),
     ),
     at: v.number(),
+
+    /* Ladicí část záznamu. Starší řádky ji nemají — proto vše volitelné. */
+    /** Chybí u řádků z doby před testovacím prostředím; ty jsou všechny ostré. */
+    mode: v.optional(apiModeValidator),
+    /**
+     * Kód tak, jak dorazil (ořez na 80 znaků) — partner v adminu vidí,
+     * co doopravdy odeslal, včetně překlepu.
+     *
+     * V ostrém režimu se NEUKLÁDÁ u `unauthorized` a `rate_limited`: kód
+     * poslaný s cizím nebo zrušeným klíčem se u nás nemá kde usadit.
+     */
+    requestCode: v.optional(v.string()),
+    httpStatus: v.optional(v.number()),
+    /** Tělo odpovědi jako JSON. U ostrých řádků se maže po 7 dnech (crons.ts). */
+    responseBody: v.optional(v.string()),
   })
     .index("by_partner_at", ["partnerKeyId", "at"])
-    .index("by_at", ["at"]),
+    .index("by_at", ["at"])
+    .index("by_mode_at", ["mode", "at"]),
 
   /**
    * Pořadová čísla. Convex mutace jsou transakční, takže čtení a zvýšení

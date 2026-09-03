@@ -149,9 +149,11 @@ export default function PrivacyPage() {
                   Každý dotaz partnera zaznamenáváme (kdo se ptal, kdy a s
                   jakým výsledkem) z důvodu bezpečnosti a doložitelnosti —
                   právním titulem je oprávněný zájem na ochraně evidence.
-                  Záznamy uchováváme 90 dní a pak je mažeme. Kód si člen může
-                  kdykoli přegenerovat ve svém účtu; tím starý kód okamžitě
-                  pozbývá platnosti.
+                  Součástí záznamu je krátce i odeslaný kód a odpověď, kterou
+                  partner dostal; slouží k řešení chyb v propojení a mažeme je
+                  po sedmi dnech. Samotný záznam o dotazu uchováváme 90 dní a
+                  pak ho mažeme. Kód si člen může kdykoli přegenerovat ve svém
+                  účtu; tím starý kód okamžitě pozbývá platnosti.
                 </E>
               </p>
             </div>

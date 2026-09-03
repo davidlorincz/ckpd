@@ -1,6 +1,8 @@
 import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { normalizeCode } from "./lib/code";
+import { keyModeOf, normalizeCode } from "./lib/code";
+import { findSandboxMember, resolveSandbox } from "./lib/sandbox";
+import { apiModeValidator } from "./schema";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 
@@ -14,6 +16,13 @@ import type { MutationCtx } from "./_generated/server";
  *    odpověď, jinak by kód šlo enumerovat
  *  - jméno jen se souhlasem se zveřejněním (`publicListing`)
  *  - každý dotaz včetně neúspěšného jde do `verificationLog`
+ *
+ * DVA SVĚTY, JEDNA CESTA KÓDU: ostrý provoz (`/api/v1/verify`) se ptá do
+ * evidence členů, pískoviště (`/api/v1/sandbox/verify`) pevné sady fixtur
+ * v `lib/sandbox.ts`. Rozvětvuje se jen zdroj dat — kontrola stavu členství
+ * i sestavení odpovědi jsou pro oba stejné, aby se payloady nemohly rozejít.
+ * Klíč platí vždy jen ve svém světě: testovacím klíčem reálného člena
+ * nedohledáš a ostrým klíčem testovací kód taky ne.
  */
 
 /** Ceník variant. Drží se stejný jako `membershipTiers` v lib/site.ts. */
@@ -32,20 +41,52 @@ export type VerifyResult = {
 /** Jediné místo, kde vzniká záporná odpověď — proto je vždy identická. */
 const NOT_VALID: VerifyResult = { status: 200, body: { valid: false } };
 
-async function log(
-  ctx: MutationCtx,
-  result: Doc<"verificationLog">["result"],
-  codeLookup: string,
-  partnerKeyId?: Id<"partnerKeys">,
-  memberId?: Id<"members">,
-) {
-  await ctx.db.insert("verificationLog", {
-    partnerKeyId,
-    codeLookup,
-    memberId,
-    result,
-    at: Date.now(),
-  });
+/**
+ * Co ověřování o členovi potřebuje. Strukturální typ, ne `Doc<"members">` —
+ * `Doc` do něj sedne beze změny a fixtura z pískoviště taky, takže obě
+ * větve procházejí týmž `buildBody`.
+ */
+export type MemberLike = {
+  tier?: "zakladni" | "pro" | "cestne";
+  status: "none" | "pending" | "active" | "past_due" | "canceled";
+  memberSince?: number;
+  currentPeriodEnd?: number;
+  memberNumber?: string;
+  name: string;
+  publicListing: boolean;
+};
+
+/** Tělo kladné odpovědi, nebo `null` když členství neplatí. */
+function buildBody(
+  member: MemberLike,
+  now: number,
+): Record<string, unknown> | null {
+  const expired =
+    member.currentPeriodEnd !== undefined && member.currentPeriodEnd < now;
+
+  if (member.status !== "active" || expired) return null;
+
+  const tier = member.tier ?? "zakladni";
+  const t = TIERS[tier];
+
+  return {
+    valid: true,
+    memberNumber: member.memberNumber,
+    tier,
+    tierLabel: t.label,
+    price: t.price,
+    currency: "CZK",
+    period: t.period,
+    memberSince: member.memberSince
+      ? new Date(member.memberSince).toISOString().slice(0, 10)
+      : null,
+    paidUntil: member.currentPeriodEnd
+      ? new Date(member.currentPeriodEnd).toISOString().slice(0, 10)
+      : null,
+    // Jméno jen se souhlasem se zveřejněním. Odvolání souhlasu se
+    // projeví okamžitě — odpověď se nikde necachuje.
+    name: member.publicListing ? member.name : null,
+  };
 }
 
 /**
@@ -75,91 +116,132 @@ async function takeToken(
 }
 
 export const verify = internalMutation({
-  args: { keyHash: v.string(), code: v.string() },
+  args: { keyHash: v.string(), code: v.string(), mode: apiModeValidator },
   handler: async (ctx, args): Promise<VerifyResult> => {
-    // 1) Partnerský klíč
+    const now = Date.now();
+
+    /**
+     * Zapíše dotaz do auditu a vrátí odpověď. Loguje se i tělo, aby šlo
+     * v adminu doložit, co partner opravdu dostal.
+     *
+     * Odeslaný kód se v ostrém režimu u `unauthorized` a `rate_limited`
+     * schválně neukládá: kód poslaný s cizím nebo zrušeným klíčem se u nás
+     * nemá kde usadit. V pískovišti jsou kódy veřejné, tam to neplatí.
+     */
+    const remember = async (
+      result: Doc<"verificationLog">["result"],
+      out: VerifyResult,
+      opts: {
+        codeLookup?: string;
+        partnerKeyId?: Id<"partnerKeys">;
+        memberId?: Id<"members">;
+      } = {},
+    ): Promise<VerifyResult> => {
+      const keepCode =
+        args.mode === "test" ||
+        (result !== "unauthorized" && result !== "rate_limited");
+
+      await ctx.db.insert("verificationLog", {
+        partnerKeyId: opts.partnerKeyId,
+        codeLookup: opts.codeLookup ?? "",
+        memberId: opts.memberId,
+        result,
+        at: now,
+        mode: args.mode,
+        requestCode: keepCode ? args.code.slice(0, 80) : undefined,
+        httpStatus: out.status,
+        responseBody: JSON.stringify(out.body),
+      });
+      return out;
+    };
+
+    // 1) Partnerský klíč. Klíč z druhého světa je stejně neplatný jako
+    //    neexistující — odpověď je záměrně identická, žádná nápověda.
     const key = await ctx.db
       .query("partnerKeys")
       .withIndex("by_hash", (q) => q.eq("keyHash", args.keyHash))
       .unique();
 
-    if (!key || !key.active) {
-      await log(ctx, "unauthorized", "", key?._id);
-      return {
-        status: 401,
-        body: { error: "unauthorized", message: "Neplatný nebo zrušený klíč." },
-      };
+    if (!key || !key.active || keyModeOf(key) !== args.mode) {
+      return await remember(
+        "unauthorized",
+        {
+          status: 401,
+          body: { error: "unauthorized", message: "Neplatný nebo zrušený klíč." },
+        },
+        { partnerKeyId: key?._id },
+      );
     }
 
     // 2) Rate limit
     const rl = await takeToken(ctx, key._id, key.rateLimitPerMin);
     if (!rl.ok) {
-      await log(ctx, "rate_limited", "", key._id);
-      return {
-        status: 429,
-        body: { error: "rate_limited", message: "Překročen limit dotazů." },
-        rateLimit: { limit: key.rateLimitPerMin, ...rl },
-      };
+      return await remember(
+        "rate_limited",
+        {
+          status: 429,
+          body: { error: "rate_limited", message: "Překročen limit dotazů." },
+          rateLimit: { limit: key.rateLimitPerMin, ...rl },
+        },
+        { partnerKeyId: key._id },
+      );
     }
 
     const meta = {
       rateLimit: { limit: key.rateLimitPerMin, ...rl },
     };
-    await ctx.db.patch(key._id, { lastUsedAt: Date.now() });
+    await ctx.db.patch(key._id, { lastUsedAt: now });
 
     // 3) Tvar kódu. Špatný tvar se navenek tváří stejně jako neznámý kód.
     const lookup = normalizeCode(args.code);
     if (!lookup) {
-      await log(ctx, "bad_format", args.code.slice(0, 40), key._id);
-      return { ...NOT_VALID, ...meta };
+      return await remember(
+        "bad_format",
+        { ...NOT_VALID, ...meta },
+        { codeLookup: args.code.slice(0, 40), partnerKeyId: key._id },
+      );
     }
 
-    // 4) Vyhledání
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_code", (q) => q.eq("verificationCodeLookup", lookup))
-      .unique();
+    // 4) Vyhledání — jediné místo, kde se oba světy liší.
+    let member: MemberLike | undefined;
+    let memberId: Id<"members"> | undefined;
+
+    if (args.mode === "test") {
+      const fixture = findSandboxMember(lookup);
+      if (fixture) member = resolveSandbox(fixture, now);
+    } else {
+      const doc = await ctx.db
+        .query("members")
+        .withIndex("by_code", (q) => q.eq("verificationCodeLookup", lookup))
+        .unique();
+      if (doc) {
+        member = doc;
+        memberId = doc._id;
+      }
+    }
 
     if (!member) {
-      await log(ctx, "not_found", lookup, key._id);
-      return { ...NOT_VALID, ...meta };
+      return await remember(
+        "not_found",
+        { ...NOT_VALID, ...meta },
+        { codeLookup: lookup, partnerKeyId: key._id },
+      );
     }
 
-    const expired =
-      member.currentPeriodEnd !== undefined &&
-      member.currentPeriodEnd < Date.now();
-
-    if (member.status !== "active" || expired) {
-      await log(ctx, "inactive", lookup, key._id, member._id);
-      return { ...NOT_VALID, ...meta };
+    // 5) Stav členství a odpověď — společné pro ostrý provoz i pískoviště
+    const body = buildBody(member, now);
+    if (!body) {
+      return await remember(
+        "inactive",
+        { ...NOT_VALID, ...meta },
+        { codeLookup: lookup, partnerKeyId: key._id, memberId },
+      );
     }
 
-    // 5) Platné členství
-    const tier = member.tier ?? "zakladni";
-    const t = TIERS[tier];
-    await log(ctx, "valid", lookup, key._id, member._id);
-
-    return {
-      status: 200,
-      body: {
-        valid: true,
-        memberNumber: member.memberNumber,
-        tier,
-        tierLabel: t.label,
-        price: t.price,
-        currency: "CZK",
-        period: t.period,
-        memberSince: member.memberSince
-          ? new Date(member.memberSince).toISOString().slice(0, 10)
-          : null,
-        paidUntil: member.currentPeriodEnd
-          ? new Date(member.currentPeriodEnd).toISOString().slice(0, 10)
-          : null,
-        // Jméno jen se souhlasem se zveřejněním. Odvolání souhlasu se
-        // projeví okamžitě — odpověď se nikde necachuje.
-        name: member.publicListing ? member.name : null,
-      },
-      ...meta,
-    };
+    return await remember(
+      "valid",
+      { status: 200, body, ...meta },
+      { codeLookup: lookup, partnerKeyId: key._id, memberId },
+    );
   },
 });

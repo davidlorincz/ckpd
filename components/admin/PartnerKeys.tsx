@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
@@ -8,6 +8,16 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 const fmt = (ts?: number) =>
   ts ? new Date(ts).toLocaleDateString("cs-CZ") : "—";
+
+/** Odpověď se ukládá jako JSON; kdyby se nedala přečíst, ukáže se syrová. */
+function pretty(body?: string): string {
+  if (!body) return "—";
+  try {
+    return JSON.stringify(JSON.parse(body), null, 2);
+  } catch {
+    return body;
+  }
+}
 
 const resultLabels: Record<string, string> = {
   valid: "platné",
@@ -29,6 +39,7 @@ export function PartnerKeys() {
   const [email, setEmail] = useState("");
   const [fresh, setFresh] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState<Id<"verificationLog"> | null>(null);
 
   async function handleIssue(e: React.FormEvent) {
     e.preventDefault();
@@ -144,6 +155,11 @@ export function PartnerKeys() {
               <tr key={k._id} className="border-b border-hairline">
                 <td className="py-3 pr-4 text-[14.5px] text-ink">
                   {k.partnerName}
+                  {k.mode === "test" && (
+                    <span className="ml-2 rounded-[2px] border border-brass px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-brass">
+                      test
+                    </span>
+                  )}
                   <span className="block text-[12.5px] text-ink-2">
                     {k.contactEmail}
                   </span>
@@ -195,26 +211,49 @@ export function PartnerKeys() {
       </div>
 
       <h3 className="mt-12 text-[18px]">Poslední dotazy</h3>
-      <p className="mt-2 text-[14px] text-ink-2">
+      <p className="measure mt-2 text-[14px] text-ink-2">
         Zaznamenávají se i neúspěšné pokusy — jinak by nešlo poznat, že si
-        někdo kódy zkouší hádat. Uchováváme 90 dní.
+        někdo kódy zkouší hádat. Uchováváme 90 dní; odeslaný kód a odpověď
+        se u ostrých dotazů mažou už po sedmi dnech. Klikni na řádek pro
+        payload.
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <tbody>
             {(calls ?? []).map((c) => (
-              <tr key={c._id} className="border-b border-hairline">
-                <td className="tnum py-2 pr-4 text-[13.5px] text-ink-2">
-                  {new Date(c.at).toLocaleString("cs-CZ")}
-                </td>
-                <td className="py-2 pr-4 text-[13.5px] text-ink">{c.partner}</td>
-                <td className="py-2 pr-4 font-mono text-[12.5px] text-ink-2">
-                  {c.codeLookup || "—"}
-                </td>
-                <td className="py-2 text-[13.5px] text-ink-2">
-                  {resultLabels[c.result] ?? c.result}
-                </td>
-              </tr>
+              <Fragment key={c._id}>
+                <tr
+                  onClick={() => setOpen(open === c._id ? null : c._id)}
+                  className="cursor-pointer border-b border-hairline hover:bg-paper-2"
+                >
+                  <td className="tnum py-2 pr-4 text-[13.5px] text-ink-2">
+                    {new Date(c.at).toLocaleString("cs-CZ")}
+                  </td>
+                  <td className="py-2 pr-4 text-[13.5px] text-ink">
+                    {c.partner}
+                    {c.mode === "test" && (
+                      <span className="ml-2 text-[11px] uppercase tracking-wider text-brass">
+                        test
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2 pr-4 font-mono text-[12.5px] text-ink-2">
+                    {c.codeLookup || "—"}
+                  </td>
+                  <td className="py-2 text-[13.5px] text-ink-2">
+                    {resultLabels[c.result] ?? c.result}
+                  </td>
+                </tr>
+                {open === c._id && (
+                  <tr className="border-b border-hairline">
+                    <td colSpan={4} className="py-3">
+                      <pre className="overflow-x-auto border border-hairline bg-paper px-3 py-2.5 font-mono text-[12.5px] leading-relaxed text-ink">
+                        {`code=${c.requestCode ?? "—"}\n\nHTTP ${c.httpStatus ?? "?"}\n${pretty(c.responseBody)}`}
+                      </pre>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
             {calls?.length === 0 && (
               <tr>

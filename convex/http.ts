@@ -10,6 +10,14 @@ import { hashKey } from "./lib/code";
  *
  * Logika běží tady, a ne v Next route handleru, protože rate limit, vyhledání
  * a zápis do auditu tak proběhnou atomicky v jedné Convex mutaci.
+ *
+ * Ověřování má dvě cesty se shodným chováním i tvarem odpovědi:
+ *  - `/api/v1/verify`         — ostrý provoz nad evidencí členů
+ *  - `/api/v1/sandbox/verify` — pískoviště nad fixturami (lib/sandbox.ts)
+ *
+ * Odděleny jsou schválně adresou, ne jen klíčem: v ostré cestě tak nemůže
+ * uvíznout testovací kód ani omylem. Handler je jeden, liší se jen předaný
+ * režim — rozdílné implementace by se dřív nebo později rozešly.
  */
 const http = httpRouter();
 
@@ -30,50 +38,61 @@ function json(
   });
 }
 
-const verifyHandler = httpAction(async (ctx, request) => {
-  const auth = request.headers.get("authorization") ?? "";
-  const bearer = /^Bearer\s+(.+)$/i.exec(auth)?.[1]?.trim();
+const makeVerifyHandler = (mode: "live" | "test") =>
+  httpAction(async (ctx, request) => {
+    const auth = request.headers.get("authorization") ?? "";
+    const bearer = /^Bearer\s+(.+)$/i.exec(auth)?.[1]?.trim();
 
-  if (!bearer) {
-    return json(
-      {
-        error: "unauthorized",
-        message: "Chybí hlavička Authorization: Bearer <klíč>.",
-      },
-      401,
-    );
-  }
+    if (!bearer) {
+      return json(
+        {
+          error: "unauthorized",
+          message: "Chybí hlavička Authorization: Bearer <klíč>.",
+        },
+        401,
+      );
+    }
 
-  const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  if (!code) {
-    return json(
-      { error: "missing_code", message: "Chybí parametr `code`." },
-      400,
-    );
-  }
+    const url = new URL(request.url);
+    const code = url.searchParams.get("code");
+    if (!code) {
+      return json(
+        { error: "missing_code", message: "Chybí parametr `code`." },
+        400,
+      );
+    }
 
-  // Hash se počítá tady, do mutace jde jen otisk — plaintext klíče se nikam
-  // neukládá ani neloguje.
-  const result = await ctx.runMutation(internal.verification.verify, {
-    keyHash: await hashKey(bearer),
-    code,
+    // Hash se počítá tady, do mutace jde jen otisk — plaintext klíče se nikam
+    // neukládá ani neloguje.
+    const result = await ctx.runMutation(internal.verification.verify, {
+      keyHash: await hashKey(bearer),
+      code,
+      mode,
+    });
+
+    const headers: Record<string, string> = {};
+    if (result.rateLimit) {
+      headers["x-ratelimit-limit"] = String(result.rateLimit.limit);
+      headers["x-ratelimit-remaining"] = String(result.rateLimit.remaining);
+      headers["x-ratelimit-reset"] = String(
+        Math.floor(result.rateLimit.resetAt / 1000),
+      );
+    }
+    if (result.status === 429) headers["retry-after"] = "60";
+
+    return json(result.body, result.status, headers);
   });
 
-  const headers: Record<string, string> = {};
-  if (result.rateLimit) {
-    headers["x-ratelimit-limit"] = String(result.rateLimit.limit);
-    headers["x-ratelimit-remaining"] = String(result.rateLimit.remaining);
-    headers["x-ratelimit-reset"] = String(
-      Math.floor(result.rateLimit.resetAt / 1000),
-    );
-  }
-  if (result.status === 429) headers["retry-after"] = "60";
-
-  return json(result.body, result.status, headers);
+http.route({
+  path: "/api/v1/verify",
+  method: "GET",
+  handler: makeVerifyHandler("live"),
 });
-
-http.route({ path: "/api/v1/verify", method: "GET", handler: verifyHandler });
+http.route({
+  path: "/api/v1/sandbox/verify",
+  method: "GET",
+  handler: makeVerifyHandler("test"),
+});
 
 /**
  * Dopsání pozice ve videu při odchodu ze stránky.

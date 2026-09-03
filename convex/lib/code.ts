@@ -122,6 +122,17 @@ export function keyPrefixOf(key: string): string {
   return key.slice(0, 18);
 }
 
+/**
+ * Do kterého světa klíč patří. Klíče vydané před testovacím prostředím
+ * pole `mode` nemají, ale prefix nesou od začátku — pozná se z něj.
+ */
+export function keyModeOf(key: {
+  mode?: "live" | "test";
+  keyPrefix: string;
+}): "live" | "test" {
+  return key.mode ?? (key.keyPrefix.startsWith("ckpd_test_") ? "test" : "live");
+}
+
 /* ------------------------------------------------------------------ slugy */
 
 /**

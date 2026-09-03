@@ -81,6 +81,57 @@ Vstup se normalizuje, takže tolerujeme malá písmena, mezery místo pomlček,
 chybějící prefix `CKPD-` i klasické záměny `I`/`l` za `1` a `O` za `0`.
 Znaková sada je Crockford base32 (`0-9`, `A-Z` bez `I`, `L`, `O`, `U`).
 
+## Testovací prostředí
+
+Než pustíš integraci na ostrá data, vyzkoušej ji na pískovišti. Má vlastní
+adresu a vlastní klíč, ale **stejný kód i stejný tvar odpovědí** — do produkce
+se pak mění jen ta adresa a klíč.
+
+```
+GET https://ckpd.cz/api/v1/sandbox/verify?code=<testovací kód>
+Authorization: Bearer <testovací klíč>
+```
+
+Testovací klíč začíná `ckpd_test_`, ostrý `ckpd_live_`. **Oba světy jsou
+oddělené**: testovacím klíčem se reálný člen dohledat nedá a testovací kód
+v ostrém API nefunguje. Klíč použitý na cizí adrese vrací `401`.
+
+### Testovací kódy
+
+Fiktivní členové. `paidUntil` se počítá ode dneška, aby sada nezestárla.
+
+| Kód | Odpověď | K čemu je |
+|---|---|---|
+| `CKPD-2026-9001-TEST9001` | `valid: true`, `zakladni`, 199 Kč | Základní členství, běžný stav. Referenční šťastná cesta. |
+| `CKPD-2026-9002-TEST9002` | `valid: true`, `pro`, 499 Kč | PRO členství — odstupňování výhody podle `tier`. |
+| `CKPD-2026-9003-TEST9003` | `valid: true`, `pro`, **`name: null`** | Člen bez souhlasu se zveřejněním. Na jméno se nespoléhej. |
+| `CKPD-2026-9004-TEST9004` | `valid: true`, `cestne`, 0 Kč, **`paidUntil: null`** | Čestné členství bez placeného období a s prázdnou `period`. |
+| `CKPD-2026-9005-TEST9005` | `valid: true`, `zakladni`, `paidUntil` **zítra** | Test upozornění, že členství brzy končí. |
+| `CKPD-2026-9006-TEST9006` | `valid: false` | Vypršelé členství. |
+| `CKPD-2026-9007-TEST9007` | `valid: false` | Člen členství zrušil. |
+| `CKPD-2026-9008-TEST9008` | `valid: false` | Nezaplacená obnova. |
+| `CKPD-2026-9009-TEST9009` | `valid: false` | Registrace bez zaplacení. |
+
+Odpověď u posledních čtyř je **bajt po bajtu stejná** — z venku nejde poznat,
+proč členství neplatí. Je to záměr, ne nedodělek.
+
+### Další případy
+
+| Vstup | Odpověď |
+|---|---|
+| `CKPD-2026-9999-ZZZZZZZZ` | `{"valid": false}` — správný tvar, neexistující kód |
+| `CKPD-2026-9001` | `{"valid": false}` — holé členské číslo bez tajemství |
+| `ckpd 2026 9001 test9001` | stejná odpověď jako u `CKPD-2026-9001-TEST9001` |
+| ostrý klíč na testovací adrese | `401 unauthorized` |
+
+Chybové stavy se zkoušejí klíčem, ne kódem: komora vydává zrušený klíč (`401`)
+a klíč s limitem 3 dotazy za minutu (`429` + `Retry-After: 60`).
+
+```bash
+curl -s -H "Authorization: Bearer $CKPD_TEST_KEY" \
+  "https://ckpd.cz/api/v1/sandbox/verify?code=CKPD-2026-9001-TEST9001"
+```
+
 ## Jak to zapojit
 
 Kód **nesbírej opakovaně**. Nech člena vložit ho jednou při propojení účtu,

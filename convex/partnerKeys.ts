@@ -1,7 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAdmin, subjectOf } from "./lib/auth";
-import { generatePartnerKey, hashKey, keyPrefixOf } from "./lib/code";
+import { generatePartnerKey, hashKey, keyModeOf, keyPrefixOf } from "./lib/code";
 
 /**
  * Klíče partnerů pro ověřovací API. Každý partner má vlastní — revokace
@@ -33,6 +33,7 @@ export const list = query({
           partnerName: k.partnerName,
           contactEmail: k.contactEmail,
           keyPrefix: k.keyPrefix,
+          mode: keyModeOf(k),
           active: k.active,
           rateLimitPerMin: k.rateLimitPerMin,
           createdAt: k.createdAt,
@@ -56,12 +57,14 @@ export const issue = mutation({
   handler: async (ctx, args) => {
     const identity = await requireAdmin(ctx);
 
-    const key = generatePartnerKey(args.mode ?? "live");
+    const mode = args.mode ?? "live";
+    const key = generatePartnerKey(mode);
     await ctx.db.insert("partnerKeys", {
       partnerName: args.partnerName,
       contactEmail: args.contactEmail,
       keyHash: await hashKey(key),
       keyPrefix: keyPrefixOf(key),
+      mode,
       scopes: ["verify"],
       active: true,
       rateLimitPerMin: args.rateLimitPerMin ?? 60,
@@ -125,6 +128,10 @@ export const recentCalls = query({
           partner,
           result: r.result,
           codeLookup: r.codeLookup,
+          mode: r.mode ?? "live",
+          requestCode: r.requestCode,
+          httpStatus: r.httpStatus,
+          responseBody: r.responseBody,
         };
       }),
     );

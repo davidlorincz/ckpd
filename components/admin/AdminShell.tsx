@@ -22,6 +22,7 @@ const sections: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin/kurzy", label: "DIGI univerzita" },
   { href: "/admin/uzivatele", label: "Uživatelé" },
   { href: "/admin/partneri", label: "Partneři" },
+  { href: "/admin/testovaci-prostredi", label: "Testovací prostředí" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
