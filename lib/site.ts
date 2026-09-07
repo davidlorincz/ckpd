@@ -31,6 +31,7 @@ export const nav = [
   { href: "/o-komore", label: "O komoře" },
   { href: "/clenstvi", label: "Členství" },
   { href: "/stanoviska", label: "Stanoviska" },
+  { href: "/overit", label: "Ověření" },
   { href: "/kontakt", label: "Kontakt" },
 ] as const;
 
@@ -76,12 +77,12 @@ export const memberBenefits: {
   },
   { label: "Prémiový obsah v Dronzóně", zakladni: true, pro: true },
   {
-    label: "DIGI univerzita — videokurzy k legislativě a provozu",
+    label: "DIGI univerzita — videokurzy včetně OPEN A1/A3",
     zakladni: true,
     pro: true,
   },
   {
-    label: "DIGI univerzita v plném rozsahu (hobby i průmysl)",
+    label: "DIGI univerzita — kurzy pro výdělečný provoz",
     zakladni: false,
     pro: true,
   },
@@ -90,16 +91,28 @@ export const memberBenefits: {
     zakladni: true,
     pro: true,
   },
-  { label: "5% sleva na consumer techniku", zakladni: true, pro: true },
   {
-    label: "Přístup k pravidelným nabídkám komerčních zakázek (marketplace)",
+    label: "5 % sleva v e-shopu DRONPRO na consumer techniku",
+    zakladni: true,
+    pro: true,
+  },
+  {
+    label: "Burza DRONPRO — přístup k nabídkám komerčních zakázek",
     zakladni: false,
     pro: true,
   },
-  { label: "10% sleva na enterprise techniku", zakladni: false, pro: true },
-  { label: "Až 75% sleva na vybraná školení", zakladni: true, pro: true },
   {
-    label: "Dodatečná 25% sleva na zápůjčku techniky",
+    label: "10 % sleva v e-shopu DRONPRO na enterprise techniku",
+    zakladni: false,
+    pro: true,
+  },
+  {
+    label: "Až 75 % sleva na vybraná školení",
+    zakladni: true,
+    pro: true,
+  },
+  {
+    label: "Půjčovna DRONPRO — 25 % navíc na zápůjčku přes členský kód",
     zakladni: false,
     pro: true,
   },
@@ -161,3 +174,108 @@ export const operationFocus = [
   "Rekreační létání",
   "Jiné",
 ] as const;
+
+/**
+ * Vysvětlující videa. Facade v `components/ui/VideoDialog.tsx` je načte až po
+ * kliknutí, takže na youtube.com neodejde nic, dokud návštěvník nechce (PRD § 9).
+ * `youtubeId: null` = místo je připravené, video se teprve natočí.
+ */
+export const videos = {
+  jakToFunguje: {
+    // placeholder z kanálu DRONPRO, než vznikne video přímo o komoře
+    youtubeId: "6i9SR2uDKrM",
+    title: "Jak funguje Česká komora pilotů DRONů",
+  },
+} as const;
+
+/** Tři vysvětlující videa v sekci Naše projekty. Doplnit `youtubeId`, až budou. */
+export const explainerVideos: {
+  key: string;
+  title: string;
+  text: string;
+  youtubeId: string | null;
+}[] = [
+  {
+    key: "digi",
+    title: "DIGI univerzita",
+    text: "Co se v kurzech naučíš. OPEN A1/A3 má deset lekcí, dohromady necelou hodinu — a máš je v členství.",
+    youtubeId: null,
+  },
+  {
+    key: "burza",
+    title: "Burza zakázek",
+    text: "Přihlásíš se, nastavíš zaměření — a chodí ti poptávky.",
+    youtubeId: null,
+  },
+  {
+    key: "vyhody",
+    title: "Výhody členství při nákupu",
+    text: "Sleva v e-shopu a lepší cena v půjčovně přes členský kód.",
+    youtubeId: null,
+  },
+];
+
+/**
+ * Ekosystém, ve kterém komora stojí. Burza ani Půjčovna nemají vlastní značku —
+ * jsou to produkty DRONPRO, proto sdílejí jeho wordmark a liší se jen suffixem.
+ */
+export const projects: {
+  key: string;
+  /** Klíč lockupu v components/ui/ProjectLockup.tsx; `null` = mateřská značka. */
+  lockup: "burza" | "pujcovna" | null;
+  href: string | null;
+  text: string;
+}[] = [
+  {
+    key: "dronpro",
+    lockup: null,
+    href: "https://www.dronpro.cz",
+    text: "E-shop, servis a školicí středisko. Technika i výcvik na jednom místě.",
+  },
+  {
+    key: "burza",
+    lockup: "burza",
+    href: null,
+    text: "Zadavatel poptá práci, piloti se hlásí.",
+  },
+  {
+    key: "pujcovna",
+    lockup: "pujcovna",
+    href: null,
+    text: "Dron na zakázku, aniž bys ho musel koupit.",
+  },
+];
+
+/**
+ * Čísla, kterými se členství prodává. Úplný výčet zůstává v `memberBenefits`;
+ * tohle je výběr toho, co je vidět jako důvod zaplatit. Slevy jsou dobrovolné
+ * plnění partnerů — při změně u DRONPRO změnit i tady.
+ */
+export const benefitHighlights = [
+  {
+    // pozor na délku: hodnota musí zůstat na jednom řádku i ve čtyřech
+    // sloupcích, jinak se řada čísel rozejde z účaří
+    value: "5–10 %",
+    label: "sleva v e-shopu DRONPRO",
+    note: "Základní / PRO",
+  },
+  {
+    value: "25 %",
+    label: "navíc na zápůjčku techniky",
+    note: "PRO — přes členský kód v půjčovně",
+  },
+  {
+    value: "až 75 %",
+    label: "sleva na vybraná školení",
+    note: "obě varianty",
+  },
+  {
+    value: "10 lekcí",
+    label: "DIGI univerzita, OPEN A1/A3",
+    note: "v Základním i PRO",
+  },
+] as const;
+
+/** Co se čísly vyjádřit nejde. Doplňuje `benefitHighlights`. */
+export const benefitHeadline =
+  "PRO navíc: přístup k nabídkám komerčních zakázek na Burze DRONPRO.";

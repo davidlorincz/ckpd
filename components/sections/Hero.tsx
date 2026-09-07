@@ -2,6 +2,7 @@ import { Container } from "@/components/ui/Container";
 import { Cta } from "@/components/ui/Cta";
 import { Seal } from "@/components/ui/Seal";
 import { HeroDrones } from "@/components/sections/HeroDrones";
+import { HeroVideoCta } from "@/components/sections/HeroVideoCta";
 import { E } from "@/components/editor/EditableText";
 
 /**
@@ -18,7 +19,7 @@ export function Hero() {
         <Seal decorative className="h-[540px] w-[540px]" />
       </div>
       <HeroDrones />
-      <Container className="relative py-20 sm:py-28">
+      <Container className="relative z-10 py-20 sm:py-28">
         {/* rámeček = místo transformace chaosu v řád; drony do něj vlétávají */}
         <div
           data-hero-title
@@ -37,13 +38,19 @@ export function Hero() {
             nejdostupněji.
           </E>
         </p>
-        <div className="mt-9 flex flex-wrap gap-3">
+        {/* data-hero-clear = zóna, do které HeroDrones nesmí zasáhnout;
+            tlačítka musí zůstat čistá a plná (žádný dron přes ně neproletí) */}
+        <div
+          data-hero-clear
+          className="mt-9 flex w-fit max-w-full flex-wrap gap-3"
+        >
           <Cta href="/clenstvi" variant="conversion">
             <E k="home.hero.ctaPrimary" editable={false}>
               Stát se členem
             </E>
           </Cta>
-          <Cta href="/kontakt" variant="secondary">
+          <HeroVideoCta />
+          <Cta href="/kontakt" variant="secondary" className="bg-paper">
             <E k="home.hero.ctaSecondary" editable={false}>
               Pro úřady a média
             </E>

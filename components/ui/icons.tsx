@@ -52,3 +52,60 @@ export function IconMeasure({ className }: IconProps) {
     </svg>
   );
 }
+
+/** Certifikujeme — zkouška na počítači ve školicím středisku */
+export function IconExam({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true" {...base}>
+      <rect x="5" y="9" width="38" height="25" rx="2" />
+      <path d="M24 34v7M17 41h14" />
+      <path d="m17 21 5 5 9-10" />
+    </svg>
+  );
+}
+
+/**
+ * Video / přehrát. Schválně ne oficiální logo YouTube — cizí ochranná známka
+ * do linkové sady nepatří a obrys v currentColor drží styl ostatních ikon.
+ */
+export function IconPlayBadge({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true" {...base}>
+      <rect x="4" y="11" width="40" height="26" rx="5" />
+      <path d="m20 18 12 7-12 7z" />
+    </svg>
+  );
+}
+
+/** Burza — poptávka a nabídka, dvě strany jednoho trhu */
+export function IconExchange({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true" {...base}>
+      <path d="M8 17h28M28 9l8 8-8 8" />
+      <path d="M40 31H12M20 39l-8-8 8-8" />
+    </svg>
+  );
+}
+
+/** Půjčovna — technika na čas */
+export function IconRental({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true" {...base}>
+      <path d="M7 16h34v24H7z" />
+      <path d="M17 16v-5a7 7 0 0 1 14 0v5" />
+      <circle cx="24" cy="28" r="5" />
+      <path d="M24 25v3l2 2" />
+    </svg>
+  );
+}
+
+/** E-shop a školicí středisko */
+export function IconStore({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true" {...base}>
+      <path d="M8 19h32v21H8z" />
+      <path d="M6 19 9 9h30l3 10" />
+      <path d="M18 40V28h12v12" />
+    </svg>
+  );
+}

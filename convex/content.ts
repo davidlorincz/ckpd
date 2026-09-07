@@ -5,11 +5,14 @@ import { requireAdmin } from "./lib/auth";
 /**
  * Zakázaná slovní zásoba (PRD § 8) — stejná pravidla jako
  * scripts/content-lint.mjs. Build-time lint texty v DB nepokryje,
- * proto se kontroluje při každém zápisu.
+ * proto se kontroluje při každém zápisu. Když se mění jeden seznam,
+ * musí se změnit i druhý.
+ *
+ * „certifikace/certifikát" tu záměrně NENÍ — komora vydává vlastní
+ * certifikace a musí o nich umět mluvit i v CMS.
  */
 const FORBIDDEN_RULES: Array<[RegExp, string, RegExp[]]> = [
   [/licenc\w*/giu, "'licence' — komora žádné nevydává ani nezmiňuje", []],
-  [/certifik\w*/giu, "'certifikace/certifikát' — zakázaný jazyk státu", []],
   [
     /oprávněn\w*/giu,
     "'oprávnění' — zakázaný jazyk státu",

@@ -10,11 +10,15 @@ export const SHOW_STATS = false;
 export const SHOW_BODIES = false;
 
 /**
- * SHOW_MEMBERS — veřejný seznam členů na /clenove. Zapnout, až budou první
- * přijatí členové se souhlasem se zveřejněním (lib/members.ts). Zveřejnit
- * lze výhradně jména členů, kteří dali souhlas (§ 236 obč. zák., GDPR).
+ * SHOW_MEMBERS — veřejný seznam členů na /clenove (včetně odznaků certifikací).
+ * Zapnout, až budou první přijatí členové se souhlasem se zveřejněním.
+ * Zveřejnit lze výhradně jména členů, kteří dali souhlas (§ 236 obč. zák., GDPR).
+ *
+ * Výchozí stav je vypnuto, stejně jako dřív; přepíná se
+ * `NEXT_PUBLIC_SHOW_MEMBERS=1` — sjednoceno s ostatními flagy, aby šel
+ * seznam zapnout bez zásahu do kódu.
  */
-export const SHOW_MEMBERS = false;
+export const SHOW_MEMBERS = process.env.NEXT_PUBLIC_SHOW_MEMBERS === "1";
 
 /** Reálná čísla doplnit před zapnutím SHOW_STATS. */
 export const stats = [

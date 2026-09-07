@@ -14,7 +14,9 @@ export function Positions() {
   return (
     <section className="border-b border-hairline bg-paper-2">
       <Container className="py-16 sm:py-20">
-        <div className="flex items-baseline justify-between gap-4">
+        {/* flex-wrap: na 375 px se velký nadpis a odkaz vedle sebe nevejdou
+            a stránka dostane horizontální scroll (PRD § 9) */}
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
           <h2 className="text-[26px] sm:text-[34px]">
             <E k="home.positions.title">Stanoviska</E>
           </h2>

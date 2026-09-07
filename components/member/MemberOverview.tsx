@@ -7,6 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MembershipStatusCard } from "@/components/member/MembershipStatusCard";
 import { VerificationCodeCard } from "@/components/member/VerificationCodeCard";
+import { CredentialsCard } from "@/components/member/CredentialsCard";
 import { MemberSkeleton } from "@/components/member/MemberSkeleton";
 import { ContinueCard } from "@/components/digiuniverzita/ContinueCard";
 import { memberBenefits } from "@/lib/site";
@@ -69,6 +70,8 @@ export function MemberOverview() {
           code={member.verificationCode}
         />
       )}
+
+      {active && <CredentialsCard />}
 
       {active && benefits.length > 0 && (
         <section className="border border-hairline bg-paper p-7 shadow-paper sm:p-9">

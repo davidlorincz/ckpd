@@ -17,6 +17,7 @@ const docs: {
 }[] = [
   // { href: "/dokumenty/stanovy-ckpd.pdf", label: "Stanovy", meta: "PDF" },
   { href: "/eticky-kodex", label: "Etický kodex" },
+  { href: "/overit", label: "Ověření člena a jeho certifikací" },
   // { href: "/dokumenty/vyrocni-zprava-2026.pdf", label: "Výroční zpráva 2026", meta: "PDF" },
   {
     href: org.registryUrl,
@@ -35,7 +36,7 @@ export function Transparency() {
         <div className="grid gap-12 md:grid-cols-2">
           <div className="@container">
             {/* clamp přes šířku sloupce drží dlouhé slovo uvnitř (nesmí přetéct do vedlejšího) */}
-            <h2 className="text-[clamp(18px,6cqw,34px)]">
+            <h2 className="text-[clamp(17px,5.6cqw,34px)]">
               <E k="home.transparency.title">Transparentnost</E>
             </h2>
             <div className="mt-6">

@@ -121,6 +121,9 @@ const LESSONS = [
       "a zápis letu. Se záznamem skutečné obrazovky.",
     youtubeId: "RZdB8FyCbuY",
     master: "lekce6-final/lekce6-digitalni-mapa-dronemap-v3.mp4",
+    /* Ukázková lekce na veřejné titulce: nejkratší, praktická a se záznamem
+       skutečné obrazovky — divák si odnese hodnotu i bez zbytku kurzu. */
+    isPreview: true,
   },
   {
     n: 7,
@@ -271,7 +274,8 @@ const lessons = LESSONS.map((meta, index) => {
     state: meta.state ?? "published",
     ...(meta.stateNote ? { stateNote: meta.stateNote } : {}),
     isRequired: true,
-    isPreview: false,
+    /** Veřejná ukázka na titulce — hraje i nepřihlášenému (entitlement.ts). */
+    isPreview: meta.isPreview ?? false,
     source: {
       master: meta.master,
       youtubeId: meta.youtubeId,

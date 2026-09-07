@@ -12,9 +12,12 @@ import { cn } from "@/lib/utils";
 export function Reveal({
   className,
   children,
+  delay = 0,
 }: {
   className?: string;
   children: React.ReactNode;
+  /** Zpoždění v ms — prvky v mřížce pak nabíhají po sobě, ne naráz. */
+  delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -52,7 +55,11 @@ export function Reveal({
   }, []);
 
   return (
-    <div ref={ref} className={cn("reveal", className)}>
+    <div
+      ref={ref}
+      className={cn("reveal", className)}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </div>
   );

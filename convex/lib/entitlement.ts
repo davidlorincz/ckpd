@@ -52,6 +52,10 @@ export async function resolveAccess(
  * `undefined` na kurzu = stačí platné členství (Základní i PRO) — to je
  * „hobby část" ze strategie. `cestne` členství uděluje Rada a má přístup
  * jako PRO.
+ *
+ * POZOR NA PAST: reálné větve jsou jen dvě. `requiredTier` s hodnotou
+ * `"zakladni"` nebo `"cestne"` propadne na `return true`, tedy se chová
+ * stejně jako `undefined` a NIC neomezí. Jediné funkční omezení je `"pro"`.
  */
 export function meetsTier(
   access: Access,

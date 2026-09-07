@@ -88,6 +88,47 @@ export function lookupKey(
   return `${year}:${String(seq).padStart(4, "0")}:${secret}`;
 }
 
+/* ------------------------------------------------------ kód certifikátu */
+
+const CREDENTIAL_PREFIX = "CKPD-CERT";
+
+/**
+ * Kód certifikátu — `CKPD-CERT-2026-K7M9XQ2T`.
+ *
+ * Vlastní kód, oddělený od ověřovacího kódu člena, a to schválně: kód člena
+ * je tajemství, které otevře celý profil, kdežto certifikát má pilot ukazovat
+ * zadavateli i na papíře. Kdyby na dokladu stál kód člena, dal by s ním
+ * z ruky klíč ke svému členství.
+ */
+export function formatCredentialCode(year: number, secret: string): string {
+  return `${CREDENTIAL_PREFIX}-${year}-${secret}`;
+}
+
+/** Normalizovaný tvar pro kód certifikátu, který právě vydáváme. */
+export function credentialLookupKey(year: number, secret: string): string {
+  return `${year}:${secret}`;
+}
+
+/**
+ * Vstup → klíč pro index `credentials.by_code`, nebo `null`. Odpouští stejné
+ * věci jako `normalizeCode`: malá písmena, mezery, chybějící pomlčky a
+ * záměny I/L za 1 a O za 0.
+ *
+ * Prefix `CKPDCERT` se nemůže potkat s `CKPDDU` (potvrzení z kurzu) ani
+ * s tvarem kódu člena — díky tomu nejde tajný kód člena omylem poslat na
+ * veřejnou stránku certifikátu. Hlídá to test v tests/credentials.test.mts.
+ */
+export function normalizeCredentialCode(input: string): string | null {
+  const cleaned = input.trim().toUpperCase().replace(/[\s\-_]+/g, "");
+  const m = /^CKPDCERT(\d{4})([0-9A-Z]{8})$/.exec(cleaned);
+  if (!m) return null;
+
+  const secret = m[2].replace(/[IL]/g, "1").replace(/O/g, "0");
+  if ([...secret].some((c) => !ALPHABET.includes(c))) return null;
+
+  return credentialLookupKey(Number(m[1]), secret);
+}
+
 /* ---------------------------------------------------------------- partneři */
 
 const KEY_LEN = 32;

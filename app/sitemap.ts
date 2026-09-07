@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/o-komore",
     "/clenstvi",
     "/stanoviska",
+    "/overit",
     "/kontakt",
     "/eticky-kodex",
     "/ochrana-osobnich-udaju",

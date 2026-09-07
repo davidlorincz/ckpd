@@ -7,7 +7,7 @@ const faq = [
   },
   {
     q: "Co mi členství reálně přinese?",
-    a: "Hlas při jednání s úřady, vzorové provozní dokumenty, prémiový obsah v Dronzóně a konkrétní výhody u partnerů komory — od slev na techniku a školení až po přístup k nabídkám komerčních zakázek ve variantě PRO. A hlavně: čím větší členská báze, tím větší váhu mají připomínky komory k legislativě, která se týká i tvého létání.",
+    a: "Hlas při jednání s úřady, vzorové provozní dokumenty, prémiový obsah v Dronzóně a videokurzy DIGI univerzity — včetně kompletního OPEN A1/A3. K tomu konkrétní výhody u partnerů komory: slevy na techniku a školení, ve variantě PRO i přístup k nabídkám komerčních zakázek. A hlavně: čím větší členská báze, tím větší váhu mají připomínky komory k legislativě, která se týká i tvého létání.",
   },
   {
     q: "Kdo se může stát členem?",
@@ -18,12 +18,16 @@ const faq = [
     a: "Založíš si účet, vybereš variantu členství a zaplatíš kartou. Členství je aktivní hned po zaplacení — žádné čekání na zasedání. V účtu pak najdeš své členské číslo, doklady o platbách a datum, do kdy máš příspěvek uhrazený.",
   },
   {
+    q: "Jsou kurzy DIGI univerzity zdarma?",
+    a: "Nejsou zdarma — jsou součástí členství. Účet si založíš zdarma, ale kurzy se otevřou až se zaplaceným členstvím, a to v Základním i v PRO. Dnes je hotový kurz OPEN A1/A3 (deset lekcí, necelá hodina, zakončený testem a potvrzením s ověřitelným kódem), další přibývají — připravujeme První start a Fotogrametrii. Nové kurzy dostaneš v rámci členství, bez příplatku.",
+  },
+  {
     q: "Kolik členství stojí a jak se platí?",
     a: "Základní členství stojí 199 Kč měsíčně, varianta PRO 499 Kč měsíčně. Platí se kartou a obnovuje se automaticky; zrušit obnovování jde kdykoli ve svém účtu a členství pak doběhne do konce zaplaceného období. Obě varianty mají stejný hlas — liší se jen rozsahem výhod.",
   },
   {
-    q: "Vydává komora průkazy nebo osvědčení pilota?",
-    a: "Doklady pilota a vše, co souvisí s podmínkami provozu, vydává výhradně ÚCL — role jsou jasně rozdělené. Od komory dostaneš potvrzení o členství, vzorové dokumenty, standardy a podporu v tom, co úřad neřeší: praxi, data a společný hlas oboru. Ke členství patří i členské číslo a ověřovací kód, kterým partnerům komory prokážeš, že tvé členství platí.",
+    q: "Vydává komora certifikace?",
+    a: "Ano. ČKPD certifikuje konkrétní dovednosti — foto, video, fotogrametrii, termovizi, zemědělské aplikace a práci se softwarem. Zkoušku skládáš osobně ve školicím středisku pod dohledem, ne proklikem na internetu, a zadavatel si certifikaci kdykoli ověří online. Podmínky provozu bezpilotních systémů řeší Úřad pro civilní letectví — certifikace ČKPD říká, co umíš, ne co smíš. Ke členství navíc patří členské číslo a ověřovací kód, kterým partnerům komory prokážeš, že tvé členství platí.",
   },
   {
     q: "Zveřejňujete seznam členů?",

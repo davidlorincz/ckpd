@@ -24,11 +24,12 @@ pnpm lint:content # kontrola zakázané slovní zásoby (PRD § 8)
 |---|---|---|
 | `SHOW_STATS` | vypnuto | až budou reálná čísla (nikdy smyšlená) |
 | `SHOW_BODIES` | vypnuto | až budou obsazené orgány (Rada + Revizní komise) — **bez toho web nespouštět** (PRD § 4.7) |
-| `SHOW_MEMBERS` | vypnuto | až budou první členové se souhlasem se zveřejněním — jména do `lib/members.ts`; zveřejňovat jen se souhlasem (§ 236 obč. zák.) |
+| `SHOW_MEMBERS` | vypnuto (`NEXT_PUBLIC_SHOW_MEMBERS=1`) | až budou první členové se souhlasem se zveřejněním; zveřejňovat jen se souhlasem (§ 236 obč. zák.). Seznam ukazuje i odznaky osvědčení. |
 
 ## Obsahová pravidla
 
-- Zakázaná slova („licence", „certifikace", „oprávnění", „registr pilotů", „povinné členství", „akreditace", „garantujeme bezpečnost") hlídá `scripts/content-lint.mjs` — běží v rámci `pnpm build`. Povolená výjimka: právní termín „oprávněný zájem" (GDPR).
+- Zakázaná slova („licence", „oprávnění", „registr pilotů", „povinné členství", „akreditace", „garantujeme bezpečnost") hlídá `scripts/content-lint.mjs` — běží v rámci `pnpm build`. Povolená výjimka: právní termín „oprávněný zájem" (GDPR).
+- „Certifikace/certifikát" bylo ze zakázaných slov vyňato 9/2026 — komora vydává vlastní certifikace na dovednosti (viz sekce „Certifikace ČKPD" na hlavní stránce a `/overit`). Seznam je na dvou místech: `scripts/content-lint.mjs` (build) a `FORBIDDEN_RULES` v `convex/content.ts` (zápis do CMS) — mění se vždy oba. Pozor: **„oprávnění", „licence" a „akreditace" zakázané zůstávají** — certifikace ČKPD potvrzuje dovednost, ne způsobilost k provozu.
 - Členské výhody: zdroj pravdy je `memberBenefits` v `lib/site.ts`. Položky s `unconfirmed: true` se **nezobrazují** — před zveřejněním je musí potvrdit DRONPRO/Rada (nikdy neslibovat, co neplatí).
 - Stanoviska s `draft: true` se zobrazují jen ve dev režimu (s bannerem „návrh k revizi"); v produkci jsou skrytá.
 

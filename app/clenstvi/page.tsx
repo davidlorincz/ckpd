@@ -29,7 +29,7 @@ const steps = [
   },
   {
     title: "Jsi člen",
-    text: "Hned. V účtu najdeš členské číslo, doklady a datum obnovy.",
+    text: "Hned. V účtu najdeš členské číslo, doklady, datum obnovy — a otevřenou DIGI univerzitu.",
   },
 ] as const;
 
@@ -118,7 +118,7 @@ export default function MembershipPage() {
                 .join(" · ")}
               .{" "}
               <E k="clenstvi.cenik.note">
-                Platí se převodem, výše příspěvků vyplývá ze stanov.
+                Platí se kartou, výše příspěvků vyplývá ze stanov.
               </E>
             </p>
             <p>

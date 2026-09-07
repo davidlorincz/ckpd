@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { Cta } from "@/components/ui/Cta";
 import { Reveal } from "@/components/ui/Reveal";
+import { BenefitNumbers } from "@/components/sections/BenefitNumbers";
 import { memberBenefits, membershipTiers } from "@/lib/site";
 import { E } from "@/components/editor/EditableText";
 
@@ -19,8 +20,8 @@ export function Audiences() {
   ];
 
   return (
-    <section className="border-b border-hairline bg-paper-2">
-      <Container className="py-16 sm:py-20">
+    <section id="clenstvi" className="border-b border-hairline bg-paper-2">
+      <Container className="py-20 sm:py-28">
         <h2 className="text-[26px] sm:text-[34px]">
           <E k="home.audiences.title">Členství</E>
         </h2>
@@ -29,7 +30,11 @@ export function Audiences() {
             Jeden člen, jeden hlas — bez ohledu na variantu.
           </E>
         </p>
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+
+        {/* konkrétní čísla dřív než výčet — bez nich je to inventura, ne důvod */}
+        <BenefitNumbers className="mt-10" />
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
           {cards.map(({ tier, bullets, extras }) => (
             <Reveal
               key={tier.key}

@@ -21,6 +21,7 @@ const sections: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin", label: "Přehled", exact: true },
   { href: "/admin/kurzy", label: "DIGI univerzita" },
   { href: "/admin/uzivatele", label: "Uživatelé" },
+  { href: "/admin/certifikace", label: "Certifikace" },
   { href: "/admin/partneri", label: "Partneři" },
   { href: "/admin/testovaci-prostredi", label: "Testovací prostředí" },
 ];

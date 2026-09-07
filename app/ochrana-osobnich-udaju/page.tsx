@@ -194,6 +194,16 @@ export default function PrivacyPage() {
                   cookie lištu — není co odsouhlasovat.
                 </E>
               </p>
+              <p className="mt-3">
+                <E k="gdpr.cookies.video">
+                  Na webu jsou vložená videa ze služby YouTube. Video se načte
+                  teprve tehdy, když na něj sám klikneš — do té chvíle web
+                  s YouTube nekomunikuje a nic se do prohlížeče neukládá.
+                  Používáme režim youtube-nocookie.com, který sledování
+                  omezuje; po spuštění videa už YouTube zpracovává údaje jako
+                  samostatný správce podle svých podmínek.
+                </E>
+              </p>
             </div>
 
             <p className="tnum border-t border-hairline pt-6 text-[14px]">

@@ -6,7 +6,7 @@ import { E } from "@/components/editor/EditableText";
 export function CtaBlock() {
   return (
     <section className="paper-grid-dark bg-deep">
-      <Container className="py-16 text-center sm:py-20">
+      <Container className="py-20 text-center sm:py-28">
         <p className="mx-auto max-w-2xl font-serif text-[26px] font-medium leading-snug text-paper sm:text-[34px]">
           <E k="home.cta.statement">Létáme každý sám. Jednáme společně.</E>
         </p>

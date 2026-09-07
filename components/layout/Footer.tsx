@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SHOW_MEMBERS } from "@/lib/flags";
 import { disclosureLine, legalLine, nav, org } from "@/lib/site";
+import { ProjectLockup } from "@/components/ui/ProjectLockup";
 import { E } from "@/components/editor/EditableText";
 
 const legalLinks = [
@@ -108,6 +109,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-paper/15 pt-6 text-[13px] leading-relaxed text-paper/60">
+          <div className="mb-5">
+            <ProjectLockup name="ckpd" tone="inv" height={34} />
+          </div>
           <p>
             <E k="layout.footer.disclosureLine">{disclosureLine}</E>
           </p>

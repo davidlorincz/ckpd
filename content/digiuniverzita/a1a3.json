@@ -3803,7 +3803,7 @@
       "durationSeconds": 293,
       "state": "published",
       "isRequired": true,
-      "isPreview": false,
+      "isPreview": true,
       "source": {
         "master": "lekce6-final/lekce6-digitalni-mapa-dronemap-v3.mp4",
         "youtubeId": "RZdB8FyCbuY",

@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { hasConvex } from "@/lib/env";
 import { tierLabels } from "@/lib/membership";
+import { SkillBadge } from "@/components/credentials/SkillBadge";
 
 /**
  * Veřejný seznam členů. Zdrojem je evidence v Convexu — vrací výhradně
@@ -29,10 +30,17 @@ function MembersTableInner() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-left">
+      <table className="w-full min-w-[820px] border-collapse text-left">
         <thead>
           <tr className="border-b border-hairline text-[13.5px] uppercase tracking-wider text-ink-2">
-            {["Člen", "Členské číslo", "Členství", "Kraj", "Zaměření"].map((h) => (
+            {[
+              "Člen",
+              "Členské číslo",
+              "Členství",
+              "Certifikace",
+              "Kraj",
+              "Zaměření",
+            ].map((h) => (
               <th key={h} className="py-3 pr-4 font-medium">
                 {h}
               </th>
@@ -47,6 +55,22 @@ function MembersTableInner() {
                 {m.memberNumber ?? "—"}
               </td>
               <td className="py-3.5 pr-4 text-ink-2">{tierLabels[m.tier]}</td>
+              {/* jen platné certifikace — vypršelý doklad ve výpisu neplatí */}
+              <td className="py-3.5 pr-4">
+                {m.credentials.length === 0 ? (
+                  <span className="text-ink-2">—</span>
+                ) : (
+                  <span className="flex flex-wrap gap-1">
+                    {m.credentials.map((c) => (
+                      <SkillBadge
+                        key={c.skill}
+                        label={c.label}
+                        validUntil={c.validUntil}
+                      />
+                    ))}
+                  </span>
+                )}
+              </td>
               <td className="py-3.5 pr-4 text-ink-2">{m.region ?? "—"}</td>
               <td className="py-3.5 text-[14.5px] text-ink-2">
                 {m.profile ?? "—"}

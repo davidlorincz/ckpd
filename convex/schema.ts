@@ -512,4 +512,73 @@ export default defineSchema({
     .index("by_code", ["codeLookup"])
     .index("by_member_course", ["memberId", "courseId"])
     .index("by_course", ["courseId"]),
+
+  /**
+   * Certifikace komory na konkrétní dovednost (foto, termovize, fotogrametrie…).
+   *
+   * Na rozdíl od `courseCompletions` je to STAV, ne událost: platnost končí
+   * a prodloužením se posouvá. Prodloužení proto patchuje řádek a nechává
+   * kód beze změny — pilot ho má na papíře i v podpisu a nesmí mu zmrtvět.
+   * Auditní stopu drží pole `renewals`.
+   *
+   * Stav (platné / končí / vypršelé / odebrané) se nikdy neukládá — počítá se
+   * z `validUntil` a `revokedAt` při každém čtení (convex/lib/skills.ts).
+   * Uložený stav by potřeboval cron a mezi jeho běhy by vypršelá certifikace
+   * chvíli platila dál.
+   */
+  credentials: defineTable({
+    memberId: v.id("members"),
+    /** Klíč z convex/lib/skills.ts. Volný string, ne v.union — číselník se
+        bude rozšiřovat a stará data nesmí zablokovat migraci schématu. */
+    skill: v.string(),
+
+    /** `CKPD-CERT-2026-K7M9XQ2T`. Veřejný identifikátor, na rozdíl od kódu člena. */
+    code: v.string(),
+    codeLookup: v.string(),
+
+    issuedAt: v.number(),
+    /** „Platné do“. Zdroj pravdy pro stav; posouvá ho prodloužení. */
+    validUntil: v.number(),
+    /** Kolik let se udělilo. V řádku schválně: číselník se může změnit,
+        ale vydaná certifikace musí zůstat vysvětlitelná. */
+    validityYears: v.number(),
+
+    /** Na čem certifikace stojí — patří na doklad i na stránku ověření. */
+    basis: v.union(
+      v.literal("zkouska"),
+      v.literal("portfolio"),
+      v.literal("kurz"),
+      v.literal("praxe"),
+    ),
+    note: v.optional(v.string()),
+
+    /** Stav k okamžiku vydání — stejný důvod jako u courseCompletions. */
+    snapshot: v.object({
+      holderName: v.string(),
+      memberNumber: v.optional(v.string()),
+      skillLabel: v.string(),
+      issuerName: v.string(),
+    }),
+    contentHash: v.string(),
+
+    renewals: v.array(
+      v.object({
+        at: v.number(),
+        previousUntil: v.number(),
+        newUntil: v.number(),
+        by: v.string(),
+      }),
+    ),
+
+    revokedAt: v.optional(v.number()),
+    revokedReason: v.optional(v.string()),
+
+    /** Clerk user id admina, který certifikaci vydal. */
+    issuedBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_code", ["codeLookup"])
+    .index("by_member", ["memberId", "skill"])
+    .index("by_valid_until", ["validUntil"]),
 });

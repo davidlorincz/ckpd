@@ -168,6 +168,29 @@ export const listPublic = query({
       .withIndex("by_status", (q) => q.eq("status", "active"))
       .collect();
 
+    // Certifikace jedním dotazem a mapou — ne dotaz na každého člena zvlášť.
+    // Ve výpisu jen platné: vypršelý doklad není odpověď na „co ten člověk umí".
+    const now = Date.now();
+    const live = await ctx.db
+      .query("credentials")
+      .withIndex("by_valid_until", (q) => q.gte("validUntil", now))
+      .collect();
+
+    const byMember = new Map<
+      string,
+      { skill: string; label: string; validUntil: number }[]
+    >();
+    for (const c of live) {
+      if (c.revokedAt !== undefined) continue;
+      const list = byMember.get(c.memberId) ?? [];
+      list.push({
+        skill: c.skill,
+        label: c.snapshot.skillLabel,
+        validUntil: c.validUntil,
+      });
+      byMember.set(c.memberId, list);
+    }
+
     return rows
       .filter((m) => m.publicListing && m.name)
       .map((m) => ({
@@ -177,6 +200,9 @@ export const listPublic = query({
         region: m.region,
         profile: m.profile,
         since: m.memberSince,
+        credentials: (byMember.get(m._id) ?? []).sort((a, b) =>
+          a.label.localeCompare(b.label, "cs"),
+        ),
       }))
       .sort((a, b) => a.name.localeCompare(b.name, "cs"));
   },

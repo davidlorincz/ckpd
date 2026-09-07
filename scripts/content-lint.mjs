@@ -2,10 +2,15 @@
 /**
  * content-lint — hlídá zakázanou slovní zásobu (PRD § 8).
  *
- * Komora nesmí přebírat jazyk státu: žádné „licence", „certifikace",
- * „oprávnění", „registr pilotů", „povinné členství", „akreditace",
- * „garantujeme bezpečnost". Právní termín „oprávněný zájem" (GDPR)
- * je povolen přes allow-list.
+ * Komora nesmí přebírat jazyk státu: žádné „licence", „oprávnění",
+ * „registr pilotů", „povinné členství", „akreditace", „garantujeme
+ * bezpečnost". Právní termín „oprávněný zájem" (GDPR) je povolen
+ * přes allow-list.
+ *
+ * „certifikace/certifikát" bylo z pravidel vyňato 9/2026 (rozhodnutí Davida
+ * k bodům 6–8 zadání z hovoru s Alexem): komora vydává vlastní osvědčení
+ * o složené zkoušce, takže o něm smí mluvit. Zbytek seznamu platí dál —
+ * hlavně „oprávnění": osvědčení nic nepovoluje, jen dokládá dovednost.
  *
  * Spuštění: node scripts/content-lint.mjs  (součást `pnpm build`)
  */
@@ -19,7 +24,6 @@ const EXTENSIONS = new Set([".ts", ".tsx", ".mdx", ".md"]);
 /** [pravidlo, popis, allow-list — výskyty, které pravidlu nevadí] */
 const RULES = [
   [/licenc\w*/giu, "'licence' — komora žádné nevydává ani nezmiňuje", []],
-  [/certifik\w*/giu, "'certifikace/certifikát' — zakázaný jazyk státu", []],
   [
     /oprávněn\w*/giu,
     "'oprávnění' — zakázaný jazyk státu",

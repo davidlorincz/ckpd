@@ -26,6 +26,7 @@ const CFG = {
   fadeMs: 300,
   respawnMinMs: 600,
   respawnMaxMs: 2400,
+  clearPad: 26, // odstup vyloučené zóny kolem CTA tlačítek, px
   maxDPR: 2,
   glyphRatio: 520 / 1060, // výška/šířka znak.svg
   blue: "#2626FF",
@@ -68,6 +69,8 @@ export function HeroDrones() {
     if (!canvas) return;
     const section = canvas.closest("section");
     const titleEl = section?.querySelector("[data-hero-title]");
+    // Zóna kolem CTA tlačítek. Volitelná — bez ní se hero chová jako dřív.
+    const clearEl = section?.querySelector("[data-hero-clear]");
     if (!section || !titleEl) return;
 
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -91,6 +94,8 @@ export function HeroDrones() {
       let w = 0;
       let h = 0;
       let box: Box = { left: 0, right: 0, top: 0, bottom: 0 };
+      // Tlačítka musí zůstat čistá — přes CTA nesmí projet žádný dron.
+      let clear: Box | null = null;
 
       const measure = () => {
         const s = section.getBoundingClientRect();
@@ -103,6 +108,16 @@ export function HeroDrones() {
           top: t.top - s.top,
           bottom: t.bottom - s.top,
         };
+        clear = clearEl
+          ? {
+              left: clearEl.getBoundingClientRect().left - s.left - CFG.clearPad,
+              right:
+                clearEl.getBoundingClientRect().right - s.left + CFG.clearPad,
+              top: clearEl.getBoundingClientRect().top - s.top - CFG.clearPad,
+              bottom:
+                clearEl.getBoundingClientRect().bottom - s.top + CFG.clearPad,
+            }
+          : null;
         dpr = Math.min(window.devicePixelRatio || 1, CFG.maxDPR);
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
@@ -110,12 +125,27 @@ export function HeroDrones() {
       };
       measure();
 
+      /** Zasahuje glyf do zóny tlačítek? Počítá se s celou šířkou glyfu. */
+      const inClear = (x: number, y: number, size: number) =>
+        !!clear &&
+        x + size / 2 > clear.left &&
+        x - size / 2 < clear.right &&
+        y + size / 2 > clear.top &&
+        y - size / 2 < clear.bottom;
+
       // — chaos vlevo —
       const spawnChaos = (d: ChaosDrone, offscreen: boolean) => {
         d.x = offscreen
           ? rand(-160, -40)
           : rand(0, Math.max(40, box.left - 80));
-        d.y = rand(Math.max(0, box.top - 90), Math.min(h, box.bottom + 90));
+        // spodní hranice se zvedne nad tlačítka, ať do zóny vůbec nemíří
+        const yTop = Math.max(0, box.top - 90);
+        const yBottom = Math.min(
+          h,
+          box.bottom + 90,
+          clear ? clear.top - 30 : Number.POSITIVE_INFINITY,
+        );
+        d.y = rand(yTop, Math.max(yTop + 10, yBottom));
         d.heading = rand(-0.4, 0.4);
         d.speed = rand(CFG.chaosSpeedMin, CFG.chaosSpeedMax);
         d.size = rand(CFG.sizeMin, CFG.sizeMax);
@@ -137,6 +167,16 @@ export function HeroDrones() {
 
       const explosions: Explosion[] = [];
       const explode = (x: number, y: number) => {
+        // jiskry mají vlastní dráhu, takže je musí zastavit vlastní kontrola
+        if (
+          clear &&
+          x > clear.left &&
+          x < clear.right &&
+          y > clear.top &&
+          y < clear.bottom
+        ) {
+          return;
+        }
         explosions.push({
           x,
           y,
@@ -245,7 +285,10 @@ export function HeroDrones() {
 
           if (d.state === "flying") {
             d.alpha = Math.min(1, d.alpha + (dt * 1000) / CFG.fadeMs);
-            if (d.x >= box.left - d.size / 2) d.state = "fading";
+            // měkké vyhasnutí místo tvrdého ořezu — hrana by byla vidět
+            if (d.x >= box.left - d.size / 2 || inClear(d.x, d.y, d.size)) {
+              d.state = "fading";
+            }
           } else {
             d.alpha -= (dt * 1000) / CFG.fadeMs;
             if (d.alpha <= 0) {
@@ -297,7 +340,19 @@ export function HeroDrones() {
         }
         drawExplosions();
         for (const d of lanes) {
-          drawDrone(d.x, laneY(d.lane), 0, CFG.laneSize, d.alpha);
+          const y = laneY(d.lane);
+          // dron se dál posouvá, jen se nad tlačítky nekreslí
+          if (inClear(d.x, y, CFG.laneSize)) continue;
+          drawDrone(d.x, y, 0, CFG.laneSize, d.alpha);
+        }
+        // pojistka pro snímek, který se trefí mezi resize a přeměření
+        if (clear) {
+          ctx.clearRect(
+            clear.left,
+            clear.top,
+            clear.right - clear.left,
+            clear.bottom - clear.top,
+          );
         }
       };
 
@@ -310,7 +365,17 @@ export function HeroDrones() {
           }
           ctx.clearRect(0, 0, w, h);
           for (const d of lanes) {
-            drawDrone(d.x, laneY(d.lane), 0, CFG.laneSize, 1);
+            const y = laneY(d.lane);
+            if (inClear(d.x, y, CFG.laneSize)) continue;
+            drawDrone(d.x, y, 0, CFG.laneSize, 1);
+          }
+          if (clear) {
+            ctx.clearRect(
+              clear.left,
+              clear.top,
+              clear.right - clear.left,
+              clear.bottom - clear.top,
+            );
           }
         };
         requestAnimationFrame(staticDraw);
@@ -357,6 +422,7 @@ export function HeroDrones() {
 
       const ro = new ResizeObserver(measure);
       ro.observe(section);
+      if (clearEl) ro.observe(clearEl);
 
       start();
 

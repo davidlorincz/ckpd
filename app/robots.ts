@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
         "/platba",
         "/admin",
         "/api/",
+        // v adrese je ověřovací kód člena, tedy tajemství — do indexu nepatří
+        "/overit/clen/",
       ],
     },
     sitemap: "https://ckpd.cz/sitemap.xml",
