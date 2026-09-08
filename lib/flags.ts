@@ -55,3 +55,13 @@ export const BILLING_PROVIDER = (process.env.NEXT_PUBLIC_BILLING_PROVIDER ??
  */
 export const SHOW_DIGIUNIVERZITA =
   process.env.NEXT_PUBLIC_SHOW_DIGIUNIVERZITA === "1";
+
+/**
+ * LEGACY_AUTH_UI — návrat k hostovaným Clerk komponentám.
+ *
+ * Registrace a přihlášení jedou na vlastním UI nad Clerk Signal API
+ * (`components/auth/`). Kdyby se v něm objevila chyba, `NEXT_PUBLIC_AUTH_UI=clerk`
+ * vrátí původní obrazovku (`components/auth/LegacyAuthScreen.tsx`) bez deploye —
+ * přihlášení je jediná věc na webu, která nesmí zůstat rozbitá do příštího buildu.
+ */
+export const LEGACY_AUTH_UI = process.env.NEXT_PUBLIC_AUTH_UI === "clerk";

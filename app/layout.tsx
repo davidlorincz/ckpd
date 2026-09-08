@@ -14,6 +14,7 @@ import { ContentProvider } from "@/contexts/ContentContext";
 import { UtilityBar } from "@/components/layout/UtilityBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 
 /*
  * Hlavička se renderuje podle přihlášení a zaplaceného členství, takže HTML
@@ -96,10 +97,13 @@ export default async function RootLayout({
         <ConvexClientProvider>
           <EditModeProvider>
             <ContentProvider initial={initialContent}>
-              <UtilityBar />
-              <Header session={session} />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <SiteChrome
+                utilityBar={<UtilityBar />}
+                header={<Header session={session} />}
+                footer={<Footer />}
+              >
+                {children}
+              </SiteChrome>
               <Toaster position="bottom-right" richColors />
             </ContentProvider>
           </EditModeProvider>

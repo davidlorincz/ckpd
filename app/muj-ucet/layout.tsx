@@ -29,7 +29,10 @@ export default async function MemberLayout({
   if (!SHOW_MEMBER_AREA) notFound();
 
   const { userId, redirectToSignIn } = await auth();
-  if (!userId) return redirectToSignIn({ returnBackUrl: "/muj-ucet" });
+  // Bez `returnBackUrl` použije Clerk adresu, na kterou člověk mířil, takže
+  // se po přihlášení vrátí přesně tam — natvrdo zadané "/muj-ucet" ho vždycky
+  // vysypalo na přehled, i když šel třeba na předplatné.
+  if (!userId) return redirectToSignIn();
 
   return (
     <>

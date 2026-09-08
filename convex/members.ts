@@ -91,13 +91,22 @@ export const getSelfSummary = query({
  * a tunel na dev. Webhook má smysl doplnit až pro `user.deleted` (GDPR).
  */
 export const ensureSelf = mutation({
-  // Bez argumentů schválně: e-mail i jméno se berou VÝHRADNĚ z ověřeného
-  // Clerk JWT (šablona „convex" vystavuje claimy `email` a `name`). Do
-  // evidence členů se tak nedá zapsat cizí ani vymyšlený e-mail.
-  // Kdyby claimy z šablony zmizely, vznikne prázdný profil — bezpečné
-  // selhání, člen si ho doplní sám.
-  args: {},
-  handler: async (ctx) => {
+  // E-mail i jméno se berou VÝHRADNĚ z ověřeného Clerk JWT (šablona „convex"
+  // vystavuje claimy `email` a `name`). Do evidence členů se tak nedá zapsat
+  // cizí ani vymyšlený e-mail. Kdyby claimy z šablony zmizely, vznikne
+  // prázdný profil — bezpečné selhání, člen si ho doplní sám.
+  //
+  // `agreements` je jediná výjimka a smí přijít od klienta: souhlas se
+  // stanovami a se zpracováním údajů je tvrzení samotného uživatele, ne
+  // oprávnění. Zaškrtnutí proběhlo v registraci a `EnsureMember` ho sem
+  // přinese z Clerk `unsafeMetadata` — webhook, který by to udělal serverově,
+  // v ČKPD neexistuje. Razítka staví server a už je nikdy nepřepisuje.
+  args: {
+    agreements: v.optional(
+      v.object({ statutes: v.boolean(), gdpr: v.boolean() }),
+    ),
+  },
+  handler: async (ctx, args) => {
     const identity = await requireIdentity(ctx);
     const clerkUserId = subjectOf(identity);
     const email = emailOf(identity);
@@ -108,23 +117,44 @@ export const ensureSelf = mutation({
       .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", clerkUserId))
       .unique();
 
+    const now = Date.now();
+    const agreed = {
+      statutes: args.agreements?.statutes ? now : undefined,
+      gdpr: args.agreements?.gdpr ? now : undefined,
+    };
+
     if (existing) {
       // E-mail v Clerku se mohl změnit — držíme ho v synchronu.
-      const patch: { email?: string; name?: string; updatedAt: number } = {
-        updatedAt: Date.now(),
-      };
+      const patch: {
+        email?: string;
+        name?: string;
+        agreeStatutesAt?: number;
+        agreeGdprAt?: number;
+        updatedAt: number;
+      } = { updatedAt: now };
       if (email && email !== existing.email) patch.email = email;
       // Jméno jen doplňujeme, nikdy nepřepisujeme — člen si ho mohl upravit.
       if (name && !existing.name) patch.name = name;
-      if (patch.email || patch.name) await ctx.db.patch(existing._id, patch);
+      // Souhlas se datuje jednou. Druhé načtení účtu ho nesmí přerazítkovat,
+      // jinak by se ztratilo, kdy k němu doopravdy došlo.
+      if (agreed.statutes && !existing.agreeStatutesAt) {
+        patch.agreeStatutesAt = agreed.statutes;
+      }
+      if (agreed.gdpr && !existing.agreeGdprAt) {
+        patch.agreeGdprAt = agreed.gdpr;
+      }
+      if (Object.keys(patch).length > 1) {
+        await ctx.db.patch(existing._id, patch);
+      }
       return existing._id;
     }
 
-    const now = Date.now();
     return await ctx.db.insert("members", {
       clerkUserId,
       email,
       name,
+      agreeStatutesAt: agreed.statutes,
+      agreeGdprAt: agreed.gdpr,
       focus: [],
       status: "none",
       cancelAtPeriodEnd: false,

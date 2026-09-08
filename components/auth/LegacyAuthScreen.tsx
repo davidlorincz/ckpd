@@ -1,5 +1,13 @@
 "use client";
 
+/*
+ * Původní obrazovka nad hostovanými Clerk komponentami.
+ *
+ * Zůstává jako rollback bez deploye: `NEXT_PUBLIC_AUTH_UI=clerk` ji vrátí
+ * místo vlastního UI v `components/auth/SignInForm.tsx` a `SignUpForm.tsx`.
+ * Drží ji při životě `lib/clerkAppearance.ts` a `lib/clerkLocalization.ts`.
+ */
+
 import { SignIn, SignUp } from "@clerk/nextjs";
 import { Container } from "@/components/ui/Container";
 import { Seal } from "@/components/ui/Seal";
@@ -13,7 +21,7 @@ import { hasClerk } from "@/lib/env";
  * Rám kreslíme sami (rámeček s brass obrysem jako v heru), Clerk uvnitř
  * dodává jen formulář — viz `elements.card` v lib/clerkAppearance.ts.
  */
-export function AuthScreen({ mode }: { mode: "signIn" | "signUp" }) {
+export function LegacyAuthScreen({ mode }: { mode: "signIn" | "signUp" }) {
   if (!hasClerk) {
     return (
       <Container className="py-20">

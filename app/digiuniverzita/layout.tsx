@@ -42,7 +42,8 @@ export default async function DigiuniverzitaLayout({
   if (!SHOW_MEMBER_AREA || !SHOW_DIGIUNIVERZITA) notFound();
 
   const { userId, redirectToSignIn, getToken } = await auth();
-  if (!userId) return redirectToSignIn({ returnBackUrl: "/digiuniverzita" });
+  // Bez `returnBackUrl` se člověk vrátí na konkrétní lekci, ne na rozcestník.
+  if (!userId) return redirectToSignIn();
 
   if (hasConvex) {
     const token = await getToken({ template: "convex" });
