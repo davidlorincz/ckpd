@@ -1,7 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Seal } from "@/components/ui/Seal";
-import { ProjectLockup } from "@/components/ui/ProjectLockup";
 
 /**
  * Rám auth obrazovek: vlevo papír s formulářem, vpravo tmavá plocha komory.
@@ -29,8 +29,16 @@ export function AuthSplitLayout({
     <div className="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
       <div className="flex min-h-screen flex-col px-5 py-6 sm:px-8 lg:px-12 lg:py-8">
         <header>
-          <Link href="/" aria-label="Česká komora pilotů DRONů">
-            <ProjectLockup name="ckpd" tone="ink" height={26} />
+          {/* Stejná značka jako v hlavičce webu — auth není jiný web. */}
+          <Link href="/">
+            <Image
+              src="/brand/lockup.svg"
+              alt="ČKPD — Česká komora pilotů DRONů"
+              width={195}
+              height={44}
+              priority
+              className="h-11 w-[195px]"
+            />
           </Link>
         </header>
 
