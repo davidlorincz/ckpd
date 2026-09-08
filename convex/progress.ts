@@ -329,7 +329,8 @@ export const forCourse = query({
   args: { courseSlug: v.string() },
   handler: async (ctx, { courseSlug }) => {
     const access = await resolveAccess(ctx);
-    if (!access.memberId) return null;
+    // Samotná existence členského záznamu nestačí — ten má i nezaplacený účet.
+    if (!access.memberId || (!access.active && !access.admin)) return null;
 
     const course = await ctx.db
       .query("courses")

@@ -14,9 +14,17 @@ import type { MutationCtx } from "./_generated/server";
  * napojení Stripe nezmění ani UI, ani datový tok, ani ověřovací API.
  */
 
-/** Mock brána smí aktivovat členství jen mimo ostrý provoz. */
+/**
+ * Mock brána smí aktivovat členství jen mimo ostrý provoz.
+ *
+ * Zavřeno napevno: povolí to jedině explicitní `BILLING_PROVIDER=mock`
+ * v prostředí Convexu. Dřív to bylo obráceně — blokovala jen hodnota
+ * `"stripe"`, takže překlep nebo chybějící proměnná otevřely komukoli
+ * přihlášenému cestu k členství zdarma (a tím i k členskému číslu
+ * a ověřovacímu kódu v partnerském API).
+ */
 function assertMockAllowed() {
-  if (process.env.BILLING_PROVIDER === "stripe") {
+  if (process.env.BILLING_PROVIDER !== "mock") {
     throw new Error(
       "Mock platba je vypnutá — nasazena ostrá platební brána.",
     );

@@ -157,6 +157,8 @@ export const submit = mutation({
     if (!attempt || !access.memberId || attempt.memberId !== access.memberId) {
       return null;
     }
+    // Členství se kontroluje znovu — mezi `start` a `submit` mohlo vypršet.
+    if (!access.active && !access.admin) return null;
     if (attempt.finishedAt) return null;
 
     const quiz = await ctx.db.get(attempt.quizId);

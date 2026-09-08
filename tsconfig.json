@@ -6,6 +6,10 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    // Testy v tests/*.test.mts běží přes nativní type-stripping v Node, které
+    // vyžaduje explicitní příponu. Aby šel testovat i soubor z convex/lib,
+    // který importuje jiný soubor z convex/lib. Nic se needituje (noEmit).
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

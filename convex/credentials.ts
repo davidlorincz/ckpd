@@ -192,6 +192,89 @@ async function freshCode(
   throw new Error("Nepodařilo se vygenerovat kód certifikace.");
 }
 
+export type IssueArgs = {
+  memberId: Doc<"members">["_id"];
+  skill: string;
+  basis: Doc<"credentials">["basis"];
+  note?: string;
+  /** Zpětné vydání, když se certifikovalo mimo systém. Výchozí = teď. */
+  issuedAt?: number;
+};
+
+/**
+ * Vydání certifikace. Obyčejná funkce, ne mutace — stejný důvod jako
+ * u `billing.applyActivation`: mutace v Convexu nemůže volat jinou mutaci,
+ * a kromě administrace ji potřebuje i seed testovacích členů (`convex/seed.ts`),
+ * který nemá Clerk identitu a přes `requireAdmin` by neprošel.
+ *
+ * Autorizace je tím pádem na volajícím.
+ */
+export async function issueCredential(
+  ctx: MutationCtx,
+  args: IssueArgs,
+  issuedBy: string,
+) {
+  const skill = skillByKey(args.skill);
+  if (!skill) throw new Error("Neznámý obor certifikace.");
+
+  const member = await ctx.db.get(args.memberId);
+  if (!member) throw new Error("Člen neexistuje.");
+  if (member.status !== "active") {
+    throw new Error("Certifikaci lze vydat jen aktivnímu členovi.");
+  }
+  if (!member.memberNumber) {
+    throw new Error("Člen zatím nemá členské číslo.");
+  }
+
+  const now = Date.now();
+  const issuedAt = args.issuedAt ?? now;
+
+  // Duplicitní certifikace na tutéž dovednost je datový smog — vrať tu platnou.
+  const existing = await ctx.db
+    .query("credentials")
+    .withIndex("by_member", (q) =>
+      q.eq("memberId", args.memberId).eq("skill", args.skill),
+    )
+    .collect();
+  const live = existing.find(
+    (c) => c.revokedAt === undefined && c.validUntil >= now,
+  );
+  if (live) return { code: live.code, validUntil: live.validUntil, reused: true };
+
+  const validUntil = validUntilFor(issuedAt, skill.validityYears);
+  const { code, codeLookup } = await freshCode(
+    ctx,
+    new Date(issuedAt).getUTCFullYear(),
+  );
+
+  const snapshot = {
+    holderName: member.name,
+    memberNumber: member.memberNumber,
+    skillLabel: skill.label,
+    issuerName: ISSUER,
+  };
+
+  await ctx.db.insert("credentials", {
+    memberId: args.memberId,
+    skill: args.skill,
+    code,
+    codeLookup,
+    issuedAt,
+    validUntil,
+    validityYears: skill.validityYears,
+    basis: args.basis,
+    note: args.note,
+    snapshot,
+    contentHash: await hashSnapshot(snapshot, args.skill, issuedAt),
+    renewals: [],
+    issuedBy,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return { code, validUntil, reused: false };
+}
+
 export const issue = mutation({
   args: {
     memberId: v.id("members"),
@@ -203,71 +286,11 @@ export const issue = mutation({
       v.literal("praxe"),
     ),
     note: v.optional(v.string()),
-    /** Zpětné vydání, když se certifikovalo mimo systém. Výchozí = teď. */
     issuedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await requireAdmin(ctx);
-
-    const skill = skillByKey(args.skill);
-    if (!skill) throw new Error("Neznámý obor certifikace.");
-
-    const member = await ctx.db.get(args.memberId);
-    if (!member) throw new Error("Člen neexistuje.");
-    if (member.status !== "active") {
-      throw new Error("Certifikaci lze vydat jen aktivnímu členovi.");
-    }
-    if (!member.memberNumber) {
-      throw new Error("Člen zatím nemá členské číslo.");
-    }
-
-    const now = Date.now();
-    const issuedAt = args.issuedAt ?? now;
-
-    // Duplicitní certifikace na tutéž dovednost je datový smog — vrať tu platnou.
-    const existing = await ctx.db
-      .query("credentials")
-      .withIndex("by_member", (q) =>
-        q.eq("memberId", args.memberId).eq("skill", args.skill),
-      )
-      .collect();
-    const live = existing.find(
-      (c) => c.revokedAt === undefined && c.validUntil >= now,
-    );
-    if (live) return { code: live.code, validUntil: live.validUntil, reused: true };
-
-    const validUntil = validUntilFor(issuedAt, skill.validityYears);
-    const { code, codeLookup } = await freshCode(
-      ctx,
-      new Date(issuedAt).getUTCFullYear(),
-    );
-
-    const snapshot = {
-      holderName: member.name,
-      memberNumber: member.memberNumber,
-      skillLabel: skill.label,
-      issuerName: ISSUER,
-    };
-
-    await ctx.db.insert("credentials", {
-      memberId: args.memberId,
-      skill: args.skill,
-      code,
-      codeLookup,
-      issuedAt,
-      validUntil,
-      validityYears: skill.validityYears,
-      basis: args.basis,
-      note: args.note,
-      snapshot,
-      contentHash: await hashSnapshot(snapshot, args.skill, issuedAt),
-      renewals: [],
-      issuedBy: subjectOf(identity),
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    return { code, validUntil, reused: false };
+    return await issueCredential(ctx, args, subjectOf(identity));
   },
 });
 

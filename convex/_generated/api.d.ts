@@ -22,6 +22,7 @@ import type * as lib_entitlement from "../lib/entitlement.js";
 import type * as lib_membershipState from "../lib/membershipState.js";
 import type * as lib_ranges from "../lib/ranges.js";
 import type * as lib_sandbox from "../lib/sandbox.js";
+import type * as lib_seedMembers from "../lib/seedMembers.js";
 import type * as lib_skills from "../lib/skills.js";
 import type * as members from "../members.js";
 import type * as notes from "../notes.js";
@@ -30,7 +31,7 @@ import type * as progress from "../progress.js";
 import type * as publicVerify from "../publicVerify.js";
 import type * as quizzes from "../quizzes.js";
 import type * as sandbox from "../sandbox.js";
-import type * as setPreview from "../setPreview.js";
+import type * as seed from "../seed.js";
 import type * as verification from "../verification.js";
 import type * as video from "../video.js";
 
@@ -55,6 +56,7 @@ declare const fullApi: ApiFromModules<{
   "lib/membershipState": typeof lib_membershipState;
   "lib/ranges": typeof lib_ranges;
   "lib/sandbox": typeof lib_sandbox;
+  "lib/seedMembers": typeof lib_seedMembers;
   "lib/skills": typeof lib_skills;
   members: typeof members;
   notes: typeof notes;
@@ -63,7 +65,7 @@ declare const fullApi: ApiFromModules<{
   publicVerify: typeof publicVerify;
   quizzes: typeof quizzes;
   sandbox: typeof sandbox;
-  setPreview: typeof setPreview;
+  seed: typeof seed;
   verification: typeof verification;
   video: typeof video;
 }>;

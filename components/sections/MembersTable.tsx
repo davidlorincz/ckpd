@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { hasConvex } from "@/lib/env";
 import { tierLabels } from "@/lib/membership";
+import { skillByKey } from "@/lib/skills";
 import { SkillBadge } from "@/components/credentials/SkillBadge";
 
 /**
@@ -39,7 +40,7 @@ function MembersTableInner() {
               "Členství",
               "Certifikace",
               "Kraj",
-              "Zaměření",
+              "Popis",
             ].map((h) => (
               <th key={h} className="py-3 pr-4 font-medium">
                 {h}
@@ -62,9 +63,11 @@ function MembersTableInner() {
                 ) : (
                   <span className="flex flex-wrap gap-1">
                     {m.credentials.map((c) => (
+                      // krátký tvar z číselníku — tři plné názvy by řádek
+                      // roztáhly přes celou tabulku
                       <SkillBadge
                         key={c.skill}
-                        label={c.label}
+                        label={skillByKey(c.skill)?.short ?? c.label}
                         validUntil={c.validUntil}
                       />
                     ))}

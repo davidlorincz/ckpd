@@ -50,11 +50,6 @@ export function Hero() {
             </E>
           </Cta>
           <HeroVideoCta />
-          <Cta href="/kontakt" variant="secondary" className="bg-paper">
-            <E k="home.hero.ctaSecondary" editable={false}>
-              Pro úřady a média
-            </E>
-          </Cta>
         </div>
       </Container>
     </section>

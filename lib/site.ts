@@ -35,6 +35,42 @@ export const nav = [
   { href: "/kontakt", label: "Kontakt" },
 ] as const;
 
+const navLabel = (href: string) =>
+  nav.find((i) => i.href === href)!.label;
+
+/**
+ * Rozdělení navigace do zón hlavičky.
+ *
+ * `nav` zůstává beze změny — bere ho patička a její CMS klíče jsou vázané
+ * na pořadí (`layout.footer.nav.0`…), takže s polem nejde hýbat. Popisky se
+ * proto dohledávají v něm, ne opisují.
+ *
+ * Obsahové stránky jdou doleva, Kontakt do utilitního bloku vpravo a Ověření
+ * dostává vlastní rozbalovačku, protože pod něj patří i veřejný seznam členů —
+ * obojí odpovídá na tutéž otázku „kdo je vlastně člen".
+ *
+ * Stanoviska v hlavičce nejsou schválně: je to archiv, ne rozcestník. Kdo je
+ * hledá, dojde pro ně do patičky — a ta je pořád vypisuje, protože jede z `nav`.
+ */
+export const headerNav = [
+  { href: "/o-komore", label: navLabel("/o-komore") },
+  { href: "/clenstvi", label: navLabel("/clenstvi") },
+] as const;
+
+export const headerVerify = {
+  href: "/overit",
+  label: navLabel("/overit"),
+  items: [
+    { href: "/overit", label: "Ověřit kód", exact: true },
+    { href: "/clenove", label: "Seznam členů", membersOnly: true },
+  ],
+} as const;
+
+export const headerContact = {
+  href: "/kontakt",
+  label: navLabel("/kontakt"),
+} as const;
+
 /**
  * Cenová politika: dvě varianty, jinak jsou si všichni členové rovni —
  * jeden člen = jeden hlas bez ohledu na variantu. Čestné členství uděluje

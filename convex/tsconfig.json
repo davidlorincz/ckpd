@@ -11,6 +11,10 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    /* Kvůli testům: tests/entitlement.test.mts běží na nativním
+     * type-strippingu v Node, který u importu mezi soubory v convex/lib
+     * vyžaduje explicitní příponu .ts. Nic se needituje (noEmit). */
+    "allowImportingTsExtensions": true,
 
     /* These compiler options are required by Convex */
     "target": "ESNext",

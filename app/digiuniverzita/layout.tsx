@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
 
+import { api } from "@/convex/_generated/api";
 import { EnsureMember } from "@/components/member/EnsureMember";
+import { hasConvex } from "@/lib/env";
 import { SHOW_DIGIUNIVERZITA, SHOW_MEMBER_AREA } from "@/lib/flags";
 
 export const metadata: Metadata = {
@@ -25,6 +28,11 @@ export const dynamic = "force-dynamic";
  *
  * Ochrana je stejná jako u účtu — `auth()` v layoutu, ne matcher v middleware
  * (`createRouteMatcher` je v Clerku 7 deprecated).
+ *
+ * Přihlášení ale nestačí: univerzita je součást placeného členství. Kdo si jen
+ * založil účet a nezaplatil, spadne na ceník. Datová vrstva to hlídá taky
+ * (`convex/lib/entitlement.ts`), tohle je zámek na dveřích, aby se nezaplacený
+ * návštěvník vůbec neproklikal do katalogu a stránek lekcí.
  */
 export default async function DigiuniverzitaLayout({
   children,
@@ -33,8 +41,16 @@ export default async function DigiuniverzitaLayout({
 }) {
   if (!SHOW_MEMBER_AREA || !SHOW_DIGIUNIVERZITA) notFound();
 
-  const { userId, redirectToSignIn } = await auth();
+  const { userId, redirectToSignIn, getToken } = await auth();
   if (!userId) return redirectToSignIn({ returnBackUrl: "/digiuniverzita" });
+
+  if (hasConvex) {
+    const token = await getToken({ template: "convex" });
+    const me = token
+      ? await fetchQuery(api.members.getSelfSummary, {}, { token })
+      : null;
+    if (!me?.digiAccess) redirect("/muj-ucet/predplatne?od=digiuniverzita");
+  }
 
   return (
     <>

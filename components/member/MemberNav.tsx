@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const items = [
-  { href: "/muj-ucet", label: "Přehled" },
-  { href: "/muj-ucet/predplatne", label: "Členství a platby" },
-  { href: "/muj-ucet/faktury", label: "Doklady" },
-  { href: "/muj-ucet/profil", label: "Profil" },
-] as const;
+import { memberNavItems as items } from "@/lib/memberNav";
 
 export function MemberNav() {
   const pathname = usePathname();

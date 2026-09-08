@@ -10,61 +10,79 @@
  */
 import type { QueryCtx, MutationCtx, ActionCtx } from "../_generated/server";
 import type { Doc } from "../_generated/dataModel";
+import { isMembershipActive } from "./membershipState.ts";
 
 export type Access = {
   memberId: Doc<"members">["_id"] | null;
   /** Platné členství — status `active` a období ještě neskončilo. */
   active: boolean;
   tier: Doc<"members">["tier"];
+  /** Role `admin` z Clerk JWT. Admin vidí obsah i bez zaplaceného členství. */
+  admin: boolean;
 };
 
-export const ANONYMOUS: Access = { memberId: null, active: false, tier: undefined };
+export const ANONYMOUS: Access = {
+  memberId: null,
+  active: false,
+  tier: undefined,
+  admin: false,
+};
 
 /**
- * Zrcadlí `isActive` z lib/membership.ts. Záměrně duplikováno, ne importováno —
- * Convex funkce nesmí viset na kódu z Next.js stromu, jinak by se do bundlu
- * tahal celý frontend.
+ * Nárok přihlášeného uživatele.
+ *
+ * `admin` je top-level claim z Clerk JWT šablony „convex" — stojí nula dotazů
+ * a je to jediná věc, kterou o nároku rozhoduje Clerk. Členství se pořád čte
+ * výhradně z tabulky `members`.
  */
-function isActive(member: Doc<"members">): boolean {
-  if (member.status !== "active") return false;
-  return !member.currentPeriodEnd || member.currentPeriodEnd > Date.now();
-}
-
-/** Nárok přihlášeného uživatele. Nepřihlášený i neplatící dostane ANONYMOUS. */
 export async function resolveAccess(
   ctx: QueryCtx | MutationCtx,
 ): Promise<Access> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return ANONYMOUS;
 
+  const admin = identity.role === "admin";
+
   const member = await ctx.db
     .query("members")
     .withIndex("by_clerk_user", (q) => q.eq("clerkUserId", String(identity.subject)))
     .unique();
-  if (!member) return ANONYMOUS;
+  if (!member) return { ...ANONYMOUS, admin };
 
-  return { memberId: member._id, active: isActive(member), tier: member.tier };
+  return {
+    memberId: member._id,
+    active: isMembershipActive(member, Date.now()),
+    tier: member.tier,
+    admin,
+  };
 }
+
+/**
+ * Pořadí variant. Čestné členství uděluje Rada osobnostem oboru a co do
+ * přístupu k obsahu se rovná PRO.
+ */
+const TIER_RANK = { zakladni: 1, pro: 2, cestne: 2 } as const;
 
 /**
  * Splňuje nárok požadovaný tier?
  *
  * `undefined` na kurzu = stačí platné členství (Základní i PRO) — to je
- * „hobby část" ze strategie. `cestne` členství uděluje Rada a má přístup
- * jako PRO.
+ * „hobby část" ze strategie.
  *
- * POZOR NA PAST: reálné větve jsou jen dvě. `requiredTier` s hodnotou
- * `"zakladni"` nebo `"cestne"` propadne na `return true`, tedy se chová
- * stejně jako `undefined` a NIC neomezí. Jediné funkční omezení je `"pro"`.
+ * Dřív tu byla past: `requiredTier` s hodnotou `"zakladni"` nebo `"cestne"`
+ * propadlo na `return true` a neomezilo NIC, fungovalo jedině `"pro"`.
+ * Teď se porovnává pořadí, takže každá hodnota z číselníku něco znamená.
  */
 export function meetsTier(
   access: Access,
   requiredTier: Doc<"courses">["requiredTier"],
 ): boolean {
+  // Admin spravuje obsah — musí ho vidět, i když sám členství nemá.
+  if (access.admin) return true;
   if (!access.active) return false;
   if (!requiredTier) return true;
-  if (requiredTier === "pro") return access.tier === "pro" || access.tier === "cestne";
-  return true;
+  if (!access.tier) return false;
+  return TIER_RANK[access.tier] >= TIER_RANK[requiredTier];
 }
 
 /** Vidí člen kurz celý? Draft je jen pro admina (řeší si ho admin queries). */

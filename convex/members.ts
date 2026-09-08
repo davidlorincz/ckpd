@@ -14,6 +14,7 @@ import {
   generateSecret,
   lookupKey,
 } from "./lib/code";
+import { isMembershipActive } from "./lib/membershipState";
 
 /**
  * Evidence členů. Stav členství sem zapisuje výhradně `convex/billing.ts`
@@ -33,6 +34,52 @@ export const getSelf = query({
         q.eq("clerkUserId", subjectOf(identity)),
       )
       .unique();
+  },
+});
+
+/**
+ * Zkrácený vlastní záznam pro hlavičku a zámek DIGI univerzity.
+ *
+ * Záměrně NE `getSelf`: ten vrací celý dokument včetně `verificationCode`,
+ * tedy sdíleného tajemství pro partnerské ověřování. Posílat ho na každé
+ * stránce webu jen kvůli odznaku varianty by zbytečně rozšiřovalo plochu.
+ *
+ * `digiAccess` je jediné místo, kde se počítá „smí do univerzity" — čte ho
+ * layout univerzity i hlavička, aby se odkaz a skutečný přístup nemohly
+ * rozejít.
+ */
+export const getSelfSummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    const admin = identity.role === "admin";
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_clerk_user", (q) =>
+        q.eq("clerkUserId", subjectOf(identity)),
+      )
+      .unique();
+
+    if (!member) {
+      return {
+        tier: undefined,
+        status: "none" as const,
+        active: false,
+        admin,
+        digiAccess: admin,
+      };
+    }
+
+    const active = isMembershipActive(member, Date.now());
+    return {
+      tier: member.tier,
+      status: member.status,
+      active,
+      admin,
+      digiAccess: active || admin,
+    };
   },
 });
 
@@ -192,7 +239,9 @@ export const listPublic = query({
     }
 
     return rows
-      .filter((m) => m.publicListing && m.name)
+      // `status: "active"` samo nestačí — členovi mohlo propadnout období,
+      // aniž by se stav překlopil. Stejné pravidlo jako u veřejného ověření.
+      .filter((m) => m.publicListing && m.name && isMembershipActive(m, now))
       .map((m) => ({
         name: m.name,
         memberNumber: m.memberNumber,

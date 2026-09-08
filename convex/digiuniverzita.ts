@@ -153,8 +153,10 @@ export const courseBySlug = query({
 /**
  * Detail lekce pro stránku přehrávače.
  *
- * Transkript se vrací jen tomu, kdo na lekci má nárok — jsou to doslovné
- * přepisy celého kurzu, takže bez kontroly by šel obsah přečíst i bez videa.
+ * Placený obsah — přepis, text lekce i přílohy — se vrací jen tomu, kdo na
+ * lekci má nárok. Jsou to doslovné přepisy celého kurzu; bez kontroly by šel
+ * obsah přečíst i bez videa. Zamčený návštěvník dostane jen metadata, aby
+ * stránka uměla nabídnout členství.
  */
 export const lessonBySlug = query({
   args: { courseSlug: v.string(), lessonSlug: v.string() },
@@ -204,8 +206,8 @@ export const lessonBySlug = query({
       perex: lesson.perex,
       position: lesson.position,
       durationSeconds: lesson.durationSeconds,
-      bodyMd: lesson.bodyMd,
-      attachments: lesson.attachments,
+      bodyMd: unlocked ? lesson.bodyMd : undefined,
+      attachments: unlocked ? lesson.attachments : [],
       state: lesson.state,
       stateNote: lesson.stateNote,
       unlocked,
