@@ -30,6 +30,7 @@ WORDS = [
     ("BURZA", "burza", {}),
     ("PŮJČOVNA", "pujcovna", {}),
     ("ČKPD", "ckpd", {"DP_HEIGHT": 0.34, "BY_SIZE": 0.34, "ROW_GAP": 0.20}),
+    ("MAPA", "mapa", {}),
 ]
 
 RAPID_BLACK = "public/fonts/DronProRapidVariable-BlackExt.woff2"
