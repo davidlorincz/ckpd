@@ -31,6 +31,25 @@ import { cn } from "@/lib/utils";
 const ctaClass =
   "shrink-0 whitespace-nowrap rounded-[2px] border border-deep px-4 py-2 text-[15px] font-medium text-deep transition-colors hover:bg-deep hover:text-paper";
 
+const signInClass =
+  "shrink-0 whitespace-nowrap text-[15px] font-medium text-ink-2 transition-colors hover:text-ink";
+
+/**
+ * Kdo už účet má, se do něj musí dostat.
+ *
+ * Do přihlášení dřív z webu nevedla jediná cesta — hlavička nabízela jen
+ * „Stát se členem". Odkaz je textový, aby zvýrazněné CTA zůstalo jedno.
+ * Ukazuje se i s vypnutou členskou sekcí: přes `/prihlaseni` chodí i vstup
+ * do administrace.
+ */
+function SignInLink() {
+  return (
+    <Link href="/prihlaseni" className={signInClass}>
+      Přihlásit se
+    </Link>
+  );
+}
+
 const icons: Record<string, typeof UserRoundIcon> = {
   "/muj-ucet": UserRoundIcon,
   "/muj-ucet/predplatne": CreditCardIcon,
@@ -47,20 +66,29 @@ const icons: Record<string, typeof UserRoundIcon> = {
  * editovat“, takže z něj zbyla zelená tečka na ikoně a řádek v menu.
  */
 export function UserMenu({ session }: { session: HeaderSession }) {
-  // Bez Clerku nebo s vypnutou členskou sekcí vede CTA na ceník — Clerk hooky
-  // se přitom vůbec nesmí namontovat, proto to dělí hranice komponent.
-  if (!hasClerk || !SHOW_MEMBER_AREA) {
+  // Bez Clerku není kam přihlašovat ani koho registrovat.
+  if (!hasClerk) {
     return (
       <Link href="/clenstvi#varianty" className={ctaClass}>
         Stát se členem
       </Link>
     );
   }
-  if (!session.signedIn) {
+
+  // Menu účtu má smysl jen se zapnutou členskou sekcí — jinak jsou všechny
+  // jeho odkazy 404. Zároveň se tím Clerk hooky nenamontují, proto to dělí
+  // hranice komponent.
+  if (!session.signedIn || !SHOW_MEMBER_AREA) {
     return (
-      <Link href="/registrace" className={ctaClass}>
-        Stát se členem
-      </Link>
+      <>
+        {!session.signedIn && <SignInLink />}
+        <Link
+          href={SHOW_MEMBER_AREA ? "/registrace" : "/clenstvi#varianty"}
+          className={ctaClass}
+        >
+          Stát se členem
+        </Link>
+      </>
     );
   }
   return <UserMenuInner session={session} />;

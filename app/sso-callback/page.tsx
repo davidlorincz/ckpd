@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 
 import { SsoCallbackClient } from "@/components/auth/SsoCallbackClient";
 import { SHOW_MEMBER_AREA } from "@/lib/flags";
@@ -17,13 +16,17 @@ export default async function SsoCallbackPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  if (!SHOW_MEMBER_AREA) notFound();
-
   const search = await searchParams;
   // Clerk vrací `redirect_url` absolutně, takže sanitizace potřebuje vědět,
   // na jakém hostu jsme — jinak by cizí doména a ta naše vypadaly stejně.
   const host = (await headers()).get("host") ?? undefined;
-  const redirectTo = safeRedirectPath(search?.redirect_url, "/muj-ucet", host);
+  // Stejně jako `/prihlaseni` není za `SHOW_MEMBER_AREA` — bez callbacku by
+  // nefungoval Google. S vypnutou sekcí je ale `/muj-ucet` 404.
+  const redirectTo = safeRedirectPath(
+    search?.redirect_url,
+    SHOW_MEMBER_AREA ? "/muj-ucet" : "/",
+    host,
+  );
   const mode = search?.mode === "signUp" ? "signUp" : "signIn";
 
   return <SsoCallbackClient redirectTo={redirectTo} mode={mode} />;

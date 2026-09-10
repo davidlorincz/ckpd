@@ -178,25 +178,38 @@ function MobileNav({
   );
 }
 
+const mobileCtaClass =
+  "my-3 rounded-[2px] border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep";
+
 function MobileAccount({ session }: { session: HeaderSession }) {
-  if (!hasClerk || !SHOW_MEMBER_AREA) {
+  // Stejné dělení jako v `UserMenu` na desktopu: bez Clerku nic, s vypnutou
+  // členskou sekcí jen CTA na ceník (odkazy do účtu by byly 404), a přihlášení
+  // pro každého odhlášeného — chodí přes něj i vstup do administrace.
+  if (!hasClerk) {
     return (
-      <Link
-        href="/clenstvi#varianty"
-        className="my-3 rounded-[2px] border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep"
-      >
+      <Link href="/clenstvi#varianty" className={mobileCtaClass}>
         Stát se členem
       </Link>
     );
   }
-  if (!session.signedIn) {
+  if (!session.signedIn || !SHOW_MEMBER_AREA) {
     return (
-      <Link
-        href="/registrace"
-        className="my-3 rounded-[2px] border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep"
-      >
-        Stát se členem
-      </Link>
+      <>
+        {!session.signedIn && (
+          <Link
+            href="/prihlaseni"
+            className="border-b border-hairline py-3 text-[16px] font-medium text-ink"
+          >
+            Přihlásit se
+          </Link>
+        )}
+        <Link
+          href={SHOW_MEMBER_AREA ? "/registrace" : "/clenstvi#varianty"}
+          className={mobileCtaClass}
+        >
+          Stát se členem
+        </Link>
+      </>
     );
   }
   return <MobileAccountInner session={session} />;

@@ -1,18 +1,19 @@
 "use client";
 
-import { SignIn, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 import { useEditMode } from "@/contexts/EditModeContext";
 import { hasClerk } from "@/lib/env";
 
 /**
- * Vstup do administrace.
+ * Vysvětlení pro toho, koho administrace nepustila dál.
  *
- * Vykresluje se jen tomu, kdo dovnitř (zatím) nesmí — admin dostane rovnou
- * přehled. Dva stavy: nepřihlášený vidí Clerk přihlášení, přihlášený bez role
- * vysvětlení, proč ho to nepustilo.
+ * Vykresluje se jen přihlášenému bez admin role — admin dostane rovnou
+ * přehled a nepřihlášený odchází na `/prihlaseni` už ze serveru
+ * (`app/admin/[[...rest]]/page.tsx`). Dřív tu bylo i hostované Clerk
+ * přihlášení; teď má web jedinou přihlašovací obrazovku.
  */
-export function AdminSignIn() {
+export function AdminNoAccess() {
   // Bez Clerku (chybějící env) nemá stránka co nabídnout — a Clerk hooky
   // by mimo ClerkProvider spadly.
   if (!hasClerk) {
@@ -22,20 +23,14 @@ export function AdminSignIn() {
       </p>
     );
   }
-  return <AdminSignInInner />;
+  return <AdminNoAccessInner />;
 }
 
-function AdminSignInInner() {
+function AdminNoAccessInner() {
   const { signOut } = useEditMode();
   const { isSignedIn, isLoaded } = useUser();
 
-  if (!isLoaded) return null;
-
-  if (!isSignedIn) {
-    // forceRedirectUrl: po přihlášení zůstat na /admin, ne skočit
-    // na homepage bez vysvětlení
-    return <SignIn routing="path" path="/admin" forceRedirectUrl="/admin" />;
-  }
+  if (!isLoaded || !isSignedIn) return null;
 
   return (
     <div className="max-w-md border border-hairline bg-paper-2 p-8 text-center">

@@ -14,14 +14,25 @@ import { Seal } from "@/components/ui/Seal";
 import { hasClerk } from "@/lib/env";
 
 /**
- * Přihlášení a registrace do členské sekce. `/admin` má vlastní obrazovku
- * (components/admin/AdminSignIn.tsx) — nesmí sdílet tyhle cesty, jinak by
- * se admin po přihlášení zacyklil mimo administraci.
+ * Přihlášení a registrace. Přes tuhle cestu chodí i vstup do administrace,
+ * proto `redirectTo` — dřív mělo `/admin` vlastní obrazovku právě proto, aby
+ * se admin po přihlášení nezacyklil v členské sekci.
  *
  * Rám kreslíme sami (rámeček s brass obrysem jako v heru), Clerk uvnitř
  * dodává jen formulář — viz `elements.card` v lib/clerkAppearance.ts.
  */
-export function LegacyAuthScreen({ mode }: { mode: "signIn" | "signUp" }) {
+export function LegacyAuthScreen({
+  mode,
+  redirectTo = "/muj-ucet",
+}: {
+  mode: "signIn" | "signUp";
+  /**
+   * Kam po přihlášení. Přes `/prihlaseni` chodí i vstup do administrace,
+   * takže natvrdo zadaný účet by admina při rollbacku poslal jinam, než
+   * kam mířil.
+   */
+  redirectTo?: string;
+}) {
   if (!hasClerk) {
     return (
       <Container className="py-20">
@@ -89,14 +100,14 @@ export function LegacyAuthScreen({ mode }: { mode: "signIn" | "signUp" }) {
               routing="path"
               path="/registrace"
               signInUrl="/prihlaseni"
-              forceRedirectUrl="/muj-ucet"
+              forceRedirectUrl={redirectTo}
             />
           ) : (
             <SignIn
               routing="path"
               path="/prihlaseni"
               signUpUrl="/registrace"
-              forceRedirectUrl="/muj-ucet"
+              forceRedirectUrl={redirectTo}
             />
           )}
         </div>
