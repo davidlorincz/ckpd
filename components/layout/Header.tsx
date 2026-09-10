@@ -14,17 +14,27 @@ import { memberNavItems } from "@/lib/memberNav";
 import type { HeaderSession } from "@/lib/session";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { VerifyMenu } from "@/components/layout/VerifyMenu";
+import { navLinkClass } from "@/components/layout/navLink";
 
 /**
- * Sticky hlavička ve třech zónách: značka — obsahové stránky — utilitní blok.
+ * Sticky hlavička ve třech zónách: značka — rozcestník — účet.
  *
- * Dřív se za `nav` dolepovala DIGI univerzita, Administrace, účet, štítek EDIT
- * a odhlášení, takže Kontakt nebyl poslední, DIGI univerzita skončila úplně
- * vzadu a na 1024 px se popisky lámaly na dva řádky. Teď má levá strana
- * nejvýš pět položek, Kontakt sedí vpravo u účtu (obojí je „co s komorou
- * udělat“, ne „co si o ní přečíst“) a všechno kolem účtu je v jednom menu.
+ * Zóny odděluje mezera, ne linka. Dřív tu mezi Ověřením a Kontaktem stála
+ * svislá čárka: Kontakt měl patřit k utilitnímu bloku („co s komorou
+ * udělat“) místo k obsahovým stránkám („co si o ní přečíst“). To rozdělení
+ * ale nikdo kromě autora nepřečetl — Kontakt je běžná stránka jako O komoře
+ * — takže čárka vypadala jako omyl. Skutečný předěl vede jinudy: mezi
+ * rozcestníkem po webu a účtem.
  *
- * Plná navigace až od `lg` — na `md` se osm položek do řádku nevešlo.
+ * `justify-between` rozprostře tři děti samo; při šířce obsahu 1152 px zbyde
+ * po stranách rozcestníku ~180 px. Na mobilu jsou viditelné děti jen dvě
+ * (značka a hamburger), takže tam funguje beze změny.
+ *
+ * Řádek je `items-stretch`, aby se položky rozcestníku roztáhly na celou
+ * výšku hlavičky — jinak by jejich linka aktivního stavu nesahala na hranu
+ * (viz `components/layout/navLink.ts`).
+ *
+ * Plná navigace až od `lg` — na `md` se popisky lámaly na dva řádky.
  */
 export function Header({ session }: { session: HeaderSession }) {
   const [scrolled, setScrolled] = useState(false);
@@ -44,16 +54,11 @@ export function Header({ session }: { session: HeaderSession }) {
     setOpen(false);
   }, [pathname]);
 
-  const linkClass = (href: string) =>
-    cn(
-      "shrink-0 whitespace-nowrap text-[15px] font-medium text-ink-2 transition-colors hover:text-ink",
-      pathname.startsWith(href) &&
-        "text-ink underline decoration-brass decoration-2 underline-offset-8",
-    );
+  const linkClass = (href: string) => navLinkClass(pathname.startsWith(href));
 
   return (
     <header className="sticky top-0 z-50 border-b border-hairline bg-paper/95 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
+      <div className="mx-auto flex w-full max-w-6xl items-stretch justify-between gap-6 px-5 sm:px-8">
         <Link
           href="/"
           className={cn(
@@ -76,7 +81,7 @@ export function Header({ session }: { session: HeaderSession }) {
 
         <nav
           aria-label="Hlavní navigace"
-          className="hidden items-center gap-6 lg:flex xl:gap-8"
+          className="hidden items-stretch gap-6 lg:flex xl:gap-8"
         >
           {/* DIGI univerzita je pro zaplaceného člena to, kvůli čemu sem chodí
               — proto první, ne dolepená za Kontakt. */}
@@ -91,18 +96,20 @@ export function Header({ session }: { session: HeaderSession }) {
             </Link>
           ))}
           <VerifyMenu />
-
-          <span aria-hidden className="h-5 w-px shrink-0 bg-hairline" />
-
+          {/* Kontakt uzavírá rozcestník — je to stránka jako každá jiná. */}
           <Link href={headerContact.href} className={linkClass(headerContact.href)}>
             {headerContact.label}
           </Link>
-          <UserMenu session={session} />
         </nav>
+
+        {/* Zóna účtu: jediné místo, kde se s komorou něco dělá. */}
+        <div className="hidden shrink-0 items-center gap-5 lg:flex">
+          <UserMenu session={session} />
+        </div>
 
         <button
           type="button"
-          className="-mr-2 flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-[5px] lg:hidden"
+          className="-mr-2 flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-[5px] self-center lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? "Zavřít menu" : "Otevřít menu"}
@@ -181,25 +188,31 @@ function MobileNav({
 const mobileCtaClass =
   "my-3 rounded-[2px] border border-deep px-4 py-2.5 text-center text-[16px] font-medium text-deep";
 
+/**
+ * Účet se od rozcestníku odděluje mezerou, ne další linkou — stejně jako
+ * na desktopu, jen otočené do sloupce. Dřív „Přihlásit se“ vypadalo jako
+ * pátá položka navigace.
+ */
+const mobileAccountClass = "mt-3 flex flex-col";
+
 function MobileAccount({ session }: { session: HeaderSession }) {
   // Stejné dělení jako v `UserMenu` na desktopu: bez Clerku nic, s vypnutou
   // členskou sekcí jen CTA na ceník (odkazy do účtu by byly 404), a přihlášení
   // pro každého odhlášeného — chodí přes něj i vstup do administrace.
   if (!hasClerk) {
     return (
-      <Link href="/clenstvi#varianty" className={mobileCtaClass}>
-        Stát se členem
-      </Link>
+      <div className={mobileAccountClass}>
+        <Link href="/clenstvi#varianty" className={mobileCtaClass}>
+          Stát se členem
+        </Link>
+      </div>
     );
   }
   if (!session.signedIn || !SHOW_MEMBER_AREA) {
     return (
-      <>
+      <div className={mobileAccountClass}>
         {!session.signedIn && (
-          <Link
-            href="/prihlaseni"
-            className="border-b border-hairline py-3 text-[16px] font-medium text-ink"
-          >
+          <Link href="/prihlaseni" className="py-3 text-[16px] font-medium text-ink">
             Přihlásit se
           </Link>
         )}
@@ -209,7 +222,7 @@ function MobileAccount({ session }: { session: HeaderSession }) {
         >
           Stát se členem
         </Link>
-      </>
+      </div>
     );
   }
   return <MobileAccountInner session={session} />;

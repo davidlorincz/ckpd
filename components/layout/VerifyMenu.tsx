@@ -10,14 +10,9 @@ import {
   DropdownMenuLinkItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { navLinkClass } from "@/components/layout/navLink";
 import { SHOW_MEMBERS } from "@/lib/flags";
 import { headerVerify } from "@/lib/site";
-import { cn } from "@/lib/utils";
-
-const linkClass =
-  "shrink-0 whitespace-nowrap text-[15px] font-medium text-ink-2 transition-colors hover:text-ink";
-const activeClass =
-  "text-ink underline decoration-brass decoration-2 underline-offset-8";
 
 /**
  * Ověření + veřejný seznam členů.
@@ -39,7 +34,7 @@ export function VerifyMenu() {
       <Link
         href={headerVerify.href}
         aria-current={active ? "page" : undefined}
-        className={cn(linkClass, active && activeClass)}
+        className={navLinkClass(active)}
       >
         {headerVerify.label}
       </Link>
@@ -49,12 +44,7 @@ export function VerifyMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={cn(
-          "group flex items-center gap-1",
-          linkClass,
-          active && activeClass,
-          "data-popup-open:text-ink",
-        )}
+        className={navLinkClass(active, "group gap-1 data-popup-open:text-ink")}
       >
         {headerVerify.label}
         <ChevronDownIcon

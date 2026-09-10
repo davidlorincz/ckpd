@@ -38,7 +38,9 @@ const signInClass =
  * Kdo už účet má, se do něj musí dostat.
  *
  * Do přihlášení dřív z webu nevedla jediná cesta — hlavička nabízela jen
- * „Stát se členem". Odkaz je textový, aby zvýrazněné CTA zůstalo jedno.
+ * „Stát se členem". Odkaz je textový, aby zvýrazněné CTA zůstalo jedno, a
+ * nedostává linku aktivního stavu jako položky rozcestníku: patří do zóny
+ * účtu a na `/prihlaseni` se hlavička stejně nevykresluje.
  * Ukazuje se i s vypnutou členskou sekcí: přes `/prihlaseni` chodí i vstup
  * do administrace.
  */

@@ -39,15 +39,20 @@ const navLabel = (href: string) =>
   nav.find((i) => i.href === href)!.label;
 
 /**
- * Rozdělení navigace do zón hlavičky.
+ * Rozcestník v hlavičce.
  *
  * `nav` zůstává beze změny — bere ho patička a její CMS klíče jsou vázané
  * na pořadí (`layout.footer.nav.0`…), takže s polem nejde hýbat. Popisky se
  * proto dohledávají v něm, ne opisují.
  *
- * Obsahové stránky jdou doleva, Kontakt do utilitního bloku vpravo a Ověření
- * dostává vlastní rozbalovačku, protože pod něj patří i veřejný seznam členů —
- * obojí odpovídá na tutéž otázku „kdo je vlastně člen".
+ * Pořadí v hlavičce je `headerNav` → `headerVerify` → `headerContact`, tedy
+ * O komoře · Členství · Ověření · Kontakt. Kontakt je samostatná konstanta
+ * jen proto, že Ověření musí být vykreslené před ním — do pole `headerNav`
+ * ho přilepit nejde. Dřív stál v hlavičce až za svislou čárkou jako součást
+ * utilitního bloku; to rozdělení nedávalo smysl a je pryč.
+ *
+ * Ověření dostává vlastní rozbalovačku, protože pod něj patří i veřejný
+ * seznam členů — obojí odpovídá na tutéž otázku „kdo je vlastně člen".
  *
  * Stanoviska v hlavičce nejsou schválně: je to archiv, ne rozcestník. Kdo je
  * hledá, dojde pro ně do patičky — a ta je pořád vypisuje, protože jede z `nav`.
