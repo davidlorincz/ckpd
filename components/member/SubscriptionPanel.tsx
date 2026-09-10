@@ -42,6 +42,10 @@ export function SubscriptionPanel() {
   }
 
   const active = member.status === "active" || member.status === "past_due";
+  // Členství udělené komorou nemá za sebou platbu — nesmí tedy tvrdit, že
+  // je za ním karta, ani nabízet změnu varianty, která by ho shodila
+  // (`billing.assertNotGranted` takový checkout stejně odmítne).
+  const granted = member.billingProvider === "manual" && active;
 
   return (
     <div className="flex flex-col gap-8">
@@ -74,18 +78,30 @@ export function SubscriptionPanel() {
             </div>
             <div>
               <dt className="text-[13px] uppercase tracking-wider text-ink-2">
-                {member.cancelAtPeriodEnd ? "Skončí" : "Další platba"}
+                {granted
+                  ? "Platnost"
+                  : member.cancelAtPeriodEnd
+                    ? "Skončí"
+                    : "Další platba"}
               </dt>
               <dd className="tnum mt-1 text-[15.5px] text-ink">
-                {formatDate(member.currentPeriodEnd)}
+                {member.currentPeriodEnd
+                  ? formatDate(member.currentPeriodEnd)
+                  : granted
+                    ? "Bez časového omezení"
+                    : "—"}
               </dd>
             </div>
             <div>
               <dt className="text-[13px] uppercase tracking-wider text-ink-2">
-                Platební metoda
+                {granted ? "Původ" : "Platební metoda"}
               </dt>
               <dd className="mt-1 text-[15.5px] text-ink">
-                {BILLING_PROVIDER === "mock" ? "Ukázková karta •••• 4242" : "Karta"}
+                {granted
+                  ? "Uděleno komorou"
+                  : BILLING_PROVIDER === "mock"
+                    ? "Ukázková karta •••• 4242"
+                    : "Karta"}
               </dd>
             </div>
           </dl>
@@ -136,20 +152,26 @@ export function SubscriptionPanel() {
         </section>
       ) : null}
 
-      <section>
-        <h2 className="text-[20px] sm:text-[24px]">
-          {active ? "Změnit variantu" : "Vyber variantu členství"}
-        </h2>
-        <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
-          Jeden člen znamená jeden hlas, ať platíš Základní, nebo PRO. Varianta
-          rozhoduje jen o rozsahu výhod u partnerů komory.
-        </p>
-        <TierPicker
-          current={member.tier}
-          disabled={busy}
-          onChoose={choose}
-        />
-      </section>
+      {granted ? (
+        <section className="border border-hairline bg-paper-2 p-7 sm:p-9">
+          <h2 className="text-[20px] sm:text-[24px]">Variantu uděluje komora</h2>
+          <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
+            Tvoje členství ti udělila komora, není za ním platba. Změnit
+            variantu proto nejde odsud — napiš nám a domluvíme se.
+          </p>
+        </section>
+      ) : (
+        <section>
+          <h2 className="text-[20px] sm:text-[24px]">
+            {active ? "Změnit variantu" : "Vyber variantu členství"}
+          </h2>
+          <p className="measure mt-3 text-[15.5px] leading-relaxed text-ink-2">
+            Jeden člen znamená jeden hlas, ať platíš Základní, nebo PRO.
+            Varianta rozhoduje jen o rozsahu výhod u partnerů komory.
+          </p>
+          <TierPicker current={member.tier} disabled={busy} onChoose={choose} />
+        </section>
+      )}
     </div>
   );
 }

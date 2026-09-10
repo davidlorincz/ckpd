@@ -91,11 +91,20 @@ export function formatDate(ts?: number): string {
   });
 }
 
-/** Text stavu s doplněným datem. */
+/**
+ * Text stavu s doplněným datem.
+ *
+ * Členství bez data konce platí navždy — tak ho zapisuje ruční udělení
+ * adminem a tak ho čte `isMembershipActive`. Věta „Členství platí do —."
+ * by z toho dělala chybu, která tam není.
+ */
 export function statusNote(
   status: MembershipStatus,
   periodEnd?: number,
 ): string {
+  if (status === "active" && !periodEnd) {
+    return "Členství platí bez časového omezení.";
+  }
   return statusPresentation[status].note.replace(
     "{date}",
     formatDate(periodEnd),

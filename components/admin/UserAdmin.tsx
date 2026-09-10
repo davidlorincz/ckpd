@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState, useTransition } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
 import { api } from "@/convex/_generated/api";
@@ -16,6 +16,7 @@ import {
   AdminTable,
   Badge,
   Th,
+  adminButtonClass,
   adminGhostButtonClass,
   adminInputClass,
   adminLinkButtonClass,
@@ -395,6 +396,17 @@ function RowDetail({
           )}
         </dd>
 
+        <dt className="text-ink-2">Původ členství</dt>
+        <dd className="text-ink">
+          {m
+            ? m.billingProvider === "manual"
+              ? "uděleno komorou"
+              : m.billingProvider === "stripe"
+                ? "platba kartou"
+                : "ukázková platba"
+            : "—"}
+        </dd>
+
         <dt className="text-ink-2">Role</dt>
         <dd>
           {row.clerkId ? (
@@ -414,7 +426,10 @@ function RowDetail({
         </dd>
       </dl>
 
-      <div>
+      <div className="space-y-6">
+        <MembershipControls member={m} />
+
+        <div>
         <p className="text-[13px] uppercase tracking-wider text-ink-2">
           Certifikace
         </p>
@@ -459,6 +474,7 @@ function RowDetail({
             </AdminTable>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -502,5 +518,176 @@ function VerificationCode({ memberId }: { memberId: Id<"members"> }) {
     <span className="select-all font-mono text-[13px] text-ink">
       {code ?? "—"}
     </span>
+  );
+}
+
+const grantableTiers: { key: MembershipTier; label: string }[] = [
+  { key: "zakladni", label: "Základní" },
+  { key: "pro", label: "PRO" },
+  { key: "cestne", label: "Čestné" },
+];
+
+/**
+ * Ruční udělení a odebrání členství.
+ *
+ * Prochází stejným jádrem jako platba, takže udělený člen dostane skutečné
+ * členské číslo i ověřovací kód platný v partnerském API — a odemkne se mu
+ * nejen DIGI univerzita, ale i veřejný seznam a vydávání certifikací.
+ *
+ * Bez řádku v evidenci není komu členství přiřadit. Ten vzniká sám při
+ * prvním otevření účtu, tak to UI i napíše.
+ */
+function MembershipControls({ member }: { member: MemberRow | null }) {
+  const grant = useMutation(api.billing.adminGrantMembership);
+  const revoke = useMutation(api.billing.adminRevokeMembership);
+
+  const [tier, setTier] = useState<MembershipTier>("zakladni");
+  const [until, setUntil] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  if (!member) {
+    return (
+      <div>
+        <p className="text-[13px] uppercase tracking-wider text-ink-2">
+          Členství
+        </p>
+        <p className="mt-2 text-[14px] text-ink-2">
+          Zatím nemá záznam v evidenci — vznikne mu sám, jakmile poprvé otevře
+          svůj účet. Do té doby není komu členství přiřadit.
+        </p>
+      </div>
+    );
+  }
+
+  async function handleGrant() {
+    if (!member) return;
+    setBusy(true);
+    try {
+      // Poledne UTC, ať se datum neposune přes půlnoc v jiné zóně.
+      const periodEnd = until ? Date.parse(`${until}T12:00:00Z`) : undefined;
+      if (until && Number.isNaN(periodEnd)) {
+        toast.error("Datum nedává smysl.");
+        return;
+      }
+      await grant({
+        memberId: member._id,
+        tier,
+        periodEnd,
+        note: note.trim() || undefined,
+      });
+      toast.success(
+        `Uděleno: ${tierLabels[tier]}${until ? ` do ${czDate(periodEnd)}` : " bez omezení"}`,
+      );
+      setNote("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Udělení selhalo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRevoke() {
+    if (!member) return;
+    if (
+      !confirm(
+        "Odebrat členství? Stav přejde na „Ukončené“, členské číslo zůstane. Ověřovací API i veřejný seznam ho přestanou uznávat okamžitě.",
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    try {
+      await revoke({ memberId: member._id, note: note.trim() || undefined });
+      toast.success("Členství odebráno.");
+      setNote("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Odebrání selhalo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <p className="text-[13px] uppercase tracking-wider text-ink-2">Členství</p>
+
+      <div className="mt-2 flex flex-wrap items-end gap-3">
+        <label className="min-w-[130px]">
+          <span className="mb-1 block text-[12.5px] text-ink-2">Varianta</span>
+          <select
+            value={tier}
+            onChange={(e) => setTier(e.target.value as MembershipTier)}
+            disabled={busy}
+            className={adminInputClass}
+          >
+            {grantableTiers.map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="min-w-[150px]">
+          <span className="mb-1 block text-[12.5px] text-ink-2">
+            Platnost do (nepovinné)
+          </span>
+          <input
+            type="date"
+            value={until}
+            onChange={(e) => setUntil(e.target.value)}
+            disabled={busy}
+            className={adminInputClass}
+          />
+        </label>
+
+        <label className="min-w-[180px] flex-1">
+          <span className="mb-1 block text-[12.5px] text-ink-2">
+            Poznámka (nepovinná)
+          </span>
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            disabled={busy}
+            placeholder="rozhodnutí Rady, platba převodem…"
+            className={adminInputClass}
+          />
+        </label>
+
+        <button
+          type="button"
+          onClick={() => void handleGrant()}
+          disabled={busy}
+          className={adminButtonClass}
+        >
+          {member.active ? "Změnit" : "Udělit"}
+        </button>
+
+        {member.active && (
+          <button
+            type="button"
+            onClick={() => void handleRevoke()}
+            disabled={busy}
+            className={adminGhostButtonClass}
+          >
+            Odebrat členství
+          </button>
+        )}
+      </div>
+
+      <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2">
+        Bez data platí bez časového omezení. Udělením vznikne členské číslo
+        i ověřovací kód pro partnery.
+      </p>
+
+      {member.lastGrant && (
+        <p className="mt-2 text-[12.5px] text-ink-2">
+          Poslední zásah: {member.lastGrant.action === "grant" ? "uděleno" : "odebráno"}{" "}
+          {czDate(member.lastGrant.at)}
+          {member.lastGrant.note ? ` — ${member.lastGrant.note}` : ""}
+        </p>
+      )}
+    </div>
   );
 }

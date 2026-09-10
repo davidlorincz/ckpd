@@ -356,6 +356,9 @@ export const adminDirectory = query({
         cancelAtPeriodEnd: m.cancelAtPeriodEnd,
         memberNumber: m.memberNumber ?? null,
         hasVerificationCode: m.verificationCode !== undefined,
+        billingProvider: m.billingProvider,
+        /** Poslední ruční zásah — kdo a kdy sáhl do členství mimo platbu. */
+        lastGrant: m.membershipGrants?.at(-1) ?? null,
         publicListing: m.publicListing,
         agreeStatutesAt: m.agreeStatutesAt ?? null,
         agreeGdprAt: m.agreeGdprAt ?? null,

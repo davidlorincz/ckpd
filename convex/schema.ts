@@ -134,10 +134,45 @@ export default defineSchema({
     agreeStatutesAt: v.optional(v.number()),
     agreeGdprAt: v.optional(v.number()),
 
-    // Platby — mock i Stripe sdílí stejný tvar, aby přechod nic neměnil
-    billingProvider: v.union(v.literal("mock"), v.literal("stripe")),
+    // Platby — mock i Stripe sdílí stejný tvar, aby přechod nic neměnil.
+    // `manual` znamená, že členství udělil admin a žádná platba za ním není;
+    // podle toho se pozná, že se varianta nesmí přepsat checkoutem a že
+    // v účtu nemá co tvrdit „Platební metoda: Karta".
+    billingProvider: v.union(
+      v.literal("mock"),
+      v.literal("stripe"),
+      v.literal("manual"),
+    ),
     stripeCustomerId: v.optional(v.string()),
     stripeSubscriptionId: v.optional(v.string()),
+
+    /**
+     * Ruční zásahy do členství — kdo, kdy a co změnil.
+     *
+     * Evidence členů má být podle hlavičky téhle tabulky auditovatelná, ale
+     * dosud na to neměla jediné pole: platební brána píše sama za sebe.
+     * Jakmile do stavu smí sáhnout člověk, musí po něm zůstat stopa.
+     *
+     * Inline pole, ne vlastní tabulka — členství je STAV, ne proud událostí,
+     * a stejné rozhodnutí padlo u `credentials.renewals`. Volitelné, aby
+     * stávající řádky nepotřebovaly migraci.
+     */
+    membershipGrants: v.optional(
+      v.array(
+        v.object({
+          at: v.number(),
+          /** Clerk user id admina, který zásah provedl. */
+          by: v.string(),
+          action: v.union(v.literal("grant"), v.literal("revoke")),
+          tier: v.optional(tierValidator),
+          previousTier: v.optional(tierValidator),
+          previousStatus: statusValidator,
+          /** Chybí = uděleno bez časového omezení. */
+          periodEnd: v.optional(v.number()),
+          note: v.optional(v.string()),
+        }),
+      ),
+    ),
 
     createdAt: v.number(),
     updatedAt: v.number(),

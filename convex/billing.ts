@@ -1,7 +1,8 @@
 import { internalMutation, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { tierValidator } from "./schema";
-import { requireIdentity, subjectOf } from "./lib/auth";
+import { isMembershipActive } from "./lib/membershipState";
+import { requireAdmin, requireIdentity, subjectOf } from "./lib/auth";
 import { issueVerificationCode, nextMemberNumber } from "./members";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
@@ -40,6 +41,24 @@ async function memberOf(ctx: MutationCtx, clerkUserId: string) {
   return member;
 }
 
+/**
+ * Ručně udělené členství si člen nesmí přepsat sám.
+ *
+ * Bez téhle kontroly stačí v účtu kliknout na druhou variantu — `startCheckout`
+ * přepíše `tier` i `status` na `pending` a grant je pryč. Ptáme se na aktivní
+ * stav, ne jen na původ: po odebrání grantu si má jít varianta normálně koupit.
+ */
+function assertNotGranted(member: Doc<"members">) {
+  if (
+    member.billingProvider === "manual" &&
+    isMembershipActive(member, Date.now())
+  ) {
+    throw new Error(
+      "Členství ti udělila komora — variantu nelze změnit platbou. Napiš nám, pokud ji chceš změnit.",
+    );
+  }
+}
+
 /** Členství se prodlužuje po měsících. */
 function addMonth(from: number): number {
   const d = new Date(from);
@@ -49,30 +68,44 @@ function addMonth(from: number): number {
 
 /* ------------------------------------------------------ zápis stavu členství */
 
-type ActivateArgs = {
-  clerkUserId: string;
+type ActivateCore = {
   tier: "zakladni" | "pro" | "cestne";
-  periodEnd?: number;
-  provider: "mock" | "stripe";
+  /**
+   * Konec období. Chybí = dopočítá se měsíc dopředu (platba),
+   * `null` = bez časového omezení (ruční udělení).
+   */
+  periodEnd?: number | null;
+  provider: "mock" | "stripe" | "manual";
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
 };
 
+type ActivateArgs = ActivateCore & { clerkUserId: string };
+
 /**
- * JEDINÉ místo, kde vzniká aktivní členství. Prochází tudy mock brána
- * i (později) Stripe webhook. Zároveň tu členovi poprvé vznikne ověřovací kód.
+ * JEDINÉ místo, kde vzniká aktivní členství — a kde se razí členské číslo.
+ * Prochází tudy mock brána, (později) Stripe webhook i ruční udělení
+ * adminem. Kdyby si grant psal do evidence po svém, vyráběla by se čísla
+ * a ověřovací kódy dvěma způsoby.
  *
  * Je to obyčejná funkce, ne mutace: mutace v Convexu nemůže volat jinou
- * mutaci, a `mockConfirm` ji potřebuje zavolat přímo.
+ * mutaci, a `mockConfirm` ji potřebuje zavolat přímo. Autorizace je proto
+ * na volajícím — stejný vzor jako `credentials.issueCredential`.
  */
-export async function applyActivation(ctx: MutationCtx, args: ActivateArgs) {
-  const member = await memberOf(ctx, args.clerkUserId);
+async function activate(
+  ctx: MutationCtx,
+  member: Doc<"members">,
+  args: ActivateCore,
+) {
   const now = Date.now();
 
   const patch: Partial<Doc<"members">> = {
     tier: args.tier,
+    // `undefined` v patchi pole odstraní — a prázdné `currentPeriodEnd`
+    // znamená ve všech čtecích pravidlech „platí navždy".
+    currentPeriodEnd:
+      args.periodEnd === null ? undefined : (args.periodEnd ?? addMonth(now)),
     status: "active",
-    currentPeriodEnd: args.periodEnd ?? addMonth(now),
     cancelAtPeriodEnd: false,
     billingProvider: args.provider,
     updatedAt: now,
@@ -116,6 +149,12 @@ export async function applyActivation(ctx: MutationCtx, args: ActivateArgs) {
 
   await ctx.db.patch(member._id, patch);
   return member._id;
+}
+
+/** Vstup pro platební cestu — dohledá člena podle Clerk identity. */
+export async function applyActivation(ctx: MutationCtx, args: ActivateArgs) {
+  const member = await memberOf(ctx, args.clerkUserId);
+  return await activate(ctx, member, args);
 }
 
 /** Mutační obal nad `applyActivation` — vstupní bod pro platební webhook. */
@@ -171,6 +210,7 @@ export const startCheckout = mutation({
     if (args.tier === "cestne") {
       throw new Error("Čestné členství uděluje Rada, nedá se koupit.");
     }
+    assertNotGranted(member);
 
     await ctx.db.patch(member._id, {
       status: "pending",
@@ -196,6 +236,7 @@ export const mockConfirm = mutation({
     if (args.tier === "cestne") {
       throw new Error("Čestné členství uděluje Rada, nedá se koupit.");
     }
+    assertNotGranted(await memberOf(ctx, subjectOf(identity)));
 
     return await applyActivation(ctx, {
       clerkUserId: subjectOf(identity),
@@ -245,6 +286,93 @@ export const resumeSubscription = mutation({
 
     await ctx.db.patch(member._id, {
       cancelAtPeriodEnd: false,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+/* ------------------------------------------------------ ruční správa členství */
+
+/**
+ * Udělení členství adminem — bez platby.
+ *
+ * Prochází stejným jádrem jako platba, takže se členovi přidělí skutečné
+ * členské číslo z čítače i ověřovací kód platný v partnerském API. To je
+ * záměr: udělený člen je opravdový člen. Neodemyká to ale jen DIGI
+ * univerzitu — taky veřejný seznam, vydávání certifikací a odpověď partnerům.
+ *
+ * `periodEnd` bez hodnoty znamená bez časového omezení. Nic v systému
+ * členství neexpiruje (žádný cron se evidence nedotýká), platnost se
+ * dopočítává při čtení — a prázdné datum tam znamená „platí navždy".
+ */
+export const adminGrantMembership = mutation({
+  args: {
+    memberId: v.id("members"),
+    tier: tierValidator,
+    periodEnd: v.optional(v.number()),
+    note: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await requireAdmin(ctx);
+    const member = await ctx.db.get(args.memberId);
+    if (!member) throw new Error("Členský záznam nenalezen.");
+
+    const memberId = await activate(ctx, member, {
+      tier: args.tier,
+      periodEnd: args.periodEnd ?? null,
+      provider: "manual",
+    });
+
+    // Stopa se přidává až po aktivaci, aby v ní byl stav PŘED zásahem.
+    const fresh = await ctx.db.get(memberId);
+    await ctx.db.patch(memberId, {
+      membershipGrants: [
+        ...(fresh?.membershipGrants ?? []),
+        {
+          at: Date.now(),
+          by: subjectOf(identity),
+          action: "grant" as const,
+          tier: args.tier,
+          previousTier: member.tier,
+          previousStatus: member.status,
+          periodEnd: args.periodEnd,
+          note: args.note?.trim() || undefined,
+        },
+      ],
+    });
+
+    return memberId;
+  },
+});
+
+/**
+ * Odebrání členství adminem.
+ *
+ * Variantu ani členské číslo nemaže — číslo je podle návrhu neměnné a
+ * ukončené členství je jiná odpověď než žádné. Ověřovací API i veřejný
+ * seznam přestanou člena uznávat okamžitě, protože obojí čte `status`.
+ */
+export const adminRevokeMembership = mutation({
+  args: { memberId: v.id("members"), note: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const identity = await requireAdmin(ctx);
+    const member = await ctx.db.get(args.memberId);
+    if (!member) throw new Error("Členský záznam nenalezen.");
+
+    await ctx.db.patch(member._id, {
+      status: "canceled",
+      cancelAtPeriodEnd: false,
+      membershipGrants: [
+        ...(member.membershipGrants ?? []),
+        {
+          at: Date.now(),
+          by: subjectOf(identity),
+          action: "revoke" as const,
+          previousTier: member.tier,
+          previousStatus: member.status,
+          note: args.note?.trim() || undefined,
+        },
+      ],
       updatedAt: Date.now(),
     });
   },
