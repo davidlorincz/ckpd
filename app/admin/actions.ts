@@ -21,11 +21,22 @@ export type AdminUserRow = {
   email: string;
   isAdmin: boolean;
   createdAt: number;
+  lastSignInAt: number | null;
 };
 
+/**
+ * Účty z Clerku. Evidenci členů drží Convex (`members.adminDirectory`) —
+ * spojuje se to až v `components/admin/UserAdmin.tsx` přes `clerkUserId`,
+ * protože každý zdroj zná někoho, koho ten druhý nemá: kdo se zaregistroval
+ * a nikdy neotevřel účet, není v evidenci, a testovací členové zase nemají
+ * Clerk účet.
+ *
+ * 500 je strop Clerku na jeden dotaz. Až ho základna přeroste, bude potřeba
+ * stránkování — dokud je vidět v kódu, ví se o něm.
+ */
 export async function listUsers(): Promise<AdminUserRow[]> {
   const { client } = await requireAdmin();
-  const res = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
+  const res = await client.users.getUserList({ limit: 500, orderBy: "-created_at" });
   return res.data.map((u) => ({
     id: u.id,
     name: [u.firstName, u.lastName].filter(Boolean).join(" ") || "—",
@@ -34,6 +45,7 @@ export async function listUsers(): Promise<AdminUserRow[]> {
         ?.emailAddress ?? "",
     isAdmin: u.publicMetadata?.role === "admin",
     createdAt: u.createdAt,
+    lastSignInAt: u.lastSignInAt ?? null,
   }));
 }
 

@@ -43,6 +43,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="ml-3 text-brass-2">ČKPD</span>
           </p>
 
+          {/*
+            Aktivní sekce je papírová záložka vytažená z pruhu — sahá na jeho
+            spodní hranu a splyne se stránkou pod sebou. Dřív to byla jen 2px
+            linka, která při vodorovném rolování na úzké obrazovce zmizela.
+
+            Neaktivní jely na `text-brass-2/70`, což je po smíchání s navy
+            efektivně #7f7dd0 — kontrast 4,85 : 1 proti 17,7 : 1 u aktivní.
+            Ten skok z nich dělal „vypnuté". Plné `text-brass-2` má 9,19 : 1
+            a je to pořád tentýž token, žádná nová barva.
+          */}
           <nav aria-label="Sekce administrace" className="mt-4">
             <ul className="-mb-px flex gap-1 overflow-x-auto">
               {sections.map((section) => {
@@ -55,10 +65,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                       href={section.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "block border-b-2 px-4 py-3 text-[14.5px] font-medium transition-colors",
+                        "block rounded-t-[2px] px-4 py-3 text-[14.5px] font-medium transition-colors",
                         active
-                          ? "border-b-brass-2 text-paper"
-                          : "border-b-transparent text-brass-2/70 hover:text-paper",
+                          ? "bg-paper text-deep"
+                          : "text-brass-2 hover:bg-deep-2/40 hover:text-paper",
                       )}
                     >
                       {section.label}

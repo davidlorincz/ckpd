@@ -15,6 +15,7 @@ import {
   lookupKey,
 } from "./lib/code";
 import { isMembershipActive } from "./lib/membershipState";
+import { credentialState, type CredentialState } from "./lib/skills";
 
 /**
  * Evidence členů. Stav členství sem zapisuje výhradně `convex/billing.ts`
@@ -287,23 +288,97 @@ export const listPublic = query({
   },
 });
 
-/** Přehled členů pro administraci. */
-export const adminList = query({
+/**
+ * Evidence členů pro administraci — základ sjednocené tabulky uživatelů.
+ *
+ * Vrací VŠECHNY stavy včetně `none` a `canceled`: v administraci je otázka
+ * „kdo je zaregistrovaný a co s ním je", ne „kdo je platící člen".
+ * Uživatele s Clerk účtem, který sem ještě nedošel, dopáruje klient přes
+ * `clerkUserId` — řádek v `members` vzniká až při prvním otevření účtu.
+ *
+ * `verificationCode` tu SCHVÁLNĚ NENÍ. Je to sdílené tajemství (viz
+ * convex/lib/code.ts) a v seznamu by se celá základna vysypala na jednu
+ * obrazovku. Kdo ho potřebuje, vyžádá si ho po jednom přes
+ * `adminVerificationCode`. Členské číslo tajné není a zůstává.
+ */
+export const adminDirectory = query({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx);
-    const rows = await ctx.db.query("members").order("desc").take(200);
-    return rows.map((m) => ({
-      _id: m._id,
-      email: m.email,
-      name: m.name,
-      tier: m.tier,
-      status: m.status,
-      memberSince: m.memberSince,
-      currentPeriodEnd: m.currentPeriodEnd,
-      publicListing: m.publicListing,
-      memberNumber: m.memberNumber,
-    }));
+
+    const now = Date.now();
+    const rows = await ctx.db.query("members").collect();
+
+    // Certifikace jedním dotazem a mapou — ne dotaz na každého člena zvlášť,
+    // stejně jako v `listPublic`. Na rozdíl od veřejného výpisu tu ale musí
+    // být i vypršelé a odebrané: admin řeší právě ty.
+    const credentials = await ctx.db.query("credentials").collect();
+    const byMember = new Map<
+      string,
+      {
+        skill: string;
+        label: string;
+        code: string;
+        issuedAt: number;
+        validUntil: number;
+        state: CredentialState;
+        revokedReason: string | null;
+      }[]
+    >();
+    for (const c of credentials) {
+      const list = byMember.get(c.memberId) ?? [];
+      list.push({
+        skill: c.skill,
+        label: c.snapshot.skillLabel,
+        code: c.code,
+        issuedAt: c.issuedAt,
+        validUntil: c.validUntil,
+        state: credentialState(c, now),
+        revokedReason: c.revokedReason ?? null,
+      });
+      byMember.set(c.memberId, list);
+    }
+
+    return rows
+      .map((m) => ({
+        _id: m._id,
+        clerkUserId: m.clerkUserId,
+        email: m.email,
+        name: m.name,
+        region: m.region ?? null,
+        tier: m.tier ?? null,
+        status: m.status,
+        // Stav `active` sám nestačí — členovi mohlo propadnout období, aniž
+        // by se překlopil. Stejné pravidlo jako u veřejného ověření.
+        active: isMembershipActive(m, now),
+        memberSince: m.memberSince ?? null,
+        currentPeriodEnd: m.currentPeriodEnd ?? null,
+        cancelAtPeriodEnd: m.cancelAtPeriodEnd,
+        memberNumber: m.memberNumber ?? null,
+        hasVerificationCode: m.verificationCode !== undefined,
+        publicListing: m.publicListing,
+        agreeStatutesAt: m.agreeStatutesAt ?? null,
+        agreeGdprAt: m.agreeGdprAt ?? null,
+        createdAt: m.createdAt,
+        credentials: (byMember.get(m._id) ?? []).sort(
+          (a, b) => b.issuedAt - a.issuedAt,
+        ),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, "cs"));
+  },
+});
+
+/**
+ * Ověřovací kód jediného člena. Zvlášť od výpisu schválně — tajemství se
+ * vydává po jednom a až když si o něj admin řekne, ne plošně s tabulkou.
+ */
+export const adminVerificationCode = query({
+  args: { memberId: v.id("members") },
+  handler: async (ctx, { memberId }) => {
+    await requireAdmin(ctx);
+    const member = await ctx.db.get(memberId);
+    if (!member) throw new Error("Člen neexistuje.");
+    return member.verificationCode ?? null;
   },
 });
 

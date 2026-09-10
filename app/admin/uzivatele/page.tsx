@@ -8,7 +8,7 @@ export default function AdminUsersPage() {
     <>
       <AdminHeading
         title="Uživatelé"
-        lead="Kdo má přístup do administrace. Roli si nelze odebrat sám sobě."
+        lead="Všichni zaregistrovaní — jejich členství, certifikace a přístup do administrace. Klikni na řádek pro detail. Roli si nelze odebrat sám sobě."
       />
       <UserAdmin />
     </>
